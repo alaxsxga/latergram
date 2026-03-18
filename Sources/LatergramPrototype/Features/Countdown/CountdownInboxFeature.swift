@@ -1,0 +1,130 @@
+import ComposableArchitecture
+import LatergramCore
+import Foundation
+
+@Reducer
+struct CountdownInboxFeature {
+    @ObservableState
+    struct State: Equatable {
+        var messages: IdentifiedArrayOf<DelayedMessage> = []
+        var now: Date = Date()
+        var isLoading = false
+        var errorMessage: String?
+        var infoBanner: String?
+        var lastNotificationRebuildAt: Date?
+    }
+
+    enum Action {
+        case onAppear
+        case foregroundRefresh
+        case timerTick(Date)
+        case revealTapped(UUID)
+        case revealResponse(id: UUID, allowed: Bool)
+        case messagesLoaded([DelayedMessage])
+        case loadFailed(String)
+    }
+
+    enum CancelID { case timer, load }
+
+    @Dependency(\.messageClient) var messageClient
+    @Dependency(\.revealGateClient) var revealGateClient
+    @Dependency(\.notificationClient) var notificationClient
+    @Dependency(\.continuousClock) var clock
+    @Dependency(\.date) var date
+    @Dependency(\.currentUser) var currentUser
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+
+            case .onAppear:
+                state.isLoading = true
+                return .merge(
+                    startTimer(),
+                    loadMessages(userID: currentUser.id),
+                    .run { _ in _ = await notificationClient.requestPermission() }
+                )
+
+            case .foregroundRefresh:
+                let now = date()
+                let policy = NotificationRebuildPolicy()
+                guard policy.shouldRebuild(lastRebuildAt: state.lastNotificationRebuildAt, now: now) else {
+                    return .none
+                }
+                state.lastNotificationRebuildAt = now
+                for id in state.messages.ids {
+                    if state.messages[id: id]?.status == .scheduled,
+                       let unlockAt = state.messages[id: id]?.unlockAt,
+                       now >= unlockAt {
+                        state.messages[id: id]?.status = .readyToReveal
+                    }
+                }
+                let toSchedule = policy.selectMessagesForScheduling(Array(state.messages), now: now)
+                state.infoBanner = "已重排本地通知 \(toSchedule.count) 則"
+                return .run { [toSchedule] _ in
+                    await notificationClient.scheduleMessages(toSchedule)
+                }
+
+            case .timerTick(let now):
+                state.now = now
+                for id in state.messages.ids {
+                    if state.messages[id: id]?.status == .scheduled,
+                       let unlockAt = state.messages[id: id]?.unlockAt,
+                       now >= unlockAt {
+                        state.messages[id: id]?.status = .readyToReveal
+                    }
+                }
+                return .none
+
+            case .revealTapped(let id):
+                guard let message = state.messages[id: id],
+                      message.status == .readyToReveal else { return .none }
+                let now = date()
+                return .run { send in
+                    let allowed = await revealGateClient.canReveal(message, now)
+                    await send(.revealResponse(id: id, allowed: allowed))
+                }
+
+            case .revealResponse(let id, let allowed):
+                guard allowed else {
+                    state.errorMessage = "目前無法解鎖，請確認網路連線後再試"
+                    return .none
+                }
+                state.messages[id: id]?.status = .revealed
+                state.messages[id: id]?.revealedAt = date()
+                return .none
+
+            case .messagesLoaded(let messages):
+                state.isLoading = false
+                state.messages = IdentifiedArray(uniqueElements: messages)
+                return .none
+
+            case .loadFailed(let error):
+                state.isLoading = false
+                state.errorMessage = error
+                return .none
+            }
+        }
+    }
+
+    private func startTimer() -> Effect<Action> {
+        .run { send in
+            for await _ in clock.timer(interval: .seconds(1)) {
+                await send(.timerTick(Date()))
+            }
+        }
+        .cancellable(id: CancelID.timer, cancelInFlight: true)
+    }
+
+    private func loadMessages(userID: UUID) -> Effect<Action> {
+        .run { send in
+            do {
+                let messages = try await messageClient.fetchCountdownFeed(userID)
+                await send(.messagesLoaded(messages))
+            } catch {
+                await send(.loadFailed(error.localizedDescription))
+            }
+        }
+        .cancellable(id: CancelID.load, cancelInFlight: true)
+    }
+}

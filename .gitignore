@@ -1,0 +1,29 @@
+# Secrets — never commit real credentials
+Sources/LatergramPrototype/Infrastructure/Secrets.swift
+
+# Spec & planning documents
+*.md
+
+# SPM build artifacts
+.build/
+.swiftpm/
+
+# Xcode derived data & user settings
+*.xcuserdata/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+.derived/
+
+# Claude settings
+.claude/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+*.swp
+*.swo
