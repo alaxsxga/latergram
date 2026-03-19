@@ -138,9 +138,9 @@ private struct SentCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Header: style icon only, no sender name
+            // Header: style icon + receiver name
             HStack {
-                Image(systemName: message.style.icon)
+                Label("to \(message.receiverName)", systemImage: message.style.icon)
                     .foregroundStyle(message.style.accent)
                 Spacer()
                 statusBadge
@@ -221,7 +221,7 @@ private struct CountdownCard: View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
             HStack {
-                Label(message.senderName, systemImage: message.style.icon)
+                Label("from \(message.senderName)", systemImage: message.style.icon)
                     .foregroundStyle(message.style.accent)
                 Spacer()
                 statusBadge

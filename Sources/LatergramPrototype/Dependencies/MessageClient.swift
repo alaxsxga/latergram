@@ -15,7 +15,7 @@ extension MessageClient: DependencyKey {
         fetchCountdownFeed: { userID in
             let rows: [MessageRow] = try await supabase
                 .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username)")
+                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
                 .neq("status", value: "revealed")
                 .order("unlock_at")
@@ -26,7 +26,7 @@ extension MessageClient: DependencyKey {
         fetchThread: { userID, friendID in
             let rows: [MessageRow] = try await supabase
                 .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username)")
+                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("and(sender_id.eq.\(userID),receiver_id.eq.\(friendID)),and(sender_id.eq.\(friendID),receiver_id.eq.\(userID))")
                 .order("created_at")
                 .execute()

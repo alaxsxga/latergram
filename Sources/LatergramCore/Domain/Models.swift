@@ -47,6 +47,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
     public let senderID: UUID
     public let receiverID: UUID
     public var senderName: String
+    public var receiverName: String
     public var body: String
     public var style: MessageStyle
     public var sentAt: Date
@@ -59,6 +60,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
         senderID: UUID,
         receiverID: UUID,
         senderName: String,
+        receiverName: String,
         body: String,
         style: MessageStyle,
         sentAt: Date = Date(),
@@ -70,6 +72,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
         self.senderID = senderID
         self.receiverID = receiverID
         self.senderName = senderName
+        self.receiverName = receiverName
         self.body = body
         self.style = style
         self.sentAt = sentAt

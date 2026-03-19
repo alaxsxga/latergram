@@ -57,6 +57,7 @@ struct ComposeFeature {
                     senderID: currentUser.id,
                     receiverID: state.friend.id,
                     senderName: currentUser.displayName,
+                    receiverName: state.friend.displayName,
                     body: state.body,
                     style: state.style,
                     sentAt: now,

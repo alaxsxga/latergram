@@ -14,6 +14,7 @@ struct MessageRow: Codable {
     let revealed_at: Date?
     let created_at: Date
     let sender: ProfileRow?
+    let receiver: ProfileRow?
 
     func toDomain() -> DelayedMessage {
         DelayedMessage(
@@ -21,6 +22,7 @@ struct MessageRow: Codable {
             senderID: sender_id,
             receiverID: receiver_id,
             senderName: sender?.display_name ?? "",
+            receiverName: receiver?.display_name ?? "",
             body: body,
             style: MessageStyle(rawValue: style_key) ?? .classic,
             sentAt: created_at,
