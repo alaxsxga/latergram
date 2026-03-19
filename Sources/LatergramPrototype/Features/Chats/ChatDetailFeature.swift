@@ -21,9 +21,10 @@ struct ChatDetailFeature {
         case timerTick(Date)
         case composeTapped
         case revealTapped(UUID)
-        case revealResponse(id: UUID, allowed: Bool)
+        case revealResponse(id: UUID, result: Bool?)
         case messagesLoaded([DelayedMessage])
         case loadFailed(String)
+        case errorDismissed
         case compose(PresentationAction<ComposeFeature.Action>)
     }
 
@@ -59,17 +60,20 @@ struct ChatDetailFeature {
                       message.status == .readyToReveal else { return .none }
                 let now = date()
                 return .run { send in
-                    let allowed = await revealGateClient.canReveal(message, now)
-                    await send(.revealResponse(id: id, allowed: allowed))
+                    let result = await revealGateClient.canReveal(message, now)
+                    await send(.revealResponse(id: id, result: result))
                 }
 
-            case .revealResponse(let id, let allowed):
-                guard allowed else {
-                    state.errorMessage = "目前無法解鎖，請確認網路連線後再試"
-                    return .none
+            case .revealResponse(let id, let result):
+                switch result {
+                case true:
+                    state.messages[id: id]?.status = .revealed
+                    state.messages[id: id]?.revealedAt = date()
+                case false:
+                    state.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
+                case nil:
+                    state.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
                 }
-                state.messages[id: id]?.status = .revealed
-                state.messages[id: id]?.revealedAt = date()
                 return .none
 
             case .messagesLoaded(let messages):
@@ -82,6 +86,10 @@ struct ChatDetailFeature {
             case .loadFailed(let error):
                 state.isLoading = false
                 state.errorMessage = error
+                return .none
+
+            case .errorDismissed:
+                state.errorMessage = nil
                 return .none
 
             case .compose(.presented(.sendSucceeded(let message))):

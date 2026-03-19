@@ -6,7 +6,8 @@ import Foundation
 /// Live implementation will call a Supabase RPC; for now stubs use local time.
 @DependencyClient
 struct RevealGateClient: Sendable {
-    var canReveal: @Sendable (_ message: DelayedMessage, _ now: Date) async -> Bool = { _, _ in false }
+    /// Returns `true` if allowed, `false` if server denies (time not reached), `nil` if network error.
+    var canReveal: @Sendable (_ message: DelayedMessage, _ now: Date) async -> Bool? = { _, _ in false }
 }
 
 extension RevealGateClient: DependencyKey {
@@ -18,9 +19,9 @@ extension RevealGateClient: DependencyKey {
                     .rpc("can_reveal_message", params: Params(message_id: message.id))
                     .execute()
                     .value
-                return allowed
+                return allowed             // true = allowed, false = server denied (time not reached)
             } catch {
-                return false               // network failure → deny (fail-safe)
+                return nil                 // network failure → nil (fail-safe)
             }
         }
     )

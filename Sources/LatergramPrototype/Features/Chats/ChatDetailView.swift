@@ -35,7 +35,7 @@ struct ChatDetailView: View {
         }
         .alert("錯誤", isPresented: Binding(
             get: { store.errorMessage != nil },
-            set: { if !$0 { store.send(.loadFailed("")) } }
+            set: { if !$0 { store.send(.errorDismissed) } }
         )) {
             Button("確定", role: .cancel) {}
         } message: {
