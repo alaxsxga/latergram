@@ -201,9 +201,7 @@ private struct SentCard: View {
         switch message.status {
         case .revealed:
             Text("已開啟").font(.caption).foregroundStyle(.green)
-        case .readyToReveal:
-            Text("可開啟").font(.caption).foregroundStyle(message.style.accent)
-        case .scheduled:
+        case .readyToReveal, .scheduled:
             EmptyView()
         }
     }

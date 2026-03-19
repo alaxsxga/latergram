@@ -26,6 +26,11 @@ struct ChatDetailFeature {
         case loadFailed(String)
         case errorDismissed
         case compose(PresentationAction<ComposeFeature.Action>)
+        case delegate(Delegate)
+
+        enum Delegate {
+            case messageSent(DelayedMessage)
+        }
     }
 
     private enum CancelID { case timer, load }
@@ -96,6 +101,9 @@ struct ChatDetailFeature {
                 state.messages.append(message)
                 state.lastSentAt = date()
                 state.compose = nil
+                return .send(.delegate(.messageSent(message)))
+
+            case .delegate:
                 return .none
 
             case .compose(.presented(.cancelTapped)):

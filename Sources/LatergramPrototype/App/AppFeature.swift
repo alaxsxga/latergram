@@ -166,6 +166,9 @@ struct AppFeature {
                     .cancel(id: CountdownInboxFeature.CancelID.load)
                 )
 
+            case .chats(.path(.element(_, .delegate(.messageSent)))):
+                return .send(.countdown(.foregroundRefresh))
+
             case .countdown, .friends, .chats:
                 return .none
             }
