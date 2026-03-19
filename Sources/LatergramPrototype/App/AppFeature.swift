@@ -74,6 +74,8 @@ struct AppFeature {
                     state.currentUser = user
                     CurrentUserStore.shared.user = user
                     state.friends.me = user
+                    state.countdown.currentUserID = user.id
+                    state.chats.currentUserID = user.id
                     state.route = .main
                     if let code = state.pendingInviteCode {
                         print("[DeepLink] sessionChecked — 發現 pendingInviteCode=\(code)，處理中")
@@ -81,6 +83,7 @@ struct AppFeature {
                         state.selectedTab = .friends
                         return .send(.friends(.acceptInviteFromDeepLink(code)))
                     }
+                    return .send(.chats(.foregroundRefresh))
                 } else {
                     state.route = .auth(AuthFeature.State())
                 }
@@ -90,13 +93,15 @@ struct AppFeature {
                 state.currentUser = user
                 CurrentUserStore.shared.user = user
                 state.friends.me = user
+                state.countdown.currentUserID = user.id
+                state.chats.currentUserID = user.id
                 state.route = .main
                 if let code = state.pendingInviteCode {
                     state.pendingInviteCode = nil
                     state.selectedTab = .friends
                     return .send(.friends(.acceptInviteFromDeepLink(code)))
                 }
-                return .none
+                return .send(.chats(.foregroundRefresh))
 
             case .auth:
                 return .none
@@ -138,6 +143,7 @@ struct AppFeature {
                 return .none
 
             case .scenePhaseChanged(.active):
+                guard state.route == .main else { return .none }
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),

@@ -89,9 +89,7 @@ struct FriendsFeature {
                     state.isLoading = true
                 }
 
-                let isFirstLoad = state.lastFetchedAt == nil
-
-                let fetchEffect: Effect<Action> = isFirstLoad
+                let fetchEffect: Effect<Action> = state.lastFetchedAt == nil
                     ? .run { [id = state.me.id] send in
                         do {
                             let friends = try await friendClient.fetchFriends(id)

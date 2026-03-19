@@ -12,11 +12,13 @@ struct CountdownInboxFeature {
         var errorMessage: String?
         var infoBanner: String?
         var lastNotificationRebuildAt: Date?
+        var currentUserID: UUID = UUID()
     }
 
     enum Action {
         case onAppear
         case foregroundRefresh
+        case refreshRequested
         case timerTick(Date)
         case revealTapped(UUID)
         case revealResponse(id: UUID, result: Bool?)
@@ -39,12 +41,16 @@ struct CountdownInboxFeature {
             switch action {
 
             case .onAppear:
-                state.isLoading = true
+                let needsLoad = state.messages.isEmpty
+                if needsLoad { state.isLoading = true }
                 return .merge(
                     startTimer(),
-                    loadMessages(userID: currentUser.id),
+                    needsLoad ? loadMessages(userID: currentUser.id) : .none,
                     .run { _ in _ = await notificationClient.requestPermission() }
                 )
+
+            case .refreshRequested:
+                return loadMessages(userID: currentUser.id)
 
             case .foregroundRefresh:
                 let now = date()
@@ -62,9 +68,12 @@ struct CountdownInboxFeature {
                 }
                 let toSchedule = policy.selectMessagesForScheduling(Array(state.messages), now: now)
                 state.infoBanner = "已重排本地通知 \(toSchedule.count) 則"
-                return .run { [toSchedule] _ in
-                    await notificationClient.scheduleMessages(toSchedule)
-                }
+                return .merge(
+                    loadMessages(userID: currentUser.id),
+                    .run { [toSchedule] _ in
+                        await notificationClient.scheduleMessages(toSchedule)
+                    }
+                )
 
             case .timerTick(let now):
                 state.now = now

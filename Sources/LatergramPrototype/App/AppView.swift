@@ -25,6 +25,7 @@ public struct AppView: View {
 
             case .main:
                 mainTabView
+                    .id(store.currentUser?.id)
                     .onChange(of: scenePhase) { _, newPhase in
                         store.send(.scenePhaseChanged(newPhase))
                     }

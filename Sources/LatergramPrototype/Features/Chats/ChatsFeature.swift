@@ -9,6 +9,7 @@ struct ChatsFeature {
         var friends: IdentifiedArrayOf<Friend> = []
         var isLoading = false
         var path = StackState<ChatDetailFeature.State>()
+        var currentUserID: UUID = UUID()
     }
 
     enum Action {
@@ -23,7 +24,6 @@ struct ChatsFeature {
     enum CancelID { case load }
 
     @Dependency(\.friendClient) var friendClient
-    @Dependency(\.currentUser) var currentUser
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -32,10 +32,10 @@ struct ChatsFeature {
             case .onAppear:
                 guard state.friends.isEmpty else { return .none }
                 state.isLoading = true
-                return loadFriends()
+                return loadFriends(userID: state.currentUserID)
 
             case .foregroundRefresh:
-                return loadFriends()
+                return loadFriends(userID: state.currentUserID)
 
             case .friendTapped(let friend):
                 state.path.append(ChatDetailFeature.State(friend: friend))
@@ -61,10 +61,10 @@ struct ChatsFeature {
         }
     }
 
-    private func loadFriends() -> Effect<Action> {
-        .run { [id = currentUser.id] send in
+    private func loadFriends(userID: UUID) -> Effect<Action> {
+        .run { send in
             do {
-                let friends = try await friendClient.fetchFriends(id)
+                let friends = try await friendClient.fetchFriends(userID)
                 await send(.friendsLoaded(friends))
             } catch {
                 await send(.loadFailed(error.localizedDescription))
