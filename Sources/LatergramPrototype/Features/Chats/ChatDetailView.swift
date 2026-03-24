@@ -26,12 +26,31 @@ struct ChatDetailView: View {
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("建立訊息") { store.send(.composeTapped) }
+                Button { store.send(.composeTapped) } label: {
+                    if store.isAtSendLimit, let unlockAt = store.earliestBlockedUnlockAt {
+                        Label(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(store.now)),
+                              systemImage: "clock")
+                    } else {
+                        Text("建立訊息")
+                    }
+                }
             }
         }
         .onAppear { store.send(.onAppear) }
         .sheet(item: $store.scope(state: \.compose, action: \.compose)) { composeStore in
             ComposeView(store: composeStore)
+        }
+        .sheet(isPresented: Binding(
+            get: { store.showLimitInfo },
+            set: { if !$0 { store.send(.limitInfoDismissed) } }
+        )) {
+            LimitInfoSheet(
+                unlockAt: store.earliestBlockedUnlockAt,
+                now: store.now,
+                onDismiss: { store.send(.limitInfoDismissed) }
+            )
+            .presentationDetents([.height(300)])
+            .presentationDragIndicator(.visible)
         }
         .alert("錯誤", isPresented: Binding(
             get: { store.errorMessage != nil },
@@ -66,6 +85,51 @@ struct ChatDetailView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Limit Info Sheet
+
+private struct LimitInfoSheet: View {
+    let unlockAt: Date?
+    let now: Date
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+
+            VStack(spacing: 6) {
+                if let unlockAt {
+                    Text(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(now)))
+                        .font(.title.monospacedDigit().bold())
+                }
+                Text("前一則訊息開啟後才能再傳給同一位好友")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            VStack(spacing: 12) {
+                Button {
+                    // TODO: IAP — 導向購買頁
+                    onDismiss()
+                } label: {
+                    Label("解鎖更多上限", systemImage: "star.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("知道了", action: onDismiss)
+                    .buttonStyle(.bordered)
+                    .tint(.secondary)
+            }
+            .padding(.horizontal)
+        }
+        .padding()
     }
 }
 

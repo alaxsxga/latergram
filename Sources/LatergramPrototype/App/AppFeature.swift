@@ -34,6 +34,7 @@ struct AppFeature {
         case scenePhaseChanged(ScenePhase)
         case notificationTapped(messageID: UUID)
         case loggedOut
+        case profileRefreshed(UserProfile)
         case urlOpened(URL)
         case auth(AuthFeature.Action)
         case countdown(CountdownInboxFeature.Action)
@@ -129,6 +130,11 @@ struct AppFeature {
                     return .none
                 }
 
+            case .profileRefreshed(let user):
+                state.currentUser = user
+                CurrentUserStore.shared.user = user
+                return .send(.chats(.messageLimitUpdated(user.messageLimit)))
+
             case .loggedOut:
                 state.currentUser = nil
                 state.route = .auth(AuthFeature.State())
@@ -144,10 +150,15 @@ struct AppFeature {
 
             case .scenePhaseChanged(.active):
                 guard state.route == .main else { return .none }
+                // TODO: 測試用，IAP 完成後移除 profile re-fetch（改用 profileRefreshed 在購買成功時呼叫）
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),
-                    .send(.friends(.foregroundRefresh))
+                    .send(.friends(.foregroundRefresh)),
+                    .run { [authClient] send in
+                        let user = await authClient.currentSession()
+                        if let user { await send(.profileRefreshed(user)) }
+                    }
                 )
 
             case .scenePhaseChanged:
@@ -166,8 +177,8 @@ struct AppFeature {
                     .cancel(id: CountdownInboxFeature.CancelID.load)
                 )
 
-            case .chats(.path(.element(_, .delegate(.messageSent)))):
-                return .send(.countdown(.foregroundRefresh))
+            case .chats(.path(.element(_, .delegate(.messageSent(let message))))):
+                return .send(.countdown(.messageSent(message)))
 
             case .countdown, .friends, .chats:
                 return .none

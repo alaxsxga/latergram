@@ -7,7 +7,6 @@ struct ComposeFeature {
     @ObservableState
     struct State: Equatable {
         let friend: Friend
-        var lastSentAt: Date?
         var body = ""
         var unlockAt = Date().addingTimeInterval(60)
         var style: MessageStyle = .classic
@@ -45,8 +44,7 @@ struct ComposeFeature {
                 if let error = rules.validate(
                     body: state.body,
                     unlockAt: state.unlockAt,
-                    now: now,
-                    lastSentAt: state.lastSentAt
+                    now: now
                 ) {
                     state.errorMessage = errorText(for: error)
                     return .none
@@ -94,7 +92,6 @@ struct ComposeFeature {
         case .tooLong(let max): "訊息不可超過 \(max) 字"
         case .unlockTooSoon: "解鎖時間至少 1 分鐘後"
         case .unlockTooLate: "解鎖時間最多 7 天後"
-        case .cooldown(let s): "請在 \(s) 秒後再發送"
         }
     }
 }

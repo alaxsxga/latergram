@@ -49,6 +49,7 @@ struct ProfileRow: Codable {
     let id: UUID
     let display_name: String
     let username: String
+    let message_limit: Int?
 }
 
 // MARK: - Friendship

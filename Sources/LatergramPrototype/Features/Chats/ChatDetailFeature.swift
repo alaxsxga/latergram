@@ -10,10 +10,29 @@ struct ChatDetailFeature {
         let friend: Friend
         var messages: IdentifiedArrayOf<DelayedMessage> = []
         var now: Date = Date()
-        var lastSentAt: Date?
+        var userMessageLimit: Int = 1
         var isLoading = false
         var errorMessage: String?
         @Presents var compose: ComposeFeature.State?
+
+        var currentUserID: UUID = UUID()
+        var showLimitInfo: Bool = false
+
+        var scheduledCountToFriend: Int {
+            messages.filter {
+                $0.senderID == currentUserID &&
+                $0.status == .scheduled &&
+                $0.unlockAt > now
+            }.count
+        }
+
+        var isAtSendLimit: Bool { scheduledCountToFriend >= userMessageLimit }
+
+        var earliestBlockedUnlockAt: Date? {
+            messages
+                .filter { $0.senderID == currentUserID && $0.status == .scheduled && $0.unlockAt > now }
+                .map(\.unlockAt).min()
+        }
     }
 
     enum Action {
@@ -25,6 +44,8 @@ struct ChatDetailFeature {
         case messagesLoaded([DelayedMessage])
         case loadFailed(String)
         case errorDismissed
+        case limitInfoDismissed
+        case messageLimitUpdated(Int)
         case compose(PresentationAction<ComposeFeature.Action>)
         case delegate(Delegate)
 
@@ -47,6 +68,8 @@ struct ChatDetailFeature {
 
             case .onAppear:
                 state.isLoading = true
+                state.currentUserID = currentUser.id
+                state.userMessageLimit = currentUser.messageLimit
                 return .merge(startTimer(), loadThread(friendID: state.friend.id))
 
             case .timerTick(let now):
@@ -54,10 +77,11 @@ struct ChatDetailFeature {
                 return .none
 
             case .composeTapped:
-                state.compose = ComposeFeature.State(
-                    friend: state.friend,
-                    lastSentAt: state.lastSentAt
-                )
+                if state.isAtSendLimit {
+                    state.showLimitInfo = true
+                } else {
+                    state.compose = ComposeFeature.State(friend: state.friend)
+                }
                 return .none
 
             case .revealTapped(let id):
@@ -97,11 +121,27 @@ struct ChatDetailFeature {
                 state.errorMessage = nil
                 return .none
 
+            case .limitInfoDismissed:
+                state.showLimitInfo = false
+                return .none
+
+            case .messageLimitUpdated(let limit):
+                state.userMessageLimit = limit
+                return .none
+
             case .compose(.presented(.sendSucceeded(let message))):
                 state.messages.append(message)
-                state.lastSentAt = date()
                 state.compose = nil
                 return .send(.delegate(.messageSent(message)))
+
+            case .compose(.presented(.sendFailed(let error))):
+                state.compose = nil
+                if error.contains("friend_message_limit_exceeded") {
+                    state.errorMessage = "已達上限，等訊息開啟後再傳"
+                } else {
+                    state.errorMessage = error
+                }
+                return .none
 
             case .delegate:
                 return .none

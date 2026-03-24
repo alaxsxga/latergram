@@ -5,6 +5,7 @@ create table public.profiles (
     id uuid primary key references auth.users(id) on delete cascade,
     username text unique not null,
     display_name text not null,
+    message_limit int not null default 1,  -- 每位好友最多可同時 scheduled 的訊息數
     created_at timestamptz not null default now()
 );
 
@@ -147,6 +148,35 @@ $$ language plpgsql;
 
 alter table public.invite_tokens
     alter column token set default generate_short_invite_code();
+
+-- check_friend_message_limit: 發訊息前確認 sender 對同一 receiver 的 scheduled 數量未超過 message_limit
+create or replace function check_friend_message_limit()
+returns trigger as $$
+declare
+    current_count int;
+    sender_limit int;
+begin
+    select message_limit into sender_limit
+    from profiles where id = new.sender_id;
+
+    select count(*) into current_count
+    from messages
+    where sender_id = new.sender_id
+      and receiver_id = new.receiver_id
+      and status = 'scheduled'
+      and unlock_at > now();
+
+    if current_count >= sender_limit then
+        raise exception 'friend_message_limit_exceeded';
+    end if;
+
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger enforce_friend_message_limit
+    before insert on public.messages
+    for each row execute function check_friend_message_limit();
 
 -- accept_invite: 接受邀請碼，建立好友關係
 -- 注意：token 使用後不失效（多次使用設計），invitee_id 只記錄最後一位

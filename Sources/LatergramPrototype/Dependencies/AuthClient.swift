@@ -25,7 +25,8 @@ extension AuthClient: DependencyKey {
             return UserProfile(
                 id: session.user.id,
                 displayName: profile.display_name,
-                username: profile.username
+                username: profile.username,
+                messageLimit: profile.message_limit ?? 1
             )
         },
         signUp: { email, password in
@@ -40,7 +41,8 @@ extension AuthClient: DependencyKey {
             return UserProfile(
                 id: response.user.id,
                 displayName: profile.display_name,
-                username: profile.username
+                username: profile.username,
+                messageLimit: profile.message_limit ?? 1
             )
         },
         signOut: {
@@ -66,7 +68,8 @@ extension AuthClient: DependencyKey {
             return UserProfile(
                 id: user.id,
                 displayName: profile.display_name,
-                username: profile.username
+                username: profile.username,
+                messageLimit: profile.message_limit ?? 1
             )
         }
     )

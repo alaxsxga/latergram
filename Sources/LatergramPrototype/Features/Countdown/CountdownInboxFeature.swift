@@ -17,6 +17,7 @@ struct CountdownInboxFeature {
 
     enum Action {
         case onAppear
+        case messageSent(DelayedMessage)
         case foregroundRefresh
         case refreshRequested
         case timerTick(Date)
@@ -41,13 +42,16 @@ struct CountdownInboxFeature {
             switch action {
 
             case .onAppear:
-                let needsLoad = state.messages.isEmpty
-                if needsLoad { state.isLoading = true }
+                if state.messages.isEmpty { state.isLoading = true }
                 return .merge(
                     startTimer(),
-                    needsLoad ? loadMessages(userID: currentUser.id) : .none,
+                    loadMessages(userID: currentUser.id),
                     .run { _ in _ = await notificationClient.requestPermission() }
                 )
+
+            case .messageSent(let message):
+                state.messages.updateOrAppend(message)
+                return .none
 
             case .refreshRequested:
                 return loadMessages(userID: currentUser.id)
