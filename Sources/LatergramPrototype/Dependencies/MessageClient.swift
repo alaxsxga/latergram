@@ -8,6 +8,7 @@ struct MessageClient: Sendable {
     var fetchThread: @Sendable (_ userID: UUID, _ friendID: UUID) async throws -> [DelayedMessage] = { _, _ in [] }
     var send: @Sendable (_ message: DelayedMessage) async throws -> Void
     var reveal: @Sendable (_ messageID: UUID, _ now: Date) async throws -> Bool = { _, _ in false }
+    var delete: @Sendable (_ messageID: UUID, _ userID: UUID) async throws -> Void
 }
 
 extension MessageClient: DependencyKey {
@@ -59,6 +60,12 @@ extension MessageClient: DependencyKey {
                 .eq("id", value: messageID)
                 .execute()
             return true
+        },
+        delete: { messageID, userID in
+            try await supabase
+                .from("message_deletions")
+                .insert(InsertDeletionRow(user_id: userID, message_id: messageID))
+                .execute()
         }
     )
 
@@ -79,7 +86,8 @@ extension MessageClient: DependencyKey {
                 }
             },
             send: { _ in },
-            reveal: { _, _ in true }
+            reveal: { _, _ in true },
+            delete: { _, _ in }
         )
     }()
 }

@@ -69,10 +69,12 @@ struct ChatDetailView: View {
                     MessageBubble(
                         message: message,
                         now: store.now,
-                        isMine: message.senderID == store.state.friend.id ? false : true
-                    ) {
-                        store.send(.revealTapped(message.id))
-                    }
+                        isMine: message.senderID == store.state.friend.id ? false : true,
+                        onRevealTap: { store.send(.revealTapped(message.id)) },
+                        onDelete: message.unlockAt <= store.now
+                            ? { store.send(.deleteTapped(message.id)) }
+                            : nil
+                    )
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                     .id(message.id)
@@ -140,6 +142,7 @@ private struct MessageBubble: View {
     let now: Date
     let isMine: Bool
     let onRevealTap: () -> Void
+    var onDelete: (() -> Void)? = nil
 
     @State private var isRevealing = false
 
@@ -158,6 +161,13 @@ private struct MessageBubble: View {
                     .background(message.style.background)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .opacity(isRevealing ? 0.4 : 1)
+                    .contextMenu {
+                        if let onDelete {
+                            Button(role: .destructive) { onDelete() } label: {
+                                Label("刪除此訊息", systemImage: "trash")
+                            }
+                        }
+                    }
             }
 
             if !isMine { Spacer(minLength: 60) }

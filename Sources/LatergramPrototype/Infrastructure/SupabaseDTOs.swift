@@ -33,6 +33,11 @@ struct MessageRow: Codable {
     }
 }
 
+struct InsertDeletionRow: Encodable {
+    let user_id: UUID
+    let message_id: UUID
+}
+
 struct InsertMessageRow: Encodable {
     let id: UUID
     let sender_id: UUID

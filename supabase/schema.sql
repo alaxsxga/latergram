@@ -74,15 +74,26 @@ create table public.invite_tokens (
 );
 
 -- =====================
--- 5. RLS 開啟
+-- 5. message_deletions（per-user soft delete）
+-- =====================
+create table public.message_deletions (
+    user_id    uuid not null references public.profiles(id) on delete cascade,
+    message_id uuid not null references public.messages(id) on delete cascade,
+    deleted_at timestamptz not null default now(),
+    primary key (user_id, message_id)
+);
+
+-- =====================
+-- 6. RLS 開啟
 -- =====================
 alter table public.profiles enable row level security;
 alter table public.friendships enable row level security;
 alter table public.messages enable row level security;
 alter table public.invite_tokens enable row level security;
+alter table public.message_deletions enable row level security;
 
 -- =====================
--- 6. RLS Policies
+-- 7. RLS Policies
 -- =====================
 
 -- profiles: 所有人可讀，只能寫自己
@@ -106,13 +117,37 @@ create policy "friendships: 只能更新自己相關的"
     using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
 -- messages: sender/receiver 才能看，body 保護交給 App 層（MVP 先開放讀取 metadata）
-create policy "messages: 只能看自己相關的"
+-- 排除自己已軟刪除的訊息
+create policy "messages: 只能看自己相關的（排除軟刪除）"
     on public.messages for select
-    using (auth.uid() = sender_id or auth.uid() = receiver_id);
+    using (
+        (auth.uid() = sender_id or auth.uid() = receiver_id)
+        and not exists (
+            select 1 from public.message_deletions d
+            where d.message_id = messages.id
+              and d.user_id = auth.uid()
+        )
+    );
 
 create policy "messages: 只能由 sender 建立"
     on public.messages for insert
     with check (auth.uid() = sender_id);
+
+-- message_deletions: 只能看/新增自己的，新增限時間已到
+create policy "message_deletions: 只能看自己的"
+    on public.message_deletions for select
+    using (auth.uid() = user_id);
+
+create policy "message_deletions: 只能新增自己的（時間已到）"
+    on public.message_deletions for insert
+    with check (
+        auth.uid() = user_id
+        and exists (
+            select 1 from public.messages m
+            where m.id = message_id
+              and m.unlock_at <= now()
+        )
+    );
 
 -- invite_tokens: 只能看/建立/刪除自己的
 create policy "invite_tokens: 只能看自己的"
@@ -128,7 +163,7 @@ create policy "invite_tokens: 只能刪除自己的"
     using (auth.uid() = inviter_id);
 
 -- =====================
--- 7. Functions
+-- 8. Functions
 -- =====================
 
 -- 產生短邀請碼（格式：DG-XXXXXXXXXX，10位英數大寫，排除易混淆字元 I/O/1/0）
@@ -164,7 +199,12 @@ begin
     where sender_id = new.sender_id
       and receiver_id = new.receiver_id
       and status = 'scheduled'
-      and unlock_at > now();
+      and unlock_at > now()
+      and not exists (
+          select 1 from message_deletions d
+          where d.message_id = messages.id
+            and d.user_id = new.sender_id
+      );
 
     if current_count >= sender_limit then
         raise exception 'friend_message_limit_exceeded';

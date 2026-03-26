@@ -78,9 +78,14 @@ private struct ReceivedPage: View {
                 .listRowBackground(Color.clear)
             } else {
                 ForEach(received) { message in
-                    CountdownCard(message: message, now: store.now) {
-                        store.send(.revealTapped(message.id))
-                    }
+                    CountdownCard(
+                        message: message,
+                        now: store.now,
+                        onRevealTap: { store.send(.revealTapped(message.id)) },
+                        onDelete: message.unlockAt <= store.now
+                            ? { store.send(.deleteTapped(message.id)) }
+                            : nil
+                    )
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
@@ -115,10 +120,16 @@ private struct SentPage: View {
                 .listRowBackground(Color.clear)
             } else {
                 ForEach(sent) { message in
-                    SentCard(message: message, now: store.now)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                    SentCard(
+                        message: message,
+                        now: store.now,
+                        onDelete: message.unlockAt <= store.now
+                            ? { store.send(.deleteTapped(message.id)) }
+                            : nil
+                    )
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 }
             }
         }
@@ -133,6 +144,7 @@ private struct SentPage: View {
 private struct SentCard: View {
     let message: DelayedMessage
     let now: Date
+    var onDelete: (() -> Void)? = nil
 
     @State private var isRevealed = false
 
@@ -144,6 +156,16 @@ private struct SentCard: View {
                     .foregroundStyle(message.style.accent)
                 Spacer()
                 statusBadge
+                if let onDelete {
+                    Menu {
+                        Button(role: .destructive) { onDelete() } label: {
+                            Label("刪除", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle").foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
             // Meta: sent time + total duration
@@ -213,6 +235,7 @@ private struct CountdownCard: View {
     let message: DelayedMessage
     let now: Date
     let onRevealTap: () -> Void
+    var onDelete: (() -> Void)? = nil
 
     @State private var isRevealing = false
     @State private var isBodyHidden = false
@@ -225,6 +248,16 @@ private struct CountdownCard: View {
                     .foregroundStyle(message.style.accent)
                 Spacer()
                 statusBadge
+                if let onDelete {
+                    Menu {
+                        Button(role: .destructive) { onDelete() } label: {
+                            Label("刪除", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle").foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
             // Meta: sent time + total duration

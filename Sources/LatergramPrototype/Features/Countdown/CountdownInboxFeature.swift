@@ -26,6 +26,8 @@ struct CountdownInboxFeature {
         case messagesLoaded([DelayedMessage])
         case loadFailed(String)
         case errorDismissed
+        case deleteTapped(UUID)
+        case deleteResponse(id: UUID, error: String?)
     }
 
     enum CancelID { case timer, load }
@@ -123,6 +125,25 @@ struct CountdownInboxFeature {
 
             case .errorDismissed:
                 state.errorMessage = nil
+                return .none
+
+            case .deleteTapped(let id):
+                let userID = currentUser.id
+                return .run { send in
+                    do {
+                        try await messageClient.delete(id, userID)
+                        await send(.deleteResponse(id: id, error: nil))
+                    } catch {
+                        await send(.deleteResponse(id: id, error: error.localizedDescription))
+                    }
+                }
+
+            case .deleteResponse(let id, let error):
+                if let error {
+                    state.errorMessage = error
+                } else {
+                    state.messages.remove(id: id)
+                }
                 return .none
             }
         }
