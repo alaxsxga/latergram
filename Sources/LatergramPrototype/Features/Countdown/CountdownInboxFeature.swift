@@ -119,7 +119,14 @@ struct CountdownInboxFeature {
 
             case .messagesLoaded(let messages):
                 state.isLoading = false
-                state.messages = IdentifiedArray(uniqueElements: messages)
+                let now = date()
+                // Hide revealed messages older than 2 days; always show unrevealed (even if overdue)
+                let twoDays: TimeInterval = 2 * 24 * 60 * 60
+                let filtered = messages.filter { msg in
+                    guard msg.status == .revealed else { return true }
+                    return now.timeIntervalSince(msg.revealedAt ?? msg.unlockAt) < twoDays
+                }
+                state.messages = IdentifiedArray(uniqueElements: filtered)
                 return .none
 
             case .loadFailed(let error):

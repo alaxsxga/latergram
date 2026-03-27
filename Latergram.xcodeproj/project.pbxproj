@@ -118,7 +118,7 @@
 			);
 			mainGroup = A00100012026030300000030;
 			packageReferences = (
-				64CB90D12F6103FD007B1798 /* XCLocalSwiftPackageReference "../delaygram" */,
+				64CB90D12F6103FD007B1798 /* XCLocalSwiftPackageReference "../latergram" */,
 				64DFB3C92F62576500B355F3 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			productRefGroup = A00100012026030300000032 /* Products */;
@@ -251,9 +251,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		64CB90D12F6103FD007B1798 /* XCLocalSwiftPackageReference "../delaygram" */ = {
+		64CB90D12F6103FD007B1798 /* XCLocalSwiftPackageReference "../latergram" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../delaygram;
+			relativePath = .;
 		};
 /* End XCLocalSwiftPackageReference section */
 

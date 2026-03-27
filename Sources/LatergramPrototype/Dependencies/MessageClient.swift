@@ -14,24 +14,28 @@ struct MessageClient: Sendable {
 extension MessageClient: DependencyKey {
     static let liveValue = MessageClient(
         fetchCountdownFeed: { userID in
+            // Fetch newest 300 messages, then reverse to ascending order for display
             let rows: [MessageRow] = try await supabase
                 .from("messages")
                 .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
-                .order("unlock_at")
+                .order("unlock_at", ascending: false)
+                .limit(300)
                 .execute()
                 .value
-            return rows.map { $0.toDomain() }
+            return rows.reversed().map { $0.toDomain() }
         },
         fetchThread: { userID, friendID in
+            // Fetch newest 300 messages, then reverse to ascending order for display
             let rows: [MessageRow] = try await supabase
                 .from("messages")
                 .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("and(sender_id.eq.\(userID),receiver_id.eq.\(friendID)),and(sender_id.eq.\(friendID),receiver_id.eq.\(userID))")
-                .order("created_at")
+                .order("created_at", ascending: false)
+                .limit(300)
                 .execute()
                 .value
-            return rows.map { $0.toDomain() }
+            return rows.reversed().map { $0.toDomain() }
         },
         send: { message in
             let row = InsertMessageRow(
