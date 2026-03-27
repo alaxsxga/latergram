@@ -18,7 +18,6 @@ extension MessageClient: DependencyKey {
                 .from("messages")
                 .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
-                .neq("status", value: "revealed")
                 .order("unlock_at")
                 .execute()
                 .value

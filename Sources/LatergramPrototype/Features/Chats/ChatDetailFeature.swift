@@ -59,6 +59,7 @@ struct ChatDetailFeature {
     private enum CancelID { case timer, load }
 
     @Dependency(\.messageClient) var messageClient
+    @Dependency(\.messagesCacheClient) var messagesCacheClient
     @Dependency(\.revealGateClient) var revealGateClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
@@ -69,9 +70,17 @@ struct ChatDetailFeature {
             switch action {
 
             case .onAppear:
-                state.isLoading = true
                 state.currentUserID = currentUser.id
                 state.userMessageLimit = currentUser.messageLimit
+                let cached = messagesCacheClient.load(currentUser.id, state.friend.id)
+                if !cached.isEmpty {
+                    state.messages = IdentifiedArray(
+                        uniqueElements: cached.sorted { $0.unlockAt < $1.unlockAt }
+                    )
+                    state.isLoading = false
+                } else {
+                    state.isLoading = true
+                }
                 return .merge(startTimer(), loadThread(friendID: state.friend.id))
 
             case .timerTick(let now):
@@ -100,6 +109,10 @@ struct ChatDetailFeature {
                 case true:
                     state.messages[id: id]?.status = .revealed
                     state.messages[id: id]?.revealedAt = date()
+                    let now = date()
+                    return .run { _ in
+                        try? await messageClient.reveal(id, now)
+                    }
                 case false:
                     state.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
                 case nil:
@@ -109,10 +122,13 @@ struct ChatDetailFeature {
 
             case .messagesLoaded(let messages):
                 state.isLoading = false
-                state.messages = IdentifiedArray(
-                    uniqueElements: messages.sorted { $0.unlockAt < $1.unlockAt }
-                )
-                return .none
+                let sorted = messages.sorted { $0.unlockAt < $1.unlockAt }
+                state.messages = IdentifiedArray(uniqueElements: sorted)
+                let userID = currentUser.id
+                let friendID = state.friend.id
+                return .run { [sorted] _ in
+                    messagesCacheClient.save(sorted, userID, friendID)
+                }
 
             case .loadFailed(let error):
                 state.isLoading = false

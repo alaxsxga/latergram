@@ -68,6 +68,7 @@ struct FriendsFeature {
     @Dependency(\.friendClient) var friendClient
     @Dependency(\.authClient) var authClient
     @Dependency(\.friendsCacheClient) var friendsCacheClient
+    @Dependency(\.messagesCacheClient) var messagesCacheClient
 
     private enum CancelID { case realtimeSubscription }
 
@@ -245,6 +246,7 @@ struct FriendsFeature {
                     .cancel(id: CancelID.realtimeSubscription),
                     .run { send in
                         friendsCacheClient.clear(userID)
+                        messagesCacheClient.clear(userID)
                         try? await authClient.signOut()
                         await send(.logoutSucceeded)
                     }

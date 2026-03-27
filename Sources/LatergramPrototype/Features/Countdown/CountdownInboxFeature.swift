@@ -106,6 +106,10 @@ struct CountdownInboxFeature {
                 case true:
                     state.messages[id: id]?.status = .revealed
                     state.messages[id: id]?.revealedAt = date()
+                    let now = date()
+                    return .run { _ in
+                        try? await messageClient.reveal(id, now)
+                    }
                 case false:
                     state.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
                 case nil:
