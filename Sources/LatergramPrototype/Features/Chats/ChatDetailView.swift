@@ -145,6 +145,7 @@ private struct MessageBubble: View {
     var onDelete: (() -> Void)? = nil
 
     @State private var isRevealing = false
+    @State private var isBodyHidden = false
 
     var body: some View {
         HStack {
@@ -160,7 +161,9 @@ private struct MessageBubble: View {
                     .padding(10)
                     .background(message.style.background)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .contentShape(RoundedRectangle(cornerRadius: 10))
                     .opacity(isRevealing ? 0.4 : 1)
+                    .onTapGesture { handleTap() }
                     .contextMenu {
                         if let onDelete {
                             Button(role: .destructive) { onDelete() } label: {
@@ -174,29 +177,101 @@ private struct MessageBubble: View {
         }
     }
 
+    private func handleTap() {
+        guard !isMine else { return }
+        switch message.status {
+        case .revealed:
+            isBodyHidden.toggle()
+        case .readyToReveal:
+            withAnimation(.easeInOut(duration: 0.3)) { isRevealing = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onRevealTap()
+                isRevealing = false
+            }
+        case .scheduled where now >= message.unlockAt:
+            withAnimation(.easeInOut(duration: 0.3)) { isRevealing = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onRevealTap()
+                isRevealing = false
+            }
+        case .scheduled:
+            break
+        }
+    }
+
     @ViewBuilder
     private var bubbleContent: some View {
-        if message.status == .revealed || isMine {
-            Text(message.body)
-        } else if message.status == .readyToReveal ||
-                  (message.status == .scheduled && now >= message.unlockAt) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) { isRevealing = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    onRevealTap()
-                    isRevealing = false
-                }
-            } label: {
-                Label("點擊開啟", systemImage: message.style.icon)
-                    .foregroundStyle(message.style.accent)
-            }
-            .buttonStyle(.plain)
+        if isMine {
+            sentContent
         } else {
-            VStack(alignment: .leading, spacing: 2) {
+            receivedContent
+        }
+    }
+
+    // Sender always sees the body; show countdown while scheduled so they know when receiver can open
+    @ViewBuilder
+    private var sentContent: some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            Text(message.body).font(.body)
+            messageMeta
+            if message.status == .scheduled && now < message.unlockAt {
                 Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
                     .font(.caption.monospacedDigit())
-                Text("尚未解鎖").font(.caption2).foregroundStyle(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
+    }
+
+    @ViewBuilder
+    private var receivedContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            switch message.status {
+            case .revealed:
+                if !isBodyHidden {
+                    Text(message.body).font(.body)
+                } else {
+                    tapToOpenLabel
+                }
+                messageMeta
+
+            case .readyToReveal:
+                tapToOpenLabel
+                messageMeta
+
+            case .scheduled:
+                if now < message.unlockAt {
+                    Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                        .font(.caption.monospacedDigit())
+                    Text("尚未解鎖").font(.caption2).foregroundStyle(.secondary)
+                } else {
+                    tapToOpenLabel
+                }
+                messageMeta
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var messageMeta: some View {
+        Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened))")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        Text("總倒數 \(totalDurationText)")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private var tapToOpenLabel: some View {
+        Label("點擊開啟", systemImage: message.style.icon)
+            .font(.subheadline)
+            .foregroundStyle(message.style.accent)
+    }
+
+    private var totalDurationText: String {
+        let seconds = max(0, Int(message.unlockAt.timeIntervalSince(message.sentAt)))
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        if h > 0 { return "\(h)小時\(m)分" }
+        return "\(m)分"
     }
 }

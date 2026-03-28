@@ -85,6 +85,13 @@ struct ChatDetailFeature {
 
             case .timerTick(let now):
                 state.now = now
+                for id in state.messages.ids {
+                    if state.messages[id: id]?.status == .scheduled,
+                       let unlockAt = state.messages[id: id]?.unlockAt,
+                       now >= unlockAt {
+                        state.messages[id: id]?.status = .readyToReveal
+                    }
+                }
                 return .none
 
             case .composeTapped:
