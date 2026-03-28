@@ -129,12 +129,21 @@ struct ChatDetailFeature {
 
             case .messagesLoaded(let messages):
                 state.isLoading = false
+                let now = date()
                 let sorted = messages.sorted { $0.unlockAt < $1.unlockAt }
-                state.messages = IdentifiedArray(uniqueElements: sorted)
+                // Apply client-side scheduled → readyToReveal transition immediately
+                // so the first render matches what the timer would produce, avoiding a flash
+                let transitioned = sorted.map { msg -> DelayedMessage in
+                    guard msg.status == .scheduled, now >= msg.unlockAt else { return msg }
+                    var m = msg
+                    m.status = .readyToReveal
+                    return m
+                }
+                state.messages = IdentifiedArray(uniqueElements: transitioned)
                 let userID = currentUser.id
                 let friendID = state.friend.id
-                return .run { [sorted] _ in
-                    messagesCacheClient.save(sorted, userID, friendID)
+                return .run { [transitioned] _ in
+                    messagesCacheClient.save(transitioned, userID, friendID)
                 }
 
             case .loadFailed(let error):

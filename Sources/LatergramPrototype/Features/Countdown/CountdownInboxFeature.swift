@@ -126,7 +126,15 @@ struct CountdownInboxFeature {
                     guard msg.status == .revealed else { return true }
                     return now.timeIntervalSince(msg.revealedAt ?? msg.unlockAt) < twoDays
                 }
-                state.messages = IdentifiedArray(uniqueElements: filtered)
+                // Apply client-side scheduled → readyToReveal transition immediately
+                // so the first render matches what the timer would produce, avoiding a flash
+                let transitioned = filtered.map { msg -> DelayedMessage in
+                    guard msg.status == .scheduled, now >= msg.unlockAt else { return msg }
+                    var m = msg
+                    m.status = .readyToReveal
+                    return m
+                }
+                state.messages = IdentifiedArray(uniqueElements: transitioned)
                 return .none
 
             case .loadFailed(let error):
