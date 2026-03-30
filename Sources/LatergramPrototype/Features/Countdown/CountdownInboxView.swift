@@ -61,13 +61,21 @@ struct CountdownInboxView: View {
 private struct ReceivedPage: View {
     let store: StoreOf<CountdownInboxFeature>
 
-    var received: [DelayedMessage] {
-        store.messages.filter { $0.receiverID == store.currentUserID }
+    var pending: [DelayedMessage] {
+        store.receivedPendingSortOrder
+            .compactMap { store.messages[id: $0] }
+            .filter { $0.receiverID == store.currentUserID }
+    }
+
+    var revealed: [DelayedMessage] {
+        store.revealedSortOrder
+            .compactMap { store.messages[id: $0] }
+            .filter { $0.receiverID == store.currentUserID }
     }
 
     var body: some View {
         List {
-            if received.isEmpty {
+            if pending.isEmpty && revealed.isEmpty {
                 ContentUnavailableView(
                     "沒有收到的訊息",
                     systemImage: "timer",
@@ -77,18 +85,37 @@ private struct ReceivedPage: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
             } else {
-                ForEach(received) { message in
-                    CountdownCard(
-                        message: message,
-                        now: store.now,
-                        onRevealTap: { store.send(.revealTapped(message.id)) },
-                        onDelete: message.unlockAt <= store.now
-                            ? { store.send(.deleteTapped(message.id)) }
-                            : nil
-                    )
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                Section {
+                    ForEach(pending) { message in
+                        CountdownCard(
+                            message: message,
+                            now: store.now,
+                            onRevealTap: { store.send(.revealTapped(message.id)) },
+                            onDelete: message.unlockAt <= store.now
+                                ? { store.send(.deleteTapped(message.id)) }
+                                : nil
+                        )
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    }
+                }
+                if !revealed.isEmpty {
+                    Section("已開啟") {
+                        ForEach(revealed) { message in
+                            CountdownCard(
+                                message: message,
+                                now: store.now,
+                                onRevealTap: { store.send(.revealTapped(message.id)) },
+                                onDelete: message.unlockAt <= store.now
+                                    ? { store.send(.deleteTapped(message.id)) }
+                                    : nil
+                            )
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        }
+                    }
                 }
             }
         }
@@ -103,13 +130,21 @@ private struct ReceivedPage: View {
 private struct SentPage: View {
     let store: StoreOf<CountdownInboxFeature>
 
-    var sent: [DelayedMessage] {
-        store.messages.filter { $0.senderID == store.currentUserID }
+    var pending: [DelayedMessage] {
+        store.sentPendingSortOrder
+            .compactMap { store.messages[id: $0] }
+            .filter { $0.senderID == store.currentUserID }
+    }
+
+    var revealed: [DelayedMessage] {
+        store.revealedSortOrder
+            .compactMap { store.messages[id: $0] }
+            .filter { $0.senderID == store.currentUserID }
     }
 
     var body: some View {
         List {
-            if sent.isEmpty {
+            if pending.isEmpty && revealed.isEmpty {
                 ContentUnavailableView(
                     "沒有發送的訊息",
                     systemImage: "paperplane",
@@ -119,17 +154,35 @@ private struct SentPage: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
             } else {
-                ForEach(sent) { message in
-                    SentCard(
-                        message: message,
-                        now: store.now,
-                        onDelete: message.unlockAt <= store.now
-                            ? { store.send(.deleteTapped(message.id)) }
-                            : nil
-                    )
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                Section {
+                    ForEach(pending) { message in
+                        SentCard(
+                            message: message,
+                            now: store.now,
+                            onDelete: message.unlockAt <= store.now
+                                ? { store.send(.deleteTapped(message.id)) }
+                                : nil
+                        )
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    }
+                }
+                if !revealed.isEmpty {
+                    Section("已開啟") {
+                        ForEach(revealed) { message in
+                            SentCard(
+                                message: message,
+                                now: store.now,
+                                onDelete: message.unlockAt <= store.now
+                                    ? { store.send(.deleteTapped(message.id)) }
+                                    : nil
+                            )
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        }
+                    }
                 }
             }
         }

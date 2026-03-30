@@ -7,6 +7,10 @@ struct CountdownInboxFeature {
     @ObservableState
     struct State: Equatable {
         var messages: IdentifiedArrayOf<DelayedMessage> = []
+        var receivedPendingSortOrder: [UUID] = []  // 接收：時間到優先，再依 unlockAt 升冪
+        var sentPendingSortOrder: [UUID] = []      // 發送：依 sentAt 降冪
+        var revealedSortOrder: [UUID] = []         // 已開啟（接收與發送共用）：依 sentAt 降冪
+        var lastFetchedAt: Date? = nil
         var now: Date = Date()
         var isLoading = false
         var errorMessage: String?
@@ -44,12 +48,19 @@ struct CountdownInboxFeature {
             switch action {
 
             case .onAppear:
+                state.currentUserID = currentUser.id
+                let now = date()
+                applySort(to: &state, now: now)
+                let shouldFetch = state.lastFetchedAt.map { now.timeIntervalSince($0) > 30 } ?? true
                 if state.messages.isEmpty { state.isLoading = true }
-                return .merge(
+                var effects: [Effect<Action>] = [
                     startTimer(),
-                    loadMessages(userID: currentUser.id),
                     .run { _ in _ = await notificationClient.requestPermission() }
-                )
+                ]
+                if shouldFetch {
+                    effects.append(loadMessages(userID: currentUser.id))
+                }
+                return .merge(effects)
 
             case .messageSent(let message):
                 state.messages.updateOrAppend(message)
@@ -135,6 +146,8 @@ struct CountdownInboxFeature {
                     return m
                 }
                 state.messages = IdentifiedArray(uniqueElements: transitioned)
+                state.lastFetchedAt = now
+                applySort(to: &state, now: now)
                 return .none
 
             case .loadFailed(let error):
@@ -166,6 +179,26 @@ struct CountdownInboxFeature {
                 return .none
             }
         }
+    }
+
+    private func applySort(to state: inout State, now: Date) {
+        let pending = state.messages.filter { $0.status != .revealed }
+        let revealed = state.messages.filter { $0.status == .revealed }
+        // 接收：時間到的在最上面，再依 unlockAt 升冪（最短倒數在上）
+        state.receivedPendingSortOrder = pending.sorted { a, b in
+            let aExpired = a.unlockAt <= now
+            let bExpired = b.unlockAt <= now
+            if aExpired != bExpired { return aExpired }
+            return a.unlockAt < b.unlockAt
+        }.map(\.id)
+        // 發送：最新發送在最上面
+        state.sentPendingSortOrder = pending
+            .sorted { $0.sentAt > $1.sentAt }
+            .map(\.id)
+        // 已開啟：最新發送在最上面（接收與發送共用）
+        state.revealedSortOrder = revealed
+            .sorted { $0.sentAt > $1.sentAt }
+            .map(\.id)
     }
 
     private func startTimer() -> Effect<Action> {
