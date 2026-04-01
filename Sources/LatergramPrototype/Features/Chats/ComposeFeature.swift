@@ -6,15 +6,15 @@ import Foundation
 struct ComposeFeature {
     @ObservableState
     struct State: Equatable {
+        enum TimingMode: Equatable { case countdown, unlockDate }
+
         let friend: Friend
         var body = ""
         var unlockAt = Date().addingTimeInterval(60)
         var style: MessageStyle = .classic
+        var timingMode: TimingMode = .countdown
         var errorMessage: String?
         var isSending = false
-
-        var minUnlockAt: Date { Date().addingTimeInterval(60) }
-        var maxUnlockAt: Date { Date().addingTimeInterval(7 * 24 * 3600) }
     }
 
     enum Action: BindableAction {
