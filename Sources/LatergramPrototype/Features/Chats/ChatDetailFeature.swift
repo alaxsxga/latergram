@@ -41,6 +41,7 @@ struct ChatDetailFeature {
         case composeTapped
         case revealTapped(UUID)
         case revealResponse(id: UUID, result: Bool?)
+        case revealCommitFailed(UUID)
         case messagesLoaded([DelayedMessage])
         case loadFailed(String)
         case errorDismissed
@@ -117,14 +118,24 @@ struct ChatDetailFeature {
                     state.messages[id: id]?.status = .revealed
                     state.messages[id: id]?.revealedAt = date()
                     let now = date()
-                    return .run { _ in
-                        try? await messageClient.reveal(id, now)
+                    return .run { send in
+                        do {
+                            try await messageClient.reveal(id, now)
+                        } catch {
+                            await send(.revealCommitFailed(id))
+                        }
                     }
                 case false:
                     state.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
                 case nil:
                     state.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
                 }
+                return .none
+
+            case .revealCommitFailed(let id):
+                state.messages[id: id]?.status = .readyToReveal
+                state.messages[id: id]?.revealedAt = nil
+                state.errorMessage = "開啟失敗，請確認網路後再試"
                 return .none
 
             case .messagesLoaded(let messages):

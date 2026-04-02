@@ -57,11 +57,18 @@ extension MessageClient: DependencyKey {
                 let status: String
                 let revealed_at: Date
             }
-            try await supabase
+            struct RowID: Decodable { let id: UUID }
+            let updated: [RowID] = try await supabase
                 .from("messages")
                 .update(UpdateStatus(status: "revealed", revealed_at: now))
                 .eq("id", value: messageID)
+                .select("id")
                 .execute()
+                .value
+            guard !updated.isEmpty else {
+                struct RevealBlockedError: Error {}
+                throw RevealBlockedError()
+            }
             return true
         },
         delete: { messageID, userID in
