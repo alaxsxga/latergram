@@ -9,6 +9,8 @@ struct ComposeFeature {
         enum TimingMode: Equatable { case countdown, unlockDate }
 
         let friend: Friend
+        let senderID: UUID
+        let senderName: String
         var body = ""
         var unlockAt = Date().addingTimeInterval(60)
         var style: MessageStyle = .classic
@@ -26,7 +28,6 @@ struct ComposeFeature {
     }
 
     @Dependency(\.messageClient) var messageClient
-    @Dependency(\.currentUser) var currentUser
     @Dependency(\.date) var date
 
     private let rules = MessageComposerRules()
@@ -52,9 +53,9 @@ struct ComposeFeature {
                 state.isSending = true
                 state.errorMessage = nil
                 let message = DelayedMessage(
-                    senderID: currentUser.id,
+                    senderID: state.senderID,
                     receiverID: state.friend.id,
-                    senderName: currentUser.displayName,
+                    senderName: state.senderName,
                     receiverName: state.friend.displayName,
                     body: state.body,
                     style: state.style,

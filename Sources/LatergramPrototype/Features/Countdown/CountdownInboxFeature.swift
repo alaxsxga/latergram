@@ -42,14 +42,12 @@ struct CountdownInboxFeature {
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
-    @Dependency(\.currentUser) var currentUser
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
 
             case .onAppear:
-                state.currentUserID = currentUser.id
                 let now = date()
                 applySort(to: &state, now: now)
                 let shouldFetch = state.lastFetchedAt.map { now.timeIntervalSince($0) > 30 } ?? true
@@ -59,7 +57,7 @@ struct CountdownInboxFeature {
                     .run { _ in _ = await notificationClient.requestPermission() }
                 ]
                 if shouldFetch {
-                    effects.append(loadMessages(userID: currentUser.id))
+                    effects.append(loadMessages(userID: state.currentUserID))
                 }
                 return .merge(effects)
 
@@ -68,7 +66,7 @@ struct CountdownInboxFeature {
                 return .none
 
             case .refreshRequested:
-                return loadMessages(userID: currentUser.id)
+                return loadMessages(userID: state.currentUserID)
 
             case .foregroundRefresh:
                 let now = date()
@@ -87,7 +85,7 @@ struct CountdownInboxFeature {
                 let toSchedule = policy.selectMessagesForScheduling(Array(state.messages), now: now)
                 state.infoBanner = "已重排本地通知 \(toSchedule.count) 則"
                 return .merge(
-                    loadMessages(userID: currentUser.id),
+                    loadMessages(userID: state.currentUserID),
                     .run { [toSchedule] _ in
                         await notificationClient.scheduleMessages(toSchedule)
                     }
@@ -171,7 +169,7 @@ struct CountdownInboxFeature {
                 return .none
 
             case .deleteTapped(let id):
-                let userID = currentUser.id
+                let userID = state.currentUserID
                 return .run { send in
                     do {
                         try await messageClient.delete(id, userID)

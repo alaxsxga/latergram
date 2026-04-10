@@ -16,6 +16,7 @@ struct ChatDetailFeature {
         @Presents var compose: ComposeFeature.State?
 
         var currentUserID: UUID = UUID()
+        var senderName: String = ""
         var showLimitInfo: Bool = false
 
         var scheduledCountToFriend: Int {
@@ -64,16 +65,13 @@ struct ChatDetailFeature {
     @Dependency(\.revealGateClient) var revealGateClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
-    @Dependency(\.currentUser) var currentUser
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
 
             case .onAppear:
-                state.currentUserID = currentUser.id
-                state.userMessageLimit = currentUser.messageLimit
-                let cached = messagesCacheClient.load(currentUser.id, state.friend.id)
+                let cached = messagesCacheClient.load(state.currentUserID, state.friend.id)
                 if !cached.isEmpty {
                     state.messages = IdentifiedArray(
                         uniqueElements: cached.sorted { $0.unlockAt < $1.unlockAt }
@@ -82,7 +80,7 @@ struct ChatDetailFeature {
                 } else {
                     state.isLoading = true
                 }
-                return .merge(startTimer(), loadThread(friendID: state.friend.id))
+                return .merge(startTimer(), loadThread(userID: state.currentUserID, friendID: state.friend.id))
 
             case .timerTick(let now):
                 state.now = now
@@ -99,7 +97,11 @@ struct ChatDetailFeature {
                 if state.isAtSendLimit {
                     state.showLimitInfo = true
                 } else {
-                    state.compose = ComposeFeature.State(friend: state.friend)
+                    state.compose = ComposeFeature.State(
+                        friend: state.friend,
+                        senderID: state.currentUserID,
+                        senderName: state.senderName
+                    )
                 }
                 return .none
 
@@ -151,7 +153,7 @@ struct ChatDetailFeature {
                     return m
                 }
                 state.messages = IdentifiedArray(uniqueElements: transitioned)
-                let userID = currentUser.id
+                let userID = state.currentUserID
                 let friendID = state.friend.id
                 return .run { [transitioned] _ in
                     messagesCacheClient.save(transitioned, userID, friendID)
@@ -167,7 +169,7 @@ struct ChatDetailFeature {
                 return .none
 
             case .deleteTapped(let id):
-                let userID = currentUser.id
+                let userID = state.currentUserID
                 return .run { send in
                     do {
                         try await messageClient.delete(id, userID)
@@ -232,10 +234,10 @@ struct ChatDetailFeature {
         .cancellable(id: CancelID.timer, cancelInFlight: true)
     }
 
-    private func loadThread(friendID: UUID) -> Effect<Action> {
-        .run { [currentUser] send in
+    private func loadThread(userID: UUID, friendID: UUID) -> Effect<Action> {
+        .run { send in
             do {
-                let messages = try await messageClient.fetchThread(currentUser.id, friendID)
+                let messages = try await messageClient.fetchThread(userID, friendID)
                 await send(.messagesLoaded(messages))
             } catch {
                 await send(.loadFailed(error.localizedDescription))

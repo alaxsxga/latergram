@@ -23,6 +23,7 @@ struct ChatDetailView: View {
         .navigationTitle(store.friend.displayName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

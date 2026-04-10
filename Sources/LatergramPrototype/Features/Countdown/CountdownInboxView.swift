@@ -32,8 +32,8 @@ struct CountdownInboxView: View {
                 } else {
                     VStack(spacing: 0) {
                         Picker("", selection: $selectedTab) {
-                            Text("接收").tag(0)
-                            Text("發送").tag(1)
+                            Text("收到").tag(0)
+                            Text("送出").tag(1)
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal, 16)
@@ -197,13 +197,11 @@ private struct SentPage: View {
                                 ? { store.send(.deleteTapped(message.id)) }
                                 : nil
                         )
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                        .cardRow()
                     }
                 }
                 if !revealed.isEmpty {
-                    Section("已開啟") {
+                    Section {
                         ForEach(revealed) { message in
                             SentCard(
                                 message: message,
@@ -212,15 +210,17 @@ private struct SentPage: View {
                                     ? { store.send(.deleteTapped(message.id)) }
                                     : nil
                             )
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
+                            .cardRow()
                         }
+                    } header: {
+                        InboxSectionHeader("已開啟")
                     }
                 }
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(pageBg)
         .refreshable { await store.send(.refreshRequested).finish() }
         .tag(1)
     }
@@ -233,82 +233,54 @@ private struct SentCard: View {
     let now: Date
     var onDelete: (() -> Void)? = nil
 
-    @State private var isRevealed = false
+    @State private var isBodyShown = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("to \(message.receiverName)", systemImage: message.style.icon)
-                    .foregroundStyle(message.style.accent)
-                Spacer()
-                statusBadge
-                if let onDelete {
-                    Menu {
-                        Button(role: .destructive) { onDelete() } label: {
-                            Label("刪除", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle").foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            HStack {
-                Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened))")
-                Spacer()
-                Text("總倒數 \(totalDurationText)")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            CardHeader(message: message, name: "to \(message.receiverName)", onDelete: onDelete)
 
             Divider()
 
-            if isRevealed {
-                Text(message.body).font(.body)
-                Text("隱藏")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 2)
-                    .highPriorityGesture(TapGesture().onEnded { isRevealed = false })
-            } else {
-                Text("點擊開啟").font(.subheadline)
-            }
-
             if message.status == .scheduled {
-                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                HStack {
+                    Spacer()
+                    VStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "hourglass")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                                .font(.title2.monospacedDigit().bold())
+                        }
+                        Text("解鎖於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(.vertical, 4)
+            } else {
+                HStack {
+                    if message.status == .revealed {
+                        Text("對方已開啟").font(.caption).foregroundStyle(.green)
+                    }
+                    Spacer()
+                    Text(isBodyShown ? "隱藏" : "查看內容")
+                        .font(.caption)
+                        .foregroundStyle(cobaltBlue)
+                }
+
+                if isBodyShown {
+                    Text(message.body).font(.body)
+                }
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 22)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(message.style.background)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .contentShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture {
-            guard !isRevealed else { return }
-            isRevealed = true
-        }
-    }
-
-    private var totalDurationText: String {
-        let seconds = max(0, Int(message.unlockAt.timeIntervalSince(message.sentAt)))
-        let h = seconds / 3600
-        let m = (seconds % 3600) / 60
-        if h > 0 { return "\(h)小時\(m)分" }
-        return "\(m)分"
-    }
-
-    @ViewBuilder
-    private var statusBadge: some View {
-        switch message.status {
-        case .revealed:
-            Text("已開啟").font(.caption).foregroundStyle(.green)
-        case .readyToReveal, .scheduled:
-            EmptyView()
-        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .contentShape(RoundedRectangle(cornerRadius: 16))
+        .onTapGesture { isBodyShown.toggle() }
     }
 }
 
@@ -389,16 +361,22 @@ private struct StyleAvatar: View {
 
 private struct CardHeader: View {
     let message: DelayedMessage
+    var name: String? = nil
     var onDelete: (() -> Void)? = nil
+
+    private var displayName: String { name ?? message.senderName }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             StyleAvatar(style: message.style, size: 44)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(message.senderName)
+                Text(displayName)
                     .font(.headline)
-                Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened)) · 總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

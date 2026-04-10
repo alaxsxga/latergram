@@ -10,6 +10,7 @@ struct ChatsFeature {
         var isLoading = false
         var path = StackState<ChatDetailFeature.State>()
         var currentUserID: UUID = UUID()
+        var currentUserName: String = ""
     }
 
     enum Action {
@@ -39,7 +40,11 @@ struct ChatsFeature {
                 return loadFriends(userID: state.currentUserID)
 
             case .friendTapped(let friend):
-                state.path.append(ChatDetailFeature.State(friend: friend))
+                state.path.append(ChatDetailFeature.State(
+                    friend: friend,
+                    currentUserID: state.currentUserID,
+                    senderName: state.currentUserName
+                ))
                 return .none
 
             case .friendsLoaded(let friends):

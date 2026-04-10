@@ -77,6 +77,7 @@ struct AppFeature {
                     state.friends.me = user
                     state.countdown.currentUserID = user.id
                     state.chats.currentUserID = user.id
+                    state.chats.currentUserName = user.displayName
                     state.route = .main
                     if let code = state.pendingInviteCode {
                         print("[DeepLink] sessionChecked — 發現 pendingInviteCode=\(code)，處理中")
@@ -84,7 +85,10 @@ struct AppFeature {
                         state.selectedTab = .friends
                         return .send(.friends(.acceptInviteFromDeepLink(code)))
                     }
-                    return .send(.chats(.foregroundRefresh))
+                    return .merge(
+                        .send(.countdown(.refreshRequested)),
+                        .send(.chats(.foregroundRefresh))
+                    )
                 } else {
                     state.route = .auth(AuthFeature.State())
                 }
@@ -96,13 +100,17 @@ struct AppFeature {
                 state.friends.me = user
                 state.countdown.currentUserID = user.id
                 state.chats.currentUserID = user.id
+                state.chats.currentUserName = user.displayName
                 state.route = .main
                 if let code = state.pendingInviteCode {
                     state.pendingInviteCode = nil
                     state.selectedTab = .friends
                     return .send(.friends(.acceptInviteFromDeepLink(code)))
                 }
-                return .send(.chats(.foregroundRefresh))
+                return .merge(
+                    .send(.countdown(.foregroundRefresh)),
+                    .send(.chats(.foregroundRefresh))
+                )
 
             case .auth:
                 return .none
@@ -170,6 +178,7 @@ struct AppFeature {
                 state.friends = FriendsFeature.State()
                 state.countdown = CountdownInboxFeature.State()
                 state.chats = ChatsFeature.State()
+                state.selectedTab = .countdown
                 state.route = .auth(AuthFeature.State())
                 return .merge(
                     .cancel(id: ChatsFeature.CancelID.load),
