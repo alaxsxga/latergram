@@ -5,6 +5,17 @@ struct AuthView: View {
     @Bindable var store: StoreOf<AuthFeature>
 
     var body: some View {
+        switch store.mode {
+        case .login, .signUp:
+            credentialsView
+        case .setName:
+            setNameView
+        }
+    }
+
+    // MARK: - Credentials (登入 / 註冊)
+
+    private var credentialsView: some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -42,14 +53,18 @@ struct AuthView: View {
             }
 
             Button {
-                store.send(.submitTapped)
+                if store.mode == .signUp {
+                    store.send(.nextTapped)
+                } else {
+                    store.send(.submitTapped)
+                }
             } label: {
                 if store.isSubmitting {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                         .padding()
                 } else {
-                    Text(store.mode == .login ? "登入" : "註冊")
+                    Text(store.mode == .login ? "登入" : "下一步")
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
@@ -74,6 +89,60 @@ struct AuthView: View {
         }
         .padding(.horizontal, 32)
     }
+
+    // MARK: - Set Name
+
+    private var setNameView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Text("設定你的名稱")
+                .font(.title2.bold())
+
+            TextField("顯示名稱", text: $store.displayName)
+                .textContentType(.name)
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+
+            if let error = store.errorMessage {
+                Text(error)
+                    .foregroundStyle(.red)
+                    .font(.footnote)
+            }
+
+            Button {
+                store.send(.submitTapped)
+            } label: {
+                if store.isSubmitting {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else {
+                    Text("完成")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+            }
+            .background(Color.accentColor)
+            .foregroundStyle(.white)
+            .cornerRadius(10)
+            .disabled(store.isSubmitting)
+
+            Button {
+                store.send(.backTapped)
+            } label: {
+                Text("返回")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    // MARK: - Debug
 
     #if DEBUG
     private var debugAccountButtons: some View {

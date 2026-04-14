@@ -6,7 +6,9 @@ import Foundation
 @DependencyClient
 struct AuthClient: Sendable {
     var signIn: @Sendable (_ email: String, _ password: String) async throws -> UserProfile
-    var signUp: @Sendable (_ email: String, _ password: String) async throws -> UserProfile
+    var signUp: @Sendable (_ email: String, _ password: String, _ displayName: String) async throws -> UserProfile
+    var createAccount: @Sendable (_ email: String, _ password: String) async throws -> UUID
+    var setDisplayName: @Sendable (_ userID: UUID, _ displayName: String) async throws -> UserProfile
     var signOut: @Sendable () async throws -> Void
     var currentSession: @Sendable () async -> UserProfile?
 }
@@ -29,8 +31,13 @@ extension AuthClient: DependencyKey {
                 messageLimit: profile.message_limit ?? 1
             )
         },
-        signUp: { email, password in
+        signUp: { email, password, displayName in
             let response = try await supabase.auth.signUp(email: email, password: password)
+            try await supabase
+                .from("profiles")
+                .update(["display_name": displayName])
+                .eq("id", value: response.user.id)
+                .execute()
             let profile: ProfileRow = try await supabase
                 .from("profiles")
                 .select()
@@ -40,6 +47,30 @@ extension AuthClient: DependencyKey {
                 .value
             return UserProfile(
                 id: response.user.id,
+                displayName: profile.display_name,
+                username: profile.username,
+                messageLimit: profile.message_limit ?? 1
+            )
+        },
+        createAccount: { email, password in
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            return response.user.id
+        },
+        setDisplayName: { userID, displayName in
+            try await supabase
+                .from("profiles")
+                .update(["display_name": displayName])
+                .eq("id", value: userID)
+                .execute()
+            let profile: ProfileRow = try await supabase
+                .from("profiles")
+                .select()
+                .eq("id", value: userID)
+                .single()
+                .execute()
+                .value
+            return UserProfile(
+                id: userID,
                 displayName: profile.display_name,
                 username: profile.username,
                 messageLimit: profile.message_limit ?? 1
@@ -76,7 +107,9 @@ extension AuthClient: DependencyKey {
 
     static let testValue = AuthClient(
         signIn: { _, _ in UserProfile(displayName: "TestUser", username: "testuser") },
-        signUp: { _, _ in UserProfile(displayName: "TestUser", username: "testuser") },
+        signUp: { _, _, displayName in UserProfile(displayName: displayName, username: "testuser") },
+        createAccount: { _, _ in UUID() },
+        setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName, username: "testuser") },
         signOut: {},
         currentSession: { nil }
     )

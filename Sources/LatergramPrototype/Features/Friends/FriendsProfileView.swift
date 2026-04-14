@@ -273,6 +273,7 @@ private struct InviteSheet: View {
                     } label: {
                         Label("讓失效", systemImage: "arrow.counterclockwise")
                             .font(.caption.bold())
+                            .font(.caption.bold())
                     }
                 }
             }
