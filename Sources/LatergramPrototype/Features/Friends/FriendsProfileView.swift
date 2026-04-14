@@ -6,7 +6,6 @@ private let pageBg = Color(.systemGroupedBackground)
 
 struct FriendsProfileView: View {
     @Bindable var store: StoreOf<FriendsFeature>
-    @State private var didCopy = false
     @State private var showInviteSheet = false
 
     var body: some View {
@@ -120,8 +119,9 @@ struct FriendsProfileView: View {
                     .presentationDetents([.medium])
             }
             .sheet(isPresented: $showInviteSheet) {
-                InviteSheet(store: store, didCopy: $didCopy)
+                InviteSheet(store: store)
                     .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
         }
     }
@@ -219,67 +219,143 @@ private struct FriendRow: View {
 
 private struct InviteSheet: View {
     @Bindable var store: StoreOf<FriendsFeature>
-    @Binding var didCopy: Bool
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    if store.generatedInviteCode.isEmpty {
-                        Button("產生我的邀請碼") {
-                            store.send(.generateInviteCodeTapped)
-                        }
-                    } else {
-                        Text(store.generatedInviteCode)
-                            .monospaced()
-                            .foregroundStyle(.primary)
-
-                        Button {
-                            UIPasteboard.general.string = store.generatedInviteCode
-                            didCopy = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                didCopy = false
-                            }
-                        } label: {
-                            Label(
-                                didCopy ? "已複製" : "複製邀請碼",
-                                systemImage: didCopy ? "checkmark" : "doc.on.doc"
-                            )
-                            .foregroundStyle(didCopy ? .green : .accentColor)
-                        }
-
-                        Button("分享邀請碼") {
-                            store.send(.shareInviteCodeTapped)
-                        }
-
-                        Button("讓邀請碼失效", role: .destructive) {
-                            store.send(.revokeInviteCodeTapped)
-                        }
-                    }
-                } header: {
-                    Text("我的邀請碼")
-                } footer: {
-                    Text("將邀請碼傳給朋友，對方輸入後即可加你為好友。")
+        VStack(spacing: 0) {
+            // Header
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("邀請好友")
+                        .font(.title2.bold())
                 }
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(10)
+                        .background(Color(.systemGray5))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 28)
+            .padding(.bottom, 28)
 
-                Section("輸入邀請碼") {
-                    HStack {
-                        TextField("貼上朋友的邀請碼", text: $store.pastedInviteCode)
-                            .autocorrectionDisabled()
-                            .autocapitalization(.none)
-                        Button("加入") {
-                            store.send(.acceptInviteCodeTapped)
-                        }
-                        .disabled(
-                            store.pastedInviteCode
-                                .trimmingCharacters(in: .whitespacesAndNewlines)
-                                .isEmpty
-                        )
+            ScrollView {
+                VStack(spacing: 28) {
+                    myCodeSection
+                    orDivider
+                    enterCodeSection
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
+            }
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+
+    // MARK: My Code
+
+    private var myCodeSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("我的邀請碼")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .kerning(0.5)
+                Spacer()
+                if !store.generatedInviteCode.isEmpty {
+                    Button(role: .destructive) {
+                        store.send(.revokeInviteCodeTapped)
+                    } label: {
+                        Label("讓失效", systemImage: "arrow.counterclockwise")
+                            .font(.caption.bold())
                     }
                 }
             }
-            .navigationTitle("邀請好友")
-            .navigationBarTitleDisplayMode(.inline)
+
+            if store.generatedInviteCode.isEmpty {
+                Button {
+                    store.send(.generateInviteCodeTapped)
+                } label: {
+                    Text("產生邀請碼")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.accentColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            } else {
+                VStack(spacing: 14) {
+                    Text(store.generatedInviteCode)
+                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.accentColor)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 28)
+                        .padding(.horizontal, 16)
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    Button {
+                        store.send(.shareInviteCodeTapped)
+                    } label: {
+                        Label("分享邀請碼", systemImage: "square.and.arrow.up")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.accentColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Divider
+
+    private var orDivider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .foregroundStyle(Color(.systemGray4))
+    }
+
+    // MARK: Enter Code
+
+    private var enterCodeSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("加入好友")
+                .font(.title2.bold())
+
+            HStack(spacing: 10) {
+                TextField("貼上朋友的邀請碼", text: $store.pastedInviteCode)
+                    .autocorrectionDisabled()
+                    .autocapitalization(.none)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .background(Color(.systemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                let canJoin = !store.pastedInviteCode
+                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                Button {
+                    store.send(.acceptInviteCodeTapped)
+                } label: {
+                    Text("加入")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 14)
+                        .background(canJoin ? Color.accentColor : Color.accentColor.opacity(0.35))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .disabled(!canJoin)
+            }
         }
     }
 }
