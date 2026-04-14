@@ -184,20 +184,22 @@ struct FriendsFeature {
 
             case .friendsLoaded(let friends):
                 state.isLoading = false
-                state.friends = IdentifiedArray(uniqueElements: friends)
+                let sorted = friends.sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
+                state.friends = IdentifiedArray(uniqueElements: sorted)
                 return .none
 
             case .remoteFriendsLoaded(let remote):
                 state.isLoading = false
                 state.lastFetchedAt = .now
-                let remoteArray = IdentifiedArray(uniqueElements: remote)
+                let sorted = remote.sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
+                let remoteArray = IdentifiedArray(uniqueElements: sorted)
                 let changed = remoteArray != state.friends
                 print("[FriendsFeature] remote fetch succeeded, changed=\(changed), count=\(remote.count)")
                 if changed {
                     state.friends = remoteArray
                     let userID = state.me.id
                     return .run { _ in
-                        friendsCacheClient.save(remote, userID)
+                        friendsCacheClient.save(sorted, userID)
                     }
                 }
                 return .none
@@ -219,6 +221,7 @@ struct FriendsFeature {
 
             case .inviteAccepted(let friend):
                 state.friends.append(friend)
+                state.friends.sort { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
                 state.pastedInviteCode = ""
                 state.banner = "好友已確認，可開始傳送訊息"
                 return .none

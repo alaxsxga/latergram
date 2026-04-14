@@ -2,18 +2,56 @@ import ComposableArchitecture
 import LatergramCore
 import SwiftUI
 
+private let pageBg = Color(.systemGroupedBackground)
+
 struct FriendsProfileView: View {
     @Bindable var store: StoreOf<FriendsFeature>
     @State private var didCopy = false
+    @State private var showInviteSheet = false
 
     var body: some View {
         NavigationStack {
-            List {
-                profileSection
-                inviteSection
-                friendsSection
+            ScrollView {
+                VStack(spacing: 20) {
+                    profileCard
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("好友")
+                                .font(.headline)
+                            if !store.friends.isEmpty {
+                                Text("\(store.friends.count)人")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                        friendsCard
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 20)
             }
-            .navigationTitle("好友與個人")
+            .background(pageBg)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button { showInviteSheet = true } label: {
+                        Image(systemName: "person.badge.plus")
+                    }
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button(role: .destructive) {
+                            store.send(.logoutConfirmTapped)
+                        } label: {
+                            Label("登出", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
             .onAppear { store.send(.onAppear) }
             .overlay {
                 if store.isLoading && store.friends.isEmpty {
@@ -28,6 +66,13 @@ struct FriendsProfileView: View {
                         .frame(maxWidth: .infinity)
                         .background(.thinMaterial)
                 }
+            }
+            .alert("確定要登出嗎？", isPresented: Binding(
+                get: { store.isConfirmingLogout },
+                set: { if !$0 { store.send(.logoutCancelled) } }
+            )) {
+                Button("登出", role: .destructive) { store.send(.logoutTapped) }
+                Button("取消", role: .cancel) {}
             }
             .alert(
                 "刪除好友",
@@ -74,83 +119,193 @@ struct FriendsProfileView: View {
                 ShareSheet(items: [store.inviteShareMessage])
                     .presentationDetents([.medium])
             }
-        }
-    }
-
-    // MARK: - Sections
-
-    private var profileSection: some View {
-        Section("個人") {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(store.me.displayName).font(.headline)
-                Text("@\(store.me.username)").foregroundStyle(.secondary)
-            }
-            Button("登出", role: .destructive) {
-                store.send(.logoutConfirmTapped)
-            }
-            .alert("確定要登出嗎？", isPresented: Binding(
-                get: { store.isConfirmingLogout },
-                set: { if !$0 { store.send(.logoutCancelled) } }
-            )) {
-                Button("登出", role: .destructive) { store.send(.logoutTapped) }
-                Button("取消", role: .cancel) {}
+            .sheet(isPresented: $showInviteSheet) {
+                InviteSheet(store: store, didCopy: $didCopy)
+                    .presentationDetents([.large])
             }
         }
     }
 
-    private var inviteSection: some View {
-        Section("邀請好友") {
-            HStack {
-                TextField("貼上邀請碼", text: $store.pastedInviteCode)
-                    .autocorrectionDisabled()
-                Button("接受") { store.send(.acceptInviteCodeTapped) }
-                    .disabled(store.pastedInviteCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
+    // MARK: - Profile Card
 
-            if store.generatedInviteCode.isEmpty {
-                Button("產生邀請碼") { store.send(.generateInviteCodeTapped) }
-            } else {
-                Text(store.generatedInviteCode).monospaced()
-                Button {
-                    UIPasteboard.general.string = store.generatedInviteCode
-                    didCopy = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        didCopy = false
-                    }
-                } label: {
-                    Label(didCopy ? "已複製" : "複製邀請碼",
-                          systemImage: didCopy ? "checkmark" : "doc.on.doc")
-                        .foregroundStyle(didCopy ? .green : .accentColor)
-                }
-                Button("分享邀請碼") { store.send(.shareInviteCodeTapped) }
-                Button("讓邀請碼失效", role: .destructive) { store.send(.revokeInviteCodeTapped) }
-            }
+    private var profileCard: some View {
+        VStack(spacing: 8) {
+            InitialsAvatar(name: store.me.displayName, size: 52)
+            Text(store.me.displayName)
+                .font(.headline)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 18)
+        .background(
+            LinearGradient(
+                colors: [Color.accentColor.opacity(0.12), Color.accentColor.opacity(0.04)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 
-    private var friendsSection: some View {
-        Section("好友") {
+    // MARK: - Friends Card
+
+    private var friendsCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
             if store.friends.isEmpty && !store.isLoading {
-                Text("尚無好友，快邀請朋友加入！")
-                    .foregroundStyle(.secondary)
+                emptyFriendsState
             } else {
-                ForEach(store.friends) { friend in
-                    HStack {
-                        Text(friend.displayName)
-                        Spacer()
-                        Text(friend.status.rawValue)
-                            .font(.caption)
-                            .foregroundStyle(friend.status == .accepted ? .green : .orange)
+                ForEach(Array(store.friends.enumerated()), id: \.element.id) { index, friend in
+                    if index > 0 {
+                        Divider().padding(.leading, 72)
                     }
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            store.send(.removeFriendSwiped(friend))
+                    FriendRow(friend: friend) {
+                        store.send(.removeFriendSwiped(friend))
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+        }
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 1)
+    }
+
+    private var emptyFriendsState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.2")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+            Text("還沒有好友")
+                .font(.subheadline.bold())
+            Text("點右上角邀請朋友加入")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 36)
+    }
+}
+
+// MARK: - Friend Row
+
+private struct FriendRow: View {
+    let friend: Friend
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 14) {
+            InitialsAvatar(name: friend.displayName, size: 44)
+
+            Text(friend.displayName)
+                .font(.body)
+
+            Spacer()
+
+            Menu {
+                Button(role: .destructive, action: onDelete) {
+                    Label("刪除好友", systemImage: "person.fill.xmark")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+}
+
+// MARK: - Invite Sheet
+
+private struct InviteSheet: View {
+    @Bindable var store: StoreOf<FriendsFeature>
+    @Binding var didCopy: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    if store.generatedInviteCode.isEmpty {
+                        Button("產生我的邀請碼") {
+                            store.send(.generateInviteCodeTapped)
+                        }
+                    } else {
+                        Text(store.generatedInviteCode)
+                            .monospaced()
+                            .foregroundStyle(.primary)
+
+                        Button {
+                            UIPasteboard.general.string = store.generatedInviteCode
+                            didCopy = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                didCopy = false
+                            }
                         } label: {
-                            Label("刪除", systemImage: "person.fill.xmark")
+                            Label(
+                                didCopy ? "已複製" : "複製邀請碼",
+                                systemImage: didCopy ? "checkmark" : "doc.on.doc"
+                            )
+                            .foregroundStyle(didCopy ? .green : .accentColor)
+                        }
+
+                        Button("分享邀請碼") {
+                            store.send(.shareInviteCodeTapped)
+                        }
+
+                        Button("讓邀請碼失效", role: .destructive) {
+                            store.send(.revokeInviteCodeTapped)
                         }
                     }
+                } header: {
+                    Text("我的邀請碼")
+                } footer: {
+                    Text("將邀請碼傳給朋友，對方輸入後即可加你為好友。")
+                }
+
+                Section("輸入邀請碼") {
+                    HStack {
+                        TextField("貼上朋友的邀請碼", text: $store.pastedInviteCode)
+                            .autocorrectionDisabled()
+                            .autocapitalization(.none)
+                        Button("加入") {
+                            store.send(.acceptInviteCodeTapped)
+                        }
+                        .disabled(
+                            store.pastedInviteCode
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                                .isEmpty
+                        )
+                    }
                 }
             }
+            .navigationTitle("邀請好友")
+            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+// MARK: - Initials Avatar
+
+private struct InitialsAvatar: View {
+    let name: String
+    let size: CGFloat
+
+    private var initials: String {
+        let words = name.split(separator: " ")
+        if words.count >= 2 {
+            return String(words[0].prefix(1) + words[1].prefix(1)).uppercased()
+        }
+        return String(name.prefix(2)).uppercased()
+    }
+
+    var body: some View {
+        Circle()
+            .fill(Color.accentColor.opacity(0.12))
+            .frame(width: size, height: size)
+            .overlay(
+                Text(initials)
+                    .font(.system(size: size * 0.35, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+            )
     }
 }

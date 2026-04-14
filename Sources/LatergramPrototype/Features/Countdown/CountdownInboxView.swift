@@ -47,7 +47,7 @@ struct CountdownInboxView: View {
                     }
                 }
             }
-            .navigationTitle("倒數訊息")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { store.send(.onAppear) }
             .safeAreaInset(edge: .bottom) {

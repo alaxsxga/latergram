@@ -46,11 +46,11 @@ public struct AppView: View {
                 .tag(AppFeature.Tab.friends)
 
             CountdownInboxView(store: store.scope(state: \.countdown, action: \.countdown))
-                .tabItem { Label("倒數", systemImage: "timer") }
+                .tabItem { Label("信箱", systemImage: "envelope") }
                 .tag(AppFeature.Tab.countdown)
 
             ChatsView(store: store.scope(state: \.chats, action: \.chats))
-                .tabItem { Label("聊天", systemImage: "message") }
+                .tabItem { Label("往來", systemImage: "arrow.left.arrow.right") }
                 .tag(AppFeature.Tab.chats)
         }
     }
