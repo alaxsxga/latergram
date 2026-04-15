@@ -11,6 +11,7 @@ struct ChatsFeature {
         var path = StackState<ChatDetailFeature.State>()
         var currentUserID: UUID = UUID()
         var currentUserName: String = ""
+        var latestMessages: [UUID: DelayedMessage] = [:]  // friendID → latest message
     }
 
     enum Action {
@@ -20,6 +21,7 @@ struct ChatsFeature {
         case friendsLoaded([Friend])
         case loadFailed(String)
         case messageLimitUpdated(Int)
+        case latestMessagesUpdated([UUID: DelayedMessage])
         case path(StackActionOf<ChatDetailFeature>)
     }
 
@@ -62,6 +64,10 @@ struct ChatsFeature {
                 for id in state.path.ids {
                     state.path[id: id]?.userMessageLimit = limit
                 }
+                return .none
+
+            case .latestMessagesUpdated(let latest):
+                state.latestMessages = latest
                 return .none
 
             case .path:

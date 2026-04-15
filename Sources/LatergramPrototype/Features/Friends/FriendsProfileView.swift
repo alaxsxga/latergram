@@ -363,7 +363,7 @@ private struct InviteSheet: View {
 
 // MARK: - Initials Avatar
 
-private struct InitialsAvatar: View {
+struct InitialsAvatar: View {
     let name: String
     let size: CGFloat
 
