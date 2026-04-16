@@ -82,6 +82,11 @@ struct ChatDetailView: View {
                 }
             }
             .listStyle(.plain)
+            .onAppear {
+                if let last = store.messages.last {
+                    proxy.scrollTo(last.id, anchor: .bottom)
+                }
+            }
             .onChange(of: store.messages.count) {
                 if let last = store.messages.last {
                     proxy.scrollTo(last.id, anchor: .bottom)
@@ -148,8 +153,18 @@ private struct MessageBubble: View {
     @State private var isRevealing = false
     @State private var isBodyHidden = false
 
+    private var statusIcon: (name: String, color: Color)? {
+        let effectiveStatus: MessageStatus = message.status == .scheduled && message.unlockAt <= now
+            ? .readyToReveal : message.status
+        switch effectiveStatus {
+        case .scheduled:     return ("clock.circle.fill", Color(.systemGray))
+        case .readyToReveal: return ("clock.circle.fill", Color(red: 0.6, green: 0.85, blue: 0.6))
+        case .revealed:      return nil
+        }
+    }
+
     var body: some View {
-        HStack {
+        HStack(alignment: .bottom, spacing: 6) {
             if isMine { Spacer(minLength: 60) }
 
             VStack(alignment: isMine ? .trailing : .leading, spacing: 4) {
@@ -172,6 +187,12 @@ private struct MessageBubble: View {
                             }
                         }
                     }
+            }
+
+            if let icon = statusIcon {
+                Image(systemName: icon.name)
+                    .font(.system(size: 16))
+                    .foregroundStyle(icon.color)
             }
 
             if !isMine { Spacer(minLength: 60) }
