@@ -18,6 +18,7 @@ final class NotificationRebuildPolicyTests: XCTestCase {
                 senderID: UUID(),
                 receiverID: UUID(),
                 senderName: "s\(idx)",
+                receiverName: "r\(idx)",
                 body: "b",
                 style: .classic,
                 unlockAt: now.addingTimeInterval(TimeInterval(60 + idx))

@@ -39,6 +39,14 @@ let package = Package(
             name: "LatergramCoreTests",
             dependencies: ["LatergramCore"],
             path: "Tests/LatergramCoreTests"
+        ),
+        .testTarget(
+            name: "LatergramPrototypeTests",
+            dependencies: [
+                "LatergramPrototype",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Tests/LatergramPrototypeTests"
         )
     ]
 )
