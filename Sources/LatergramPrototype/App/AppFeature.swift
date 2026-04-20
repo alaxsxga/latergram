@@ -118,7 +118,22 @@ struct AppFeature {
             case .urlOpened(let url):
                 print("[DeepLink] urlOpened: \(url.absoluteString)")
                 print("[DeepLink] scheme=\(url.scheme ?? "nil") host=\(url.host ?? "nil")")
-                guard url.scheme == "delaygram",
+
+                // Auth callback (email confirmation)
+                if url.scheme == "latergram", url.host == "auth" {
+                    guard case .auth = state.route else { return .none }
+                    return .run { send in
+                        do {
+                            let userID = try await authClient.handleDeepLink(url)
+                            await send(.auth(.emailConfirmed(userID)))
+                        } catch {
+                            print("[DeepLink] handleDeepLink 失敗: \(error)")
+                        }
+                    }
+                }
+
+                // Invite deep link
+                guard url.scheme == "latergram",
                       url.host == "invite",
                       let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                           .queryItems?.first(where: { $0.name == "code" })?.value

@@ -141,7 +141,7 @@ struct FriendsFeature {
                 return .none
 
             case .shareInviteCodeTapped:
-                state.inviteShareMessage = "加我的 Delaygram！\ndelaygram://invite?code=\(state.generatedInviteCode)"
+                state.inviteShareMessage = "加我的 Latergram！\nlatergram://invite?code=\(state.generatedInviteCode)"
                 state.isSharingInvite = true
                 return .none
 

@@ -8,6 +8,8 @@ struct AuthView: View {
         switch store.mode {
         case .login, .signUp:
             credentialsView
+        case .awaitingConfirmation:
+            awaitingConfirmationView
         case .setName:
             setNameView
         }
@@ -19,7 +21,7 @@ struct AuthView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Text("Delaygram")
+            Text("Latergram")
                 .font(.largeTitle.bold())
 
             VStack(spacing: 12) {
@@ -86,6 +88,37 @@ struct AuthView: View {
             #if DEBUG
             debugAccountButtons
             #endif
+        }
+        .padding(.horizontal, 32)
+    }
+
+    // MARK: - Awaiting Confirmation
+
+    private var awaitingConfirmationView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "envelope.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.tint)
+
+            Text("請確認 Email")
+                .font(.title2.bold())
+
+            Text("驗證信已寄至 \(store.email)\n點擊信中連結後會自動返回此頁")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button {
+                store.send(.backTapped)
+            } label: {
+                Text("重新輸入")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.bottom, 16)
         }
         .padding(.horizontal, 32)
     }

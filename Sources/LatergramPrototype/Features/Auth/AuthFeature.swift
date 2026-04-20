@@ -4,7 +4,7 @@ import Foundation
 
 @Reducer
 struct AuthFeature {
-    enum Mode: Equatable { case login, signUp, setName }
+    enum Mode: Equatable { case login, signUp, awaitingConfirmation, setName }
 
     @ObservableState
     struct State: Equatable {
@@ -25,6 +25,7 @@ struct AuthFeature {
         case submitTapped
         case backTapped
         case accountCreated(UUID)
+        case emailConfirmed(UUID)
         case succeeded(UserProfile)
         case failed(String)
     }
@@ -77,6 +78,11 @@ struct AuthFeature {
 
             case .accountCreated(let userID):
                 state.isSubmitting = false
+                state.pendingUserID = userID
+                state.mode = .awaitingConfirmation
+                return .none
+
+            case .emailConfirmed(let userID):
                 state.pendingUserID = userID
                 state.mode = .setName
                 return .none

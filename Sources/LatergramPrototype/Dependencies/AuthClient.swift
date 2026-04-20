@@ -11,6 +11,7 @@ struct AuthClient: Sendable {
     var setDisplayName: @Sendable (_ userID: UUID, _ displayName: String) async throws -> UserProfile
     var signOut: @Sendable () async throws -> Void
     var currentSession: @Sendable () async -> UserProfile?
+    var handleDeepLink: @Sendable (_ url: URL) async throws -> UUID
 }
 
 extension AuthClient: DependencyKey {
@@ -54,6 +55,10 @@ extension AuthClient: DependencyKey {
         },
         createAccount: { email, password in
             let response = try await supabase.auth.signUp(email: email, password: password)
+            guard !(response.user.identities?.isEmpty ?? true) else {
+                throw NSError(domain: "AuthClient", code: 409,
+                              userInfo: [NSLocalizedDescriptionKey: "此 Email 已被註冊"])
+            }
             return response.user.id
         },
         setDisplayName: { userID, displayName in
@@ -102,6 +107,10 @@ extension AuthClient: DependencyKey {
                 username: profile.username,
                 messageLimit: profile.message_limit ?? 1
             )
+        },
+        handleDeepLink: { url in
+            let session = try await supabase.auth.session(from: url)
+            return session.user.id
         }
     )
 
@@ -111,7 +120,8 @@ extension AuthClient: DependencyKey {
         createAccount: { _, _ in UUID() },
         setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName, username: "testuser") },
         signOut: {},
-        currentSession: { nil }
+        currentSession: { nil },
+        handleDeepLink: { _ in UUID() }
     )
 }
 

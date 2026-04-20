@@ -47,7 +47,7 @@ struct NotificationClient: Sendable {
     var requestPermission: @Sendable () async -> Bool = { false }
     var scheduleMessages: @Sendable (_ messages: [DelayedMessage]) async -> Void = { _ in }
     var cancelAll: @Sendable () async -> Void = {}
-    /// Emits a messageID each time the user taps a Delaygram notification.
+    /// Emits a messageID each time the user taps a Latergram notification.
     var notificationTapStream: @Sendable () -> AsyncStream<UUID> = { .finished }
 }
 
@@ -77,7 +77,7 @@ extension NotificationClient: DependencyKey {
             },
 
             scheduleMessages: { messages in
-                // Remove previously scheduled Delaygram notifications
+                // Remove previously scheduled Latergram notifications
                 let pending = await box.value.pendingNotificationRequests()
                 let oldIDs = pending.map(\.identifier).filter { $0.hasPrefix("dg-") }
                 box.value.removePendingNotificationRequests(withIdentifiers: oldIDs)
