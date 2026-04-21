@@ -75,6 +75,7 @@ struct CountdownInboxView: View {
 
 private struct ReceivedPage: View {
     let store: StoreOf<CountdownInboxFeature>
+    @State private var focusedMessage: DelayedMessage? = nil
 
     // receivedPendingSortOrder is only rebuilt on messagesLoaded,
     // so a just-revealed message stays here until the next fetch —
@@ -115,7 +116,10 @@ private struct ReceivedPage: View {
                             ReadyToOpenCard(
                                 message: message,
                                 now: store.now,
-                                onRevealTap: { store.send(.revealTapped(message.id)) },
+                                onOpenTapped: {
+                                    focusedMessage = message
+                                    store.send(.revealTapped(message.id))
+                                },
                                 onDelete: { store.send(.deleteTapped(message.id)) }
                             )
                             .cardRow()
@@ -156,6 +160,14 @@ private struct ReceivedPage: View {
         .background(pageBg)
         .refreshable { await store.send(.refreshRequested).finish() }
         .tag(0)
+        .overlay {
+            if let msg = focusedMessage {
+                RevealFocusOverlay(message: msg) {
+                    focusedMessage = nil
+                }
+                .ignoresSafeArea()
+            }
+        }
     }
 }
 
@@ -403,10 +415,8 @@ private struct CardHeader: View {
 private struct ReadyToOpenCard: View {
     let message: DelayedMessage
     let now: Date
-    let onRevealTap: () -> Void
+    let onOpenTapped: () -> Void
     let onDelete: () -> Void
-
-    @State private var isRevealing = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -420,11 +430,7 @@ private struct ReadyToOpenCard: View {
                 HStack {
                     Spacer()
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) { isRevealing = true }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            onRevealTap()
-                            isRevealing = false
-                        }
+                        onOpenTapped()
                     } label: {
                         Text("Open")
                             .font(.subheadline.bold())
@@ -442,7 +448,6 @@ private struct ReadyToOpenCard: View {
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
-        .opacity(isRevealing ? 0.5 : 1)
     }
 }
 
@@ -514,6 +519,67 @@ private struct RevealedReceivedCard: View {
     }
 }
 
+// MARK: - Reveal Focus Overlay
+
+private struct RevealFocusOverlay: View {
+    let message: DelayedMessage
+    let onDismiss: () -> Void
+
+    @State private var isVisible = false
+    @State private var bodyVisible = false
+
+    private var bodyMaxHeight: CGFloat {
+        let count = message.body.count
+        if count <= 80 { return 100 }
+        if count <= 300 { return 200 }
+        return 300
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(isVisible ? 0.55 : 0)
+                .onTapGesture { dismiss() }
+
+            VStack(alignment: .leading, spacing: 12) {
+                CardHeader(message: message)
+
+                Divider()
+
+                if bodyVisible {
+                    ScrollView {
+                        Text(message.body)
+                            .font(.system(size: 18))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: bodyMaxHeight)
+                    .transition(.opacity)
+                }
+            }
+            .padding(16)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.2), radius: 24, x: 0, y: 8)
+            .padding(.horizontal, 24)
+            .scaleEffect(isVisible ? 1.0 : 0.82)
+            .offset(y: isVisible ? -32 : 0)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) {
+                isVisible = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation(.easeIn(duration: 0.25)) {
+                    bodyVisible = true
+                }
+            }
+        }
+    }
+
+    private func dismiss() {
+        onDismiss()
+    }
+}
+
 // MARK: - View Modifier
 
 private extension View {
@@ -522,5 +588,84 @@ private extension View {
             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
             .listRowSeparator(.hidden)
             .listRowBackground(Color.clear)
+    }
+}
+
+// MARK: - Preview
+
+#Preview("Reveal Animation") {
+    RevealAnimationPreview()
+}
+
+private struct RevealAnimationPreview: View {
+    static let userID = UUID()
+    static let fakeMessages: [DelayedMessage] = [
+        // 短（~30字）
+        DelayedMessage(
+            senderID: UUID(),
+            receiverID: userID,
+            senderName: "Yuni",
+            receiverName: "Me",
+            body: "Just wanted to say I'm really glad we're friends. That's it.",
+            style: .heart,
+            sentAt: Date().addingTimeInterval(-86400),
+            unlockAt: Date().addingTimeInterval(-60),
+            status: .readyToReveal
+        ),
+        // 中（~280字）
+        DelayedMessage(
+            senderID: UUID(),
+            receiverID: userID,
+            senderName: "Nong",
+            receiverName: "Me",
+            body: "I've been thinking about this for a while and wanted to put it into words before I forgot. You've been a really steady presence in my life lately, even when you probably didn't realize it. The small things you do — checking in, showing up, being consistent — they matter more than you know. I hope things are going well for you right now, and if they're not, I'm here.",
+            style: .cool,
+            sentAt: Date().addingTimeInterval(-7200),
+            unlockAt: Date().addingTimeInterval(-30),
+            status: .readyToReveal
+        ),
+        // 長（~350字）
+        DelayedMessage(
+            senderID: UUID(),
+            receiverID: userID,
+            senderName: "Alex",
+            receiverName: "Me",
+            body: "I've been meaning to write this for a while. There have been a lot of changes lately, and honestly it's been hard to keep up with everything. But every time things get overwhelming, I think about the people who genuinely make a difference — and you're one of them.\n\nYou might not notice it, but the way you treat the people around you is something a lot of others could learn from. You're patient, you listen, and you show up. I don't say that enough, so I wanted to make sure I said it now.\n\nHope this finds you well.",
+            style: .warm,
+            sentAt: Date().addingTimeInterval(-3600),
+            unlockAt: Date().addingTimeInterval(-10),
+            status: .readyToReveal
+        ),
+    ]
+
+    @State private var focusedMessage: DelayedMessage? = nil
+
+    var body: some View {
+        ZStack {
+            pageBg.ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(Self.fakeMessages) { message in
+                        ReadyToOpenCard(
+                            message: message,
+                            now: Date(),
+                            onOpenTapped: { focusedMessage = message },
+                            onDelete: {}
+                        )
+                        .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.top, 16)
+            }
+        }
+        .overlay {
+            if let msg = focusedMessage {
+                RevealFocusOverlay(message: msg) {
+                    focusedMessage = nil
+                }
+                .ignoresSafeArea()
+            }
+        }
     }
 }
