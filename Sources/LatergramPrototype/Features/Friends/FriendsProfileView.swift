@@ -2,7 +2,6 @@ import ComposableArchitecture
 import LatergramCore
 import SwiftUI
 
-private let pageBg = Color(.systemGroupedBackground)
 
 struct FriendsProfileView: View {
     @Bindable var store: StoreOf<FriendsFeature>
@@ -30,14 +29,20 @@ struct FriendsProfileView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 20)
             }
-            .background(pageBg)
+            .pageBackground()
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button { showInviteSheet = true } label: {
-                        Image(systemName: "person.badge.plus")
+                        ZStack {
+                            Circle().fill(Color.brand).frame(width: 36, height: 36)
+                            Image(systemName: "person.badge.plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
                     }
+                    .buttonStyle(.plain)
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
@@ -47,7 +52,12 @@ struct FriendsProfileView: View {
                             Label("登出", systemImage: "rectangle.portrait.and.arrow.right")
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .frame(width: 34, height: 34)
+                            .background(Color(white: 0.18))
+                            .clipShape(Circle())
                     }
                 }
             }
@@ -136,14 +146,7 @@ struct FriendsProfileView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 18)
-        .background(
-            LinearGradient(
-                colors: [Color.accentColor.opacity(0.12), Color.accentColor.opacity(0.04)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .cardStyle(radius: 20)
     }
 
     // MARK: - Friends Card
@@ -164,9 +167,7 @@ struct FriendsProfileView: View {
                 .padding(.bottom, 8)
             }
         }
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 1)
+        .cardStyle()
     }
 
     private var emptyFriendsState: some View {
@@ -235,7 +236,7 @@ private struct InviteSheet: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .padding(10)
-                        .background(Color(.systemGray5))
+                        .background(Color(white: 0.22))
                         .clipShape(Circle())
                 }
             }
@@ -253,7 +254,7 @@ private struct InviteSheet: View {
                 .padding(.bottom, 40)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .pageBackground()
     }
 
     // MARK: My Code
@@ -299,8 +300,7 @@ private struct InviteSheet: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 28)
                         .padding(.horizontal, 16)
-                        .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .cardBackground(radius: 16)
 
                     Button {
                         store.send(.shareInviteCodeTapped)
@@ -323,7 +323,7 @@ private struct InviteSheet: View {
     private var orDivider: some View {
         Rectangle()
             .frame(height: 1)
-            .foregroundStyle(Color(.systemGray4))
+            .foregroundStyle(Color(white: 0.25))
     }
 
     // MARK: Enter Code
@@ -339,8 +339,7 @@ private struct InviteSheet: View {
                     .autocapitalization(.none)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
-                    .background(Color(.systemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .cardBackground()
 
                 let canJoin = !store.pastedInviteCode
                     .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -367,6 +366,10 @@ struct InitialsAvatar: View {
     let name: String
     let size: CGFloat
 
+    private var avatarColor: Color {
+        Color.avatarPalette[abs(name.hashValue) % Color.avatarPalette.count]
+    }
+
     private var initials: String {
         let words = name.split(separator: " ")
         if words.count >= 2 {
@@ -377,12 +380,12 @@ struct InitialsAvatar: View {
 
     var body: some View {
         Circle()
-            .fill(Color.accentColor.opacity(0.12))
+            .fill(avatarColor)
             .frame(width: size, height: size)
             .overlay(
                 Text(initials)
                     .font(.system(size: size * 0.35, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(.white)
             )
     }
 }

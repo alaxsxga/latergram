@@ -53,5 +53,7 @@ public struct AppView: View {
                 .tabItem { Label("往來", systemImage: "arrow.left.arrow.right") }
                 .tag(AppFeature.Tab.chats)
         }
+        .tint(Color.brand)
+        .preferredColorScheme(.dark)
     }
 }
