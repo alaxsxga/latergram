@@ -2,11 +2,6 @@ import ComposableArchitecture
 import LatergramCore
 import SwiftUI
 
-// MARK: - Design constants
-
-private let cobaltBlue = Color(red: 0.0, green: 0.28, blue: 0.9)
-private let pageBg = Color(red: 0.94, green: 0.93, blue: 1.0)
-
 private func shortDuration(_ interval: TimeInterval) -> String {
     let secs = max(0, interval)
     let d = secs / 86400
@@ -47,18 +42,10 @@ struct CountdownInboxView: View {
                     }
                 }
             }
+            .pageBackground()
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { store.send(.onAppear) }
-            .safeAreaInset(edge: .bottom) {
-                if let banner = store.infoBanner {
-                    Text(banner)
-                        .font(.footnote)
-                        .padding(10)
-                        .frame(maxWidth: .infinity)
-                        .background(.thinMaterial)
-                }
-            }
             .alert("錯誤", isPresented: Binding(
                 get: { store.errorMessage != nil },
                 set: { if !$0 { store.send(.errorDismissed) } }
@@ -119,8 +106,7 @@ private struct ReceivedPage: View {
                                 onOpenTapped: {
                                     focusedMessage = message
                                     store.send(.revealTapped(message.id))
-                                },
-                                onDelete: { store.send(.deleteTapped(message.id)) }
+                                }
                             )
                             .cardRow()
                         }
@@ -150,14 +136,15 @@ private struct ReceivedPage: View {
                             .cardRow()
                         }
                     } header: {
-                        InboxSectionHeader("已開啟")
+                        InboxSectionHeader("已讀")
                     }
                 }
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(pageBg)
+        .background(Color.pageBg)
+        .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 10) }
         .refreshable { await store.send(.refreshRequested).finish() }
         .tag(0)
         .overlay {
@@ -232,7 +219,7 @@ private struct SentPage: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(pageBg)
+        .background(Color.pageBg)
         .refreshable { await store.send(.refreshRequested).finish() }
         .tag(1)
     }
@@ -279,7 +266,7 @@ private struct SentCard: View {
                     Spacer()
                     Text(isBodyShown ? "隱藏" : "查看內容")
                         .font(.caption)
-                        .foregroundStyle(cobaltBlue)
+                        .foregroundStyle(Color.brand)
                 }
 
                 if isBodyShown {
@@ -288,9 +275,7 @@ private struct SentCard: View {
             }
         }
         .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .cardStyle(radius: 16)
         .contentShape(RoundedRectangle(cornerRadius: 16))
         .onTapGesture { isBodyShown.toggle() }
     }
@@ -311,7 +296,7 @@ private struct ReadyToOpenHeader: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
-                .background(cobaltBlue)
+                .background(Color.brand)
                 .clipShape(Capsule())
         }
         .font(.subheadline)
@@ -326,10 +311,6 @@ private struct CountingDownHeader: View {
         HStack(spacing: 6) {
             Image(systemName: "hourglass")
             Text("Counting Down").fontWeight(.bold)
-            Text("Sealed for your future self")
-                .font(.caption)
-                .italic()
-                .foregroundStyle(.secondary)
         }
         .font(.subheadline)
         .foregroundStyle(.primary)
@@ -412,42 +393,64 @@ private struct CardHeader: View {
 
 // MARK: - Ready to Open Card
 
+private let readyAccent = Color(red: 1.0, green: 0.52, blue: 0.14)
+
 private struct ReadyToOpenCard: View {
     let message: DelayedMessage
     let now: Date
     let onOpenTapped: () -> Void
-    let onDelete: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            CardHeader(message: message, onDelete: onDelete)
-
-            Divider()
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                InitialsAvatar(name: message.senderName, size: 36)
+                Text(message.senderName)
+                    .font(.subheadline.bold())
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.bottom, 12)
 
             if message.status == .revealed {
-                Text(message.body).font(.body)
+                Text(message.body)
+                    .font(.body)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                HStack {
-                    Spacer()
-                    Button {
-                        onOpenTapped()
-                    } label: {
-                        Text("Open")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 36)
-                            .padding(.vertical, 10)
-                            .background(cobaltBlue)
-                            .clipShape(Capsule())
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(readyAccent.opacity(0.12))
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        Image(systemName: "envelope")
+                            .font(.system(size: 24, weight: .medium))
+                            .foregroundStyle(readyAccent)
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+
+                Button(action: onOpenTapped) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lock.open")
+                        Text("Ready to Open")
                     }
-                    .buttonStyle(.plain)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(readyAccent)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
+                .buttonStyle(.plain)
             }
         }
         .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .cardStyle(radius: 16)
     }
 }
 
@@ -458,33 +461,43 @@ private struct CountingDownCard: View {
     let now: Date
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            CardHeader(message: message)
-
-            Divider()
-
-            HStack {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                InitialsAvatar(name: message.senderName, size: 36)
+                Text(message.senderName)
+                    .font(.subheadline.bold())
                 Spacer()
-                VStack(spacing: 4) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "hourglass")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                            .font(.title2.monospacedDigit().bold())
-                    }
-                    Text("解鎖於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened))")
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                Spacer()
             }
-            .padding(.vertical, 4)
+            .padding(.bottom, 20)
+
+            VStack(spacing: 8) {
+                Text("解鎖倒數")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                    .font(.system(size: 36, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Color.brand)
+                    .minimumScaleFactor(0.6)
+                HStack(spacing: 4) {
+                    Image(systemName: "lock")
+                        .font(.caption)
+                    Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                }
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
         }
         .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 1)
+        .cardStyle(radius: 16)
     }
 }
 
@@ -494,28 +507,48 @@ private struct RevealedReceivedCard: View {
     let message: DelayedMessage
     let onDelete: () -> Void
 
-    @State private var isBodyHidden = false
+    @State private var isExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            CardHeader(message: message, onDelete: onDelete)
-
-            Divider()
-
-            if isBodyHidden {
-                Text("點擊查看")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text(message.body).font(.body)
+            HStack(spacing: 12) {
+                InitialsAvatar(name: message.senderName, size: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(message.senderName)
+                        .font(.subheadline.bold())
+                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button(isExpanded ? "隱藏" : "查看") {
+                    withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.brand)
+                .buttonStyle(.plain)
+                Menu {
+                    Button(role: .destructive, action: onDelete) {
+                        Label("刪除", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 4)
+                }
+                .buttonStyle(.plain)
+            }
+            if isExpanded {
+                Text(message.body)
+                    .font(.body)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 1)
-        .contentShape(RoundedRectangle(cornerRadius: 16))
-        .onTapGesture { isBodyHidden.toggle() }
+        .cardStyle(radius: 16)
     }
 }
 
@@ -556,9 +589,9 @@ private struct RevealFocusOverlay: View {
                 }
             }
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(Color.cardBg)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.2), radius: 24, x: 0, y: 8)
+            .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 8)
             .padding(.horizontal, 24)
             .scaleEffect(isVisible ? 1.0 : 0.82)
             .offset(y: isVisible ? -32 : 0)
@@ -642,7 +675,7 @@ private struct RevealAnimationPreview: View {
 
     var body: some View {
         ZStack {
-            pageBg.ignoresSafeArea()
+            Color.pageBg.ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 12) {
@@ -650,8 +683,7 @@ private struct RevealAnimationPreview: View {
                         ReadyToOpenCard(
                             message: message,
                             now: Date(),
-                            onOpenTapped: { focusedMessage = message },
-                            onDelete: {}
+                            onOpenTapped: { focusedMessage = message }
                         )
                         .padding(.horizontal, 16)
                     }
