@@ -187,16 +187,18 @@ private struct SentPage: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
             } else {
-                Section {
-                    ForEach(pending) { message in
-                        SentCard(
-                            message: message,
-                            now: store.now,
-                            onDelete: message.unlockAt <= store.now
-                                ? { store.send(.deleteTapped(message.id)) }
-                                : nil
-                        )
-                        .cardRow()
+                if !pending.isEmpty {
+                    Section {
+                        ForEach(pending) { message in
+                            SentCard(
+                                message: message,
+                                now: store.now,
+                                onDelete: { store.send(.deleteTapped(message.id)) }
+                            )
+                            .cardRow()
+                        }
+                    } header: {
+                        InboxSectionHeader("未開啟")
                     }
                 }
                 if !revealed.isEmpty {
@@ -205,9 +207,7 @@ private struct SentPage: View {
                             SentCard(
                                 message: message,
                                 now: store.now,
-                                onDelete: message.unlockAt <= store.now
-                                    ? { store.send(.deleteTapped(message.id)) }
-                                    : nil
+                                onDelete: { store.send(.deleteTapped(message.id)) }
                             )
                             .cardRow()
                         }
@@ -232,52 +232,144 @@ private struct SentCard: View {
     let now: Date
     var onDelete: (() -> Void)? = nil
 
-    @State private var isBodyShown = false
+    @State private var isExpanded = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            CardHeader(message: message, name: "to \(message.receiverName)", onDelete: onDelete)
+        if message.status == .revealed {
+            revealedBody
+        } else {
+            pendingBody
+        }
+    }
 
-            Divider()
-
-            if message.status == .scheduled {
-                HStack {
+    private var pendingBody: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    InitialsAvatar(name: message.receiverName, size: 36)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("to \(message.receiverName)").font(.subheadline.bold())
+                        Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                     Spacer()
-                    VStack(spacing: 4) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "hourglass")
-                                .font(.subheadline)
+                    if let onDelete {
+                        Menu {
+                            Button(role: .destructive, action: onDelete) {
+                                Label("刪除", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
                                 .foregroundStyle(.secondary)
-                            Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                                .font(.title2.monospacedDigit().bold())
                         }
-                        Text("解鎖於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        .buttonStyle(.plain)
                     }
-                    Spacer()
                 }
-                .padding(.vertical, 4)
-            } else {
-                HStack {
-                    if message.status == .revealed {
-                        Text("對方已開啟").font(.caption).foregroundStyle(.green)
-                    }
-                    Spacer()
-                    Text(isBodyShown ? "隱藏" : "查看內容")
-                        .font(.caption)
-                        .foregroundStyle(Color.brand)
-                }
+                .padding(.bottom, message.status == .scheduled ? 20 : 12)
 
-                if isBodyShown {
-                    Text(message.body).font(.body)
+                if message.status == .scheduled {
+                    VStack(spacing: 8) {
+                        Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                            .font(.system(size: 36, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.brand)
+                            .minimumScaleFactor(0.6)
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock").font(.caption)
+                            Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
+                            Spacer()
+                            Text(isExpanded ? "隱藏" : "查看")
+                                .font(.caption).foregroundStyle(Color.brand)
+                        }
+                        .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    VStack(spacing: 6) {
+                        Image(systemName: "clock.badge.checkmark")
+                            .font(.system(size: 28, weight: .medium))
+                            .foregroundStyle(Color.brand)
+                        Text("倒數已結束，等待對方開啟")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock.open").font(.caption)
+                            Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
+                            Spacer()
+                            Text(isExpanded ? "隱藏" : "查看")
+                                .font(.caption).foregroundStyle(Color.brand)
+                        }
+                        .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
+            .transaction { $0.animation = nil }
+
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
         }
         .padding(16)
         .cardStyle(radius: 16)
         .contentShape(RoundedRectangle(cornerRadius: 16))
-        .onTapGesture { isBodyShown.toggle() }
+        .onTapGesture { isExpanded.toggle() }
+    }
+
+    private var revealedBody: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                InitialsAvatar(name: message.receiverName, size: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("to \(message.receiverName)").font(.subheadline.bold())
+                    Text("對方已開啟").font(.caption).foregroundStyle(.green)
+                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button(isExpanded ? "隱藏" : "查看") { isExpanded.toggle() }
+                .font(.subheadline).foregroundStyle(Color.brand).buttonStyle(.plain)
+                if let onDelete {
+                    Menu {
+                        Button(role: .destructive, action: onDelete) {
+                            Label("刪除", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundStyle(.secondary).padding(.leading, 4)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .transaction { $0.animation = nil }
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, includesDivider: false)
+        }
+        .padding(16)
+        .cardStyle(radius: 16)
+    }
+}
+
+private struct ExpandableMessageBody: View {
+    let text: String
+    let isExpanded: Bool
+    var includesDivider = true
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 0) {
+                    if includesDivider {
+                        Divider().padding(.top, 10)
+                    }
+                    Text(text)
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, includesDivider ? 8 : 0)
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.25), value: isExpanded)
     }
 }
 
