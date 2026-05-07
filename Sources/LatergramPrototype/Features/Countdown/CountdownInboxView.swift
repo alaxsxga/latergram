@@ -616,12 +616,9 @@ private struct RevealedReceivedCard: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button(isExpanded ? "隱藏" : "查看") {
-                    withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
-                }
-                .font(.subheadline)
-                .foregroundStyle(Color.brand)
-                .buttonStyle(.plain)
+                Text(isExpanded ? "隱藏" : "查看")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.brand)
                 Menu {
                     Button(role: .destructive, action: onDelete) {
                         Label("刪除", systemImage: "trash")
@@ -633,14 +630,13 @@ private struct RevealedReceivedCard: View {
                 }
                 .buttonStyle(.plain)
             }
-            if isExpanded {
-                Text(message.body)
-                    .font(.body)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+            .transaction { $0.animation = nil }
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, includesDivider: false)
         }
         .padding(16)
         .cardStyle(radius: 16)
+        .contentShape(RoundedRectangle(cornerRadius: 16))
+        .onTapGesture { isExpanded.toggle() }
     }
 }
 
