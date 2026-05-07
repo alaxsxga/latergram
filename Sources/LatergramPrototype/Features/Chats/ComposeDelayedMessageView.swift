@@ -94,9 +94,13 @@ struct ComposeView: View {
 
     // MARK: - Helpers
 
+    private var isTimingValid: Bool {
+        store.unlockAt > Date().addingTimeInterval(59)
+    }
+
     private var canSend: Bool {
         !store.body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && store.unlockAt > Date().addingTimeInterval(59)
+            && isTimingValid
     }
 
     private func updateUnlockAt() {
@@ -191,14 +195,15 @@ struct ComposeView: View {
     }
 
     private var summaryPill: some View {
-        Text(summaryText)
+        let accent: Color = isTimingValid ? .brand : .red
+        return Text(summaryText)
             .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(isTimingValid ? AnyShapeStyle(.secondary) : AnyShapeStyle(Color.red))
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.brand.opacity(0.08))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brand.opacity(0.2), lineWidth: 1))
+            .background(accent.opacity(0.08))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(accent.opacity(0.2), lineWidth: 1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
