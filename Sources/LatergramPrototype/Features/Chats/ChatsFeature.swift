@@ -17,6 +17,7 @@ struct ChatsFeature {
     enum Action {
         case onAppear
         case foregroundRefresh
+        case reset
         case friendTapped(Friend)
         case friendsLoaded([Friend])
         case loadFailed(String)
@@ -37,6 +38,10 @@ struct ChatsFeature {
                 guard state.friends.isEmpty else { return .none }
                 state.isLoading = true
                 return loadFriends(userID: state.currentUserID)
+
+            case .reset:
+                state = State()
+                return .cancel(id: CancelID.load)
 
             case .foregroundRefresh:
                 return loadFriends(userID: state.currentUserID)

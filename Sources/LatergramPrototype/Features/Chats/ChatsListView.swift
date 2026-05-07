@@ -78,16 +78,18 @@ struct ChatsView: View {
                                 if index > 0 {
                                     Divider().padding(.leading, 72)
                                 }
-                                Button {
-                                    store.send(.friendTapped(friend))
-                                } label: {
-                                    ChatRow(
-                                        friend: friend,
-                                        message: store.latestMessages[friend.id]!,
-                                        currentUserID: store.currentUserID
-                                    )
+                                if let message = store.latestMessages[friend.id] {
+                                    Button {
+                                        store.send(.friendTapped(friend))
+                                    } label: {
+                                        ChatRow(
+                                            friend: friend,
+                                            message: message,
+                                            currentUserID: store.currentUserID
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                         .cardStyle(radius: 16)
