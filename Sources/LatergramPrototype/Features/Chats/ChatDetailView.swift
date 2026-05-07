@@ -2,6 +2,13 @@ import ComposableArchitecture
 import LatergramCore
 import SwiftUI
 
+// MARK: - Spec colors (chat history screen only)
+
+private let specBgPage   = Color(red: 0.051, green: 0.067, blue: 0.090) // #0D1117
+private let specBgOpened = Color(red: 0.051, green: 0.110, blue: 0.090) // #0D1C17
+private let specBgActive = Color(red: 0.078, green: 0.106, blue: 0.176) // #141B2D
+private let specTextDark = Color(red: 0.039, green: 0.055, blue: 0.090) // #0A0E17
+
 struct ChatDetailView: View {
     @Bindable var store: StoreOf<ChatDetailFeature>
 
@@ -82,6 +89,8 @@ struct ChatDetailView: View {
                 }
             }
             .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(specBgPage)
             .onAppear {
                 if let last = store.messages.last {
                     proxy.scrollTo(last.id, anchor: .bottom)
@@ -151,33 +160,48 @@ private struct MessageBubble: View {
     var onDelete: (() -> Void)? = nil
 
     @State private var isRevealing = false
-    @State private var isBodyHidden = false
 
-    private var statusIcon: (name: String, color: Color)? {
-        let effectiveStatus: MessageStatus = message.status == .scheduled && message.unlockAt <= now
-            ? .readyToReveal : message.status
+    private var effectiveStatus: MessageStatus {
+        message.status == .scheduled && message.unlockAt <= now ? .readyToReveal : message.status
+    }
+
+    private var bubbleBg: Color {
         switch effectiveStatus {
-        case .scheduled:     return ("clock.circle.fill", Color(.systemGray))
-        case .readyToReveal: return ("clock.circle.fill", Color(red: 0.6, green: 0.85, blue: 0.6))
-        case .revealed:      return nil
+        case .revealed:      specBgOpened
+        case .readyToReveal: specBgActive
+        case .scheduled:     .brand
         }
     }
 
+    private var showBorder: Bool { effectiveStatus == .readyToReveal }
+
+    private var bubbleShape: UnevenRoundedRectangle {
+        isMine
+            ? UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 18,
+                                     bottomTrailingRadius: 4, topTrailingRadius: 18)
+            : UnevenRoundedRectangle(topLeadingRadius: 18, bottomLeadingRadius: 4,
+                                     bottomTrailingRadius: 18, topTrailingRadius: 18)
+    }
+
     var body: some View {
-        HStack(alignment: .bottom, spacing: 6) {
+        HStack(alignment: .bottom, spacing: 0) {
             if isMine { Spacer(minLength: 60) }
+            if !isMine {
+                ChatBubbleAvatar(name: message.senderName)
+                    .padding(.trailing, 6)
+            }
 
             VStack(alignment: isMine ? .trailing : .leading, spacing: 4) {
-                if !isMine {
-                    Text(message.senderName)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
                 bubbleContent
-                    .padding(10)
-                    .background(message.style.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .contentShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(12)
+                    .background(bubbleBg)
+                    .clipShape(bubbleShape)
+                    .overlay {
+                        if showBorder {
+                            bubbleShape.stroke(Color.brand, lineWidth: 1.5)
+                        }
+                    }
+                    .contentShape(bubbleShape)
                     .opacity(isRevealing ? 0.4 : 1)
                     .onTapGesture { handleTap() }
                     .contextMenu {
@@ -187,12 +211,14 @@ private struct MessageBubble: View {
                             }
                         }
                     }
-            }
 
-            if let icon = statusIcon {
-                Image(systemName: icon.name)
-                    .font(.system(size: 16))
-                    .foregroundStyle(icon.color)
+                Text(message.sentAt.formatted(
+                    .dateTime.month(.abbreviated).day()
+                             .hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+                ))
+                .font(.system(size: 10))
+                .foregroundStyle(.white.opacity(0.45))
+                .padding(.leading, isMine ? 0 : 2)
             }
 
             if !isMine { Spacer(minLength: 60) }
@@ -203,19 +229,11 @@ private struct MessageBubble: View {
         guard !isMine else { return }
         switch message.status {
         case .revealed:
-            isBodyHidden.toggle()
+            break
         case .readyToReveal:
-            withAnimation(.easeInOut(duration: 0.3)) { isRevealing = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                onRevealTap()
-                isRevealing = false
-            }
+            break
         case .scheduled where now >= message.unlockAt:
-            withAnimation(.easeInOut(duration: 0.3)) { isRevealing = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                onRevealTap()
-                isRevealing = false
-            }
+            break
         case .scheduled:
             break
         }
@@ -223,77 +241,118 @@ private struct MessageBubble: View {
 
     @ViewBuilder
     private var bubbleContent: some View {
-        if isMine {
-            sentContent
-        } else {
-            receivedContent
-        }
+        if isMine { sentContent } else { receivedContent }
     }
 
-    // Sender always sees the body; show countdown while scheduled so they know when receiver can open
     @ViewBuilder
     private var sentContent: some View {
-        VStack(alignment: .trailing, spacing: 4) {
-            Text(message.body).font(.body)
-            messageMeta
-            if message.status == .scheduled && now < message.unlockAt {
-                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+        switch effectiveStatus {
+        case .revealed:
+            Text(message.body)
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.88))
+
+        case .scheduled:
+            VStack(alignment: .trailing, spacing: 8) {
+                Text(message.body)
+                    .font(.body)
+                    .foregroundStyle(specTextDark)
+                HStack(spacing: 6) {
+                    ClockCircleIcon(size: 16,
+                                    bgColor: .black.opacity(0.12),
+                                    handColor: .black.opacity(0.4))
+                    Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                        .font(.system(size: 11))
+                        .foregroundStyle(.black.opacity(0.45))
+                }
+            }
+
+        case .readyToReveal:
+            VStack(alignment: .trailing, spacing: 6) {
+                Text(message.body)
+                    .font(.body)
+                    .foregroundStyle(.white.opacity(0.88))
+                HStack(spacing: 4) {
+                    ClockCircleIcon(size: 16, bgColor: .brand, handColor: specTextDark)
+                    Text("unread")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(Color.brand)
+                }
+                .padding(.horizontal, 9)
+                .padding(.vertical, 3)
+                .background(Color.brand.opacity(0.12))
+                .clipShape(Capsule())
             }
         }
     }
 
     @ViewBuilder
     private var receivedContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            switch message.status {
-            case .revealed:
-                if !isBodyHidden {
-                    Text(message.body).font(.body)
-                } else {
-                    tapToOpenLabel
-                }
-                messageMeta
+        switch effectiveStatus {
+        case .revealed:
+            Text(message.body)
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.88))
 
-            case .readyToReveal:
-                tapToOpenLabel
-                messageMeta
+        case .scheduled:
+            HStack(spacing: 8) {
+                ClockCircleIcon(size: 22,
+                                bgColor: .black.opacity(0.12),
+                                handColor: .black.opacity(0.4))
+                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.black.opacity(0.55))
+            }
 
-            case .scheduled:
-                if now < message.unlockAt {
-                    Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                        .font(.caption.monospacedDigit())
-                    Text("尚未解鎖").font(.caption2).foregroundStyle(.secondary)
-                } else {
-                    tapToOpenLabel
-                }
-                messageMeta
+        case .readyToReveal:
+            HStack(spacing: 8) {
+                ClockCircleIcon(size: 28, bgColor: .brand, handColor: specTextDark)
+                Text("not yet opened")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.brand)
             }
         }
     }
+}
 
-    @ViewBuilder
-    private var messageMeta: some View {
-        Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .shortened))")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        Text("總倒數 \(totalDurationText)")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+// MARK: - Clock Circle Icon
+
+private struct ClockCircleIcon: View {
+    let size: CGFloat
+    let bgColor: Color
+    let handColor: Color
+
+    var body: some View {
+        ZStack {
+            Circle().fill(bgColor)
+            Image(systemName: "clock")
+                .font(.system(size: size * 0.55))
+                .foregroundStyle(handColor)
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// MARK: - Chat Bubble Avatar
+
+private struct ChatBubbleAvatar: View {
+    let name: String
+    private static let bg = Color(red: 0.118, green: 0.157, blue: 0.267) // #1E2844
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Self.bg)
+            Text(initials)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.brand)
+        }
+        .frame(width: 26, height: 26)
     }
 
-    private var tapToOpenLabel: some View {
-        Label("點擊開啟", systemImage: message.style.icon)
-            .font(.subheadline)
-            .foregroundStyle(message.style.accent)
-    }
-
-    private var totalDurationText: String {
-        let seconds = max(0, Int(message.unlockAt.timeIntervalSince(message.sentAt)))
-        let h = seconds / 3600
-        let m = (seconds % 3600) / 60
-        if h > 0 { return "\(h)小時\(m)分" }
-        return "\(m)分"
+    private var initials: String {
+        let w = name.split(separator: " ")
+        return w.count >= 2
+            ? "\(w[0].prefix(1))\(w[1].prefix(1))".uppercased()
+            : String(name.prefix(2)).uppercased()
     }
 }

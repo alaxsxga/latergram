@@ -52,8 +52,6 @@ private let previewMessages: [UUID: DelayedMessage] = {
 }
 #endif
 
-private let pageBg = Color(.systemGroupedBackground)
-
 struct ChatsView: View {
     @Bindable var store: StoreOf<ChatsFeature>
 
@@ -92,13 +90,11 @@ struct ChatsView: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 1)
+                        .cardStyle(radius: 16)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 20)
                     }
-                    .background(pageBg)
+                    .background(Color.pageBg.ignoresSafeArea())
                 }
             }
             .navigationTitle("")
