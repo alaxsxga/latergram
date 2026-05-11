@@ -230,22 +230,36 @@ struct ComposeView: View {
     // MARK: - Style Preview
 
     private var stylePreview: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let bubbleShape = UnevenRoundedRectangle(
+            topLeadingRadius: 18, bottomLeadingRadius: 18,
+            bottomTrailingRadius: 4, topTrailingRadius: 18
+        )
+        return VStack(alignment: .leading, spacing: 0) {
             composeLabel("預覽")
-            VStack(alignment: .leading, spacing: 10) {
-                Text("你的訊息，對方解鎖後就能看到。")
-                    .font(.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(14)
-                    .background(store.style.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
 
-                HStack {
-                    Spacer()
+            HStack(alignment: .bottom) {
+                Spacer(minLength: 48)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(store.body.isEmpty ? "你的訊息，對方解鎖後就能看到。" : store.body)
+                        .font(.system(size: 19, weight: .medium))
+                        .foregroundStyle(store.style.styleTextColor)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 14)
+                        .padding(.bottom, 8)
+
                     Text(summaryText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 11))
+                        .foregroundStyle(store.style.styleTextColor.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .padding(.horizontal, 14)
+                        .padding(.bottom, 14)
                 }
+                .background { bubbleShape.fill(store.style.styleColor.opacity(0.12)) }
+                .clipShape(bubbleShape)
+                .overlay(bubbleShape.stroke(store.style.styleColor.opacity(0.35), lineWidth: 1))
+                .shadow(color: store.style.styleColor.opacity(0.4), radius: 11, x: 0, y: 0)
             }
             .padding(14)
             .cardBackground(radius: 16)
