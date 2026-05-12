@@ -72,24 +72,25 @@ struct ChatDetailView: View {
 
     private var messageList: some View {
         ScrollViewReader { proxy in
-            List {
-                ForEach(store.messages) { message in
-                    MessageBubble(
-                        message: message,
-                        now: store.now,
-                        isMine: message.senderID == store.state.friend.id ? false : true,
-                        onRevealTap: { store.send(.revealTapped(message.id)) },
-                        onDelete: message.unlockAt <= store.now
-                            ? { store.send(.deleteTapped(message.id)) }
-                            : nil
-                    )
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .id(message.id)
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(store.messages) { message in
+                        MessageBubble(
+                            message: message,
+                            now: store.now,
+                            isMine: message.senderID == store.state.friend.id ? false : true,
+                            onRevealTap: { store.send(.revealTapped(message.id)) },
+                            onDelete: message.unlockAt <= store.now
+                                ? { store.send(.deleteTapped(message.id)) }
+                                : nil
+                        )
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
+                        .id(message.id)
+                    }
                 }
+                .padding(.vertical, 8)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
             .background(specBgPage)
             .onAppear {
                 if let last = store.messages.last {
@@ -159,7 +160,7 @@ private struct MessageBubble: View {
     let onRevealTap: () -> Void
     var onDelete: (() -> Void)? = nil
 
-    @State private var isRevealing = false
+    @State private var isExpanded = false
 
     private var effectiveStatus: MessageStatus {
         message.status == .scheduled && message.unlockAt <= now ? .readyToReveal : message.status
@@ -202,7 +203,6 @@ private struct MessageBubble: View {
                         }
                     }
                     .contentShape(bubbleShape)
-                    .opacity(isRevealing ? 0.4 : 1)
                     .onTapGesture { handleTap() }
                     .contextMenu {
                         if let onDelete {
@@ -226,22 +226,42 @@ private struct MessageBubble: View {
     }
 
     private func handleTap() {
-        guard !isMine else { return }
-        switch message.status {
-        case .revealed:
-            break
-        case .readyToReveal:
-            break
-        case .scheduled where now >= message.unlockAt:
-            break
-        case .scheduled:
-            break
-        }
+        guard effectiveStatus != .scheduled else { return }
+        isExpanded.toggle()
     }
 
     @ViewBuilder
     private var bubbleContent: some View {
-        if isMine { sentContent } else { receivedContent }
+        VStack(alignment: isMine ? .trailing : .leading, spacing: 0) {
+            if isMine { sentContent } else { receivedContent }
+            if isExpanded {
+                Divider()
+                    .overlay(Color.white.opacity(0.12))
+                    .padding(.vertical, 8)
+                expandedTimeInfo
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(duration: 0.3), value: isExpanded)
+    }
+
+    @ViewBuilder
+    private var expandedTimeInfo: some View {
+        VStack(alignment: isMine ? .trailing : .leading, spacing: 5) {
+            HStack(spacing: 4) {
+                Image(systemName: "timer")
+                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(message.sentAt)))
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "calendar")
+                Text(message.unlockAt.formatted(
+                    .dateTime.month(.abbreviated).day()
+                             .hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+                ))
+            }
+        }
+        .font(.system(size: 11))
+        .foregroundStyle(.white.opacity(0.55))
     }
 
     @ViewBuilder
@@ -296,11 +316,11 @@ private struct MessageBubble: View {
 
         case .scheduled:
             HStack(spacing: 8) {
-                ClockCircleIcon(size: 22,
+                ClockCircleIcon(size: 26,
                                 bgColor: .black.opacity(0.12),
                                 handColor: .black.opacity(0.4))
                 Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(.black.opacity(0.55))
             }
 
