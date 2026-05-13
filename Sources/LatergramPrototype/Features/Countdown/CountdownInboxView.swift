@@ -419,6 +419,12 @@ private struct RevealedReceivedCard: View {
                     Text(message.senderName)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
+                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.system(size: 12))
+                        .foregroundStyle(fgMute)
+                    Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
+                        .font(.system(size: 12))
+                        .foregroundStyle(fgMute)
                     HStack(spacing: 4) {
                         Image(systemName: "lock").font(.system(size: 11))
                         Text("已於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened)) 開啟")
@@ -527,7 +533,7 @@ private struct SentCard: View {
                     .buttonStyle(.plain)
             }
             .transaction { $0.animation = nil }
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, includesDivider: false)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
         } else if message.unlockAt > now {
             VStack(spacing: 6) {
                 Text("解鎖倒數")
@@ -586,7 +592,7 @@ private struct ExpandableMessageBody: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 0) {
                     if includesDivider {
-                        Divider().opacity(0.15).padding(.top, 10)
+                        Divider().opacity(0.15).padding(.top, 2)
                     }
                     Text(text)
                         .font(.body)
