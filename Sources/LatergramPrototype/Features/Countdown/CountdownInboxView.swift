@@ -542,7 +542,7 @@ private struct SentCard: View {
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundStyle(message.style.styleColor)
                     .shadow(color: message.style.styleColor.opacity(0.35), radius: 12, x: 0, y: 0)
-                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
                 HStack {
                     HStack(spacing: 4) {
                         Image(systemName: "lock").font(.caption)
