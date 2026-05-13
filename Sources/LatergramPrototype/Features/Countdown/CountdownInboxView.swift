@@ -506,6 +506,8 @@ private struct SentCard: View {
         }
         .padding(16)
         .messageCard(style: message.style, tier: tier)
+        .contentShape(RoundedRectangle(cornerRadius: cardRadius))
+        .onTapGesture { isExpanded.toggle() }
     }
 
     @ViewBuilder
