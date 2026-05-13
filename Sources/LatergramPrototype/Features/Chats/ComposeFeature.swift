@@ -13,6 +13,7 @@ struct ComposeFeature {
         let senderName: String
         var body = ""
         var unlockAt = Date().addingTimeInterval(60)
+        var delaySeconds: Int = 60
         var style: MessageStyle = .classic
         var timingMode: TimingMode = .countdown
         var errorMessage: String?
@@ -42,17 +43,27 @@ struct ComposeFeature {
 
             case .submitTapped:
                 let now = date()
-                if let error = rules.validate(
-                    body: state.body,
-                    unlockAt: state.unlockAt,
-                    now: now
-                ) {
+
+                // Compute final unlockAt and delaySeconds at submit time.
+                // Countdown mode: delaySeconds is the intent; unlockAt is derived now.
+                // UnlockDate mode: the chosen date is the intent; delaySeconds is derived now.
+                let finalUnlockAt: Date
+                let finalDelaySeconds: Int
+                switch state.timingMode {
+                case .countdown:
+                    finalDelaySeconds = state.delaySeconds
+                    finalUnlockAt = now.addingTimeInterval(TimeInterval(finalDelaySeconds))
+                case .unlockDate:
+                    finalUnlockAt = state.unlockAt
+                    finalDelaySeconds = max(60, Int(finalUnlockAt.timeIntervalSince(now)))
+                }
+
+                if let error = rules.validate(body: state.body, unlockAt: finalUnlockAt, now: now) {
                     state.errorMessage = errorText(for: error)
                     return .none
                 }
                 state.isSending = true
                 state.errorMessage = nil
-                let delaySeconds = Int(state.unlockAt.timeIntervalSince(now).rounded())
                 let message = DelayedMessage(
                     senderID: state.senderID,
                     receiverID: state.friend.id,
@@ -61,8 +72,8 @@ struct ComposeFeature {
                     body: state.body,
                     style: state.style,
                     sentAt: now,
-                    unlockAt: state.unlockAt,
-                    delaySeconds: delaySeconds,
+                    unlockAt: finalUnlockAt,
+                    delaySeconds: finalDelaySeconds,
                     status: .scheduled
                 )
                 return .run { send in

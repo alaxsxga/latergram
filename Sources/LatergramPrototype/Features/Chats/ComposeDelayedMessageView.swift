@@ -107,8 +107,9 @@ struct ComposeView: View {
         let now = Date()
         switch store.timingMode {
         case .countdown:
-            let secs = TimeInterval(countdownDays * 86400 + countdownHours * 3600 + countdownMinutes * 60)
-            store.unlockAt = now.addingTimeInterval(secs)
+            let secs = countdownDays * 86400 + countdownHours * 3600 + countdownMinutes * 60
+            store.delaySeconds = secs
+            store.unlockAt = now.addingTimeInterval(TimeInterval(secs))
         case .unlockDate:
             let cal = Calendar.current
             var comps = cal.dateComponents([.year, .month, .day], from: selectedDate)
@@ -122,6 +123,7 @@ struct ComposeView: View {
             comps.minute = unlockMinute
             comps.second = 0
             store.unlockAt = cal.date(from: comps) ?? now.addingTimeInterval(86400)
+            store.delaySeconds = Int(store.unlockAt.timeIntervalSince(now))
         }
     }
 
