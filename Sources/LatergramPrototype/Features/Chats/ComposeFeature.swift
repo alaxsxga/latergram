@@ -52,6 +52,7 @@ struct ComposeFeature {
                 }
                 state.isSending = true
                 state.errorMessage = nil
+                let delaySeconds = Int(state.unlockAt.timeIntervalSince(now).rounded())
                 let message = DelayedMessage(
                     senderID: state.senderID,
                     receiverID: state.friend.id,
@@ -61,6 +62,7 @@ struct ComposeFeature {
                     style: state.style,
                     sentAt: now,
                     unlockAt: state.unlockAt,
+                    delaySeconds: delaySeconds,
                     status: .scheduled
                 )
                 return .run { send in
@@ -92,7 +94,6 @@ struct ComposeFeature {
         case .emptyBody: "訊息不可為空"
         case .tooLong(let max): "訊息不可超過 \(max) 字"
         case .unlockTooSoon: "解鎖時間至少 1 分鐘後"
-        case .unlockTooLate: "解鎖時間最多 7 天後"
         }
     }
 }

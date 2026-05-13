@@ -17,7 +17,7 @@ extension MessageClient: DependencyKey {
             // Fetch newest 300 messages, then reverse to ascending order for display
             let rows: [MessageRow] = try await supabase
                 .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
+                .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
                 .order("unlock_at", ascending: false)
                 .limit(300)
@@ -29,7 +29,7 @@ extension MessageClient: DependencyKey {
             // Fetch newest 300 messages, then reverse to ascending order for display
             let rows: [MessageRow] = try await supabase
                 .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
+                .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name, username), receiver:profiles!receiver_id(id, display_name, username)")
                 .or("and(sender_id.eq.\(userID),receiver_id.eq.\(friendID)),and(sender_id.eq.\(friendID),receiver_id.eq.\(userID))")
                 .order("created_at", ascending: false)
                 .limit(300)
@@ -45,6 +45,7 @@ extension MessageClient: DependencyKey {
                 body: message.body,
                 style_key: message.style.rawValue,
                 unlock_at: message.unlockAt,
+                delay_seconds: message.delaySeconds,
                 status: message.status.rawValue
             )
             try await supabase

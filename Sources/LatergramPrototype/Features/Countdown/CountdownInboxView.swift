@@ -71,7 +71,7 @@ private struct CardMeta: View {
                 Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
                     .font(.system(size: 12))
                     .foregroundStyle(fgMute)
-                Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
                     .font(.system(size: 12))
                     .foregroundStyle(fgMute)
             }
@@ -481,7 +481,7 @@ private struct SentCard: View {
                         .foregroundStyle(.white)
                     Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
                         .font(.system(size: 12)).foregroundStyle(fgMute)
-                    Text("總倒數 \(shortDuration(message.unlockAt.timeIntervalSince(message.sentAt)))")
+                    Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
                         .font(.system(size: 12)).foregroundStyle(fgMute)
                 }
 
@@ -778,6 +778,7 @@ private struct RevealAnimationPreview: View {
             style: .heart,
             sentAt: Date().addingTimeInterval(-86400),
             unlockAt: Date().addingTimeInterval(-60),
+            delaySeconds: 86340,
             status: .readyToReveal
         ),
         DelayedMessage(
@@ -787,6 +788,7 @@ private struct RevealAnimationPreview: View {
             style: .cool,
             sentAt: Date().addingTimeInterval(-7200),
             unlockAt: Date().addingTimeInterval(-30),
+            delaySeconds: 7170,
             status: .readyToReveal
         ),
         DelayedMessage(
@@ -796,6 +798,7 @@ private struct RevealAnimationPreview: View {
             style: .warm,
             sentAt: Date().addingTimeInterval(-3600),
             unlockAt: Date().addingTimeInterval(-10),
+            delaySeconds: 3590,
             status: .readyToReveal
         ),
     ]

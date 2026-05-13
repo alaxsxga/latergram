@@ -24,7 +24,8 @@ public enum SampleData {
                 body: "Happy birthday in advance!",
                 style: .heart,
                 sentAt: Date().addingTimeInterval(-3600),
-                unlockAt: Date().addingTimeInterval(4200)
+                unlockAt: Date().addingTimeInterval(4200),
+                delaySeconds: 7800
             ),
             DelayedMessage(
                 senderID: ben.id,
@@ -34,7 +35,8 @@ public enum SampleData {
                 body: "You can do it, one step at a time.",
                 style: .warm,
                 sentAt: Date().addingTimeInterval(-600),
-                unlockAt: Date().addingTimeInterval(190)
+                unlockAt: Date().addingTimeInterval(190),
+                delaySeconds: 790
             ),
             DelayedMessage(
                 senderID: alice.id,
@@ -44,7 +46,8 @@ public enum SampleData {
                 body: "這條訊息已經可以看了，點我開啟！",
                 style: .cool,
                 sentAt: Date().addingTimeInterval(-50),
-                unlockAt: Date().addingTimeInterval(10)
+                unlockAt: Date().addingTimeInterval(10),
+                delaySeconds: 60
             ),
             DelayedMessage(
                 senderID: ben.id,
@@ -54,7 +57,8 @@ public enum SampleData {
                 body: "早就該讓你看到這句話了。",
                 style: .classic,
                 sentAt: Date().addingTimeInterval(-3660),
-                unlockAt: Date().addingTimeInterval(-60)
+                unlockAt: Date().addingTimeInterval(-60),
+                delaySeconds: 3600
             )
         ]
     }

@@ -250,7 +250,7 @@ private struct MessageBubble: View {
         VStack(alignment: isMine ? .trailing : .leading, spacing: 5) {
             HStack(spacing: 4) {
                 Image(systemName: "timer")
-                Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(message.sentAt)))
+                Text(CountdownFormatter.dHms(from: TimeInterval(message.delaySeconds)))
             }
             HStack(spacing: 4) {
                 Image(systemName: "calendar")

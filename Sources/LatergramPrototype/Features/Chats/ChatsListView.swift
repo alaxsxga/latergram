@@ -24,22 +24,28 @@ private let previewMessages: [UUID: DelayedMessage] = {
     return [
         // 收到：倒數中
         alice: DelayedMessage(senderID: alice, receiverID: previewMe, senderName: "Alice", receiverName: "Me",
-                              body: "神秘訊息", style: .classic, unlockAt: Date().addingTimeInterval(86400 * 2), status: .scheduled),
+                              body: "神秘訊息", style: .classic, unlockAt: Date().addingTimeInterval(86400 * 2),
+                              delaySeconds: 172800, status: .scheduled),
         // 收到：可以開啟了
         bob: DelayedMessage(senderID: bob, receiverID: previewMe, senderName: "Bob", receiverName: "Me",
-                            body: "神秘訊息", style: .warm, unlockAt: Date().addingTimeInterval(-60), status: .scheduled),
+                            body: "神秘訊息", style: .warm, unlockAt: Date().addingTimeInterval(-60),
+                            delaySeconds: 86400, status: .scheduled),
         // 收到：已開啟
         carol: DelayedMessage(senderID: carol, receiverID: previewMe, senderName: "Carol", receiverName: "Me",
-                              body: "今天天氣真好，你有出門嗎？", style: .cool, unlockAt: Date().addingTimeInterval(-3600), status: .revealed),
+                              body: "今天天氣真好，你有出門嗎？", style: .cool, unlockAt: Date().addingTimeInterval(-3600),
+                              delaySeconds: 3600, status: .revealed),
         // 發送：倒數中
         dave: DelayedMessage(senderID: previewMe, receiverID: dave, senderName: "Me", receiverName: "Dave",
-                             body: "記得帶傘，下午會下雨", style: .classic, unlockAt: Date().addingTimeInterval(86400 * 5), status: .scheduled),
+                             body: "記得帶傘，下午會下雨", style: .classic, unlockAt: Date().addingTimeInterval(86400 * 5),
+                             delaySeconds: 432000, status: .scheduled),
         // 發送：等待開啟
         eve: DelayedMessage(senderID: previewMe, receiverID: eve, senderName: "Me", receiverName: "Eve",
-                            body: "生日快樂！這是給你的驚喜", style: .heart, unlockAt: Date().addingTimeInterval(-3600), status: .scheduled),
+                            body: "生日快樂！這是給你的驚喜", style: .heart, unlockAt: Date().addingTimeInterval(-3600),
+                            delaySeconds: 3600, status: .scheduled),
         // 發送：對方已開啟
         frank: DelayedMessage(senderID: previewMe, receiverID: frank, senderName: "Me", receiverName: "Frank",
-                              body: "週末要不要一起爬山？", style: .classic, unlockAt: Date().addingTimeInterval(-7200), status: .revealed),
+                              body: "週末要不要一起爬山？", style: .classic, unlockAt: Date().addingTimeInterval(-7200),
+                              delaySeconds: 7200, status: .revealed),
     ]
 }()
 

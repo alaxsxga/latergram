@@ -54,6 +54,7 @@ create table public.messages (
     style_key text not null
         check (style_key in ('classic', 'warm', 'cool', 'heart')),
     unlock_at timestamptz,
+    delay_seconds int not null check (delay_seconds >= 60),
     status text not null default 'scheduled'
         check (status in ('scheduled', 'ready_to_reveal', 'revealed')),
     revealed_at timestamptz,

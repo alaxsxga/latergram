@@ -10,6 +10,7 @@ struct MessageRow: Codable {
     let body: String
     let style_key: String
     let unlock_at: Date
+    let delay_seconds: Int
     let status: String
     let revealed_at: Date?
     let created_at: Date
@@ -27,6 +28,7 @@ struct MessageRow: Codable {
             style: MessageStyle(rawValue: style_key) ?? .classic,
             sentAt: created_at,
             unlockAt: unlock_at,
+            delaySeconds: delay_seconds,
             status: MessageStatus(rawValue: status) ?? .scheduled,
             revealedAt: revealed_at
         )
@@ -45,6 +47,7 @@ struct InsertMessageRow: Encodable {
     let body: String
     let style_key: String
     let unlock_at: Date
+    let delay_seconds: Int
     let status: String
 }
 

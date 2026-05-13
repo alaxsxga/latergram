@@ -52,6 +52,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
     public var style: MessageStyle
     public var sentAt: Date
     public var unlockAt: Date
+    public var delaySeconds: Int
     public var status: MessageStatus
     public var revealedAt: Date?
 
@@ -65,6 +66,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
         style: MessageStyle,
         sentAt: Date = Date(),
         unlockAt: Date,
+        delaySeconds: Int,
         status: MessageStatus = .scheduled,
         revealedAt: Date? = nil
     ) {
@@ -77,6 +79,7 @@ public struct DelayedMessage: Identifiable, Codable, Equatable, Sendable {
         self.style = style
         self.sentAt = sentAt
         self.unlockAt = unlockAt
+        self.delaySeconds = delaySeconds
         self.status = status
         self.revealedAt = revealedAt
     }
