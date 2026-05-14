@@ -117,6 +117,7 @@ struct CountdownInboxFeature {
                     state.messages[id: id]?.status = .revealed
                     state.messages[id: id]?.revealedAt = date()
                     let now = date()
+                    applySort(to: &state, now: now)
                     return .run { send in
                         do {
                             try await messageClient.reveal(id, now)
@@ -134,6 +135,7 @@ struct CountdownInboxFeature {
             case .revealCommitFailed(let id):
                 state.messages[id: id]?.status = .readyToReveal
                 state.messages[id: id]?.revealedAt = nil
+                applySort(to: &state, now: date())
                 state.errorMessage = "開啟失敗，請確認網路後再試"
                 return .none
 
