@@ -259,3 +259,28 @@ begin
     );
 end;
 $$ language plpgsql security definer;
+
+-- =====================
+-- 9. Data API Grants
+-- =====================
+-- 讓 Supabase Data API（REST / supabase-js）可以存取這些表格。
+-- Supabase 舊版 project 會自動授權，但 2025-10-30 起所有 project 新建的表格
+-- 都需要明確 GRANT，否則 API 回傳 permission denied。
+-- 各表格只授予實際需要的操作，搭配上方的 RLS policies 使用。
+
+-- profiles: 未登入者也可讀（用於顯示暱稱等公開資訊）
+-- INSERT 由 handle_new_user trigger（security definer）處理，不需對 authenticated 開放
+grant select on public.profiles to anon, authenticated;
+grant update on public.profiles to authenticated;
+
+-- friendships: 只有登入者才能建立 / 查看 / 更新好友關係
+grant select, insert, update on public.friendships to authenticated;
+
+-- messages: 只有登入者才能送出 / 查看訊息
+grant select, insert on public.messages to authenticated;
+
+-- invite_tokens: 只有登入者才能管理自己的邀請碼
+grant select, insert, delete on public.invite_tokens to authenticated;
+
+-- message_deletions: 只有登入者才能查看 / 新增軟刪除記錄
+grant select, insert on public.message_deletions to authenticated;
