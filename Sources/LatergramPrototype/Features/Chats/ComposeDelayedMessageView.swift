@@ -20,15 +20,15 @@ struct ComposeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    composeLabel("收件人")
+                    composeLabel("compose.label.recipient")
                     RecipientRow(friend: store.friend)
                         .padding(.bottom, 20)
 
-                    composeLabel("訊息")
+                    composeLabel("compose.label.message")
                     messageBox
                         .padding(.bottom, 20)
 
-                    composeLabel("時間")
+                    composeLabel("compose.label.time")
                     timingToggle
                         .padding(.bottom, 8)
                     if store.timingMode == .countdown {
@@ -46,7 +46,7 @@ struct ComposeView: View {
                         .padding(.top, 10)
                         .padding(.bottom, 20)
 
-                    composeLabel("樣式")
+                    composeLabel("compose.label.style")
                     stylePicker
                         .padding(.bottom, 16)
 
@@ -65,17 +65,17 @@ struct ComposeView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .pageBackground()
-            .navigationTitle("新訊息")
+            .navigationTitle(LS("compose.nav_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { store.send(.cancelTapped) }
+                    Button(LS("common.cancel")) { store.send(.cancelTapped) }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if store.isSending {
                         ProgressView()
                     } else {
-                        Button("送出") { store.send(.submitTapped) }
+                        Button(LS("compose.send_button")) { store.send(.submitTapped) }
                             .disabled(!canSend)
                     }
                 }
@@ -127,8 +127,8 @@ struct ComposeView: View {
         }
     }
 
-    private func composeLabel(_ title: String) -> some View {
-        Text(title)
+    private func composeLabel(_ title: LocalizedStringKey) -> some View {
+        L(title)
             .font(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(.secondary)
@@ -152,21 +152,21 @@ struct ComposeView: View {
 
     private var timingToggle: some View {
         HStack(spacing: 0) {
-            timingOption("⏳ 倒數", mode: .countdown)
-            timingOption("📅 指定日期", mode: .unlockDate)
+            timingOption("compose.timing.countdown", mode: .countdown)
+            timingOption("compose.timing.unlock_date", mode: .unlockDate)
         }
         .background(Color.cardBg)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func timingOption(_ label: String, mode: ComposeFeature.State.TimingMode) -> some View {
+    private func timingOption(_ label: LocalizedStringKey, mode: ComposeFeature.State.TimingMode) -> some View {
         let isActive = store.timingMode == mode
         return Button {
             withAnimation(.easeInOut(duration: 0.15)) {
                 store.timingMode = mode
             }
         } label: {
-            Text(label)
+            L(label)
                 .font(.subheadline)
                 .fontWeight(isActive ? .semibold : .regular)
                 .foregroundStyle(isActive ? .white : .secondary)
@@ -185,14 +185,16 @@ struct ComposeView: View {
         switch store.timingMode {
         case .countdown:
             var parts: [String] = []
-            if countdownDays > 0 { parts.append("\(countdownDays) 天") }
-            if countdownHours > 0 { parts.append("\(countdownHours) 小時") }
-            if countdownMinutes > 0 { parts.append("\(countdownMinutes) 分鐘") }
-            let duration = parts.isEmpty ? "0 分鐘" : parts.joined(separator: " ")
-            return "⏳ \(duration) 後開啟 · \(store.unlockAt.formatted(date: .abbreviated, time: .shortened))"
+            if countdownDays > 0 { parts.append(String(format: LS("compose.unit.day_count"), countdownDays)) }
+            if countdownHours > 0 { parts.append(String(format: LS("compose.unit.hour_count"), countdownHours)) }
+            if countdownMinutes > 0 { parts.append(String(format: LS("compose.unit.minute_count"), countdownMinutes)) }
+            let duration = parts.isEmpty ? LS("compose.unit.zero_minutes") : parts.joined(separator: " ")
+            let dateStr = store.unlockAt.formatted(date: .abbreviated, time: .shortened)
+            return String(format: LS("compose.summary.countdown"), duration, dateStr)
         case .unlockDate:
             let days = cal.dateComponents([.day], from: cal.startOfDay(for: now), to: cal.startOfDay(for: selectedDate)).day ?? 0
-            return "🔓 \(store.unlockAt.formatted(date: .abbreviated, time: .shortened)) 解鎖 · \(days) 天後"
+            let dateStr = store.unlockAt.formatted(date: .abbreviated, time: .shortened)
+            return String(format: LS("compose.summary.unlock_date"), dateStr, days)
         }
     }
 
@@ -234,13 +236,13 @@ struct ComposeView: View {
     private var stylePreview: some View {
         let fgMute = Color(red: 0.373, green: 0.384, blue: 0.427)
         return VStack(alignment: .leading, spacing: 0) {
-            composeLabel("預覽")
+            composeLabel("compose.label.preview")
 
             VStack(spacing: 0) {
                 HStack(alignment: .top, spacing: 12) {
                     InitialsAvatar(name: store.friend.displayName, size: 40)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("to \(store.friend.displayName)")
+                        Text(String(format: LS("compose.preview.to"), store.friend.displayName))
                             .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(.white)
                         Text(summaryText)
@@ -251,7 +253,7 @@ struct ComposeView: View {
                 .padding(.bottom, 20)
 
                 VStack(spacing: 6) {
-                    Text("解鎖倒數")
+                    L("compose.unlock_countdown")
                         .font(.system(size: 11, weight: .semibold))
                         .tracking(3)
                         .foregroundStyle(fgMute)
@@ -348,11 +350,11 @@ private struct CountdownCard: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("天數")
+                L("compose.days_label")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("最多 7 天")
+                L("compose.max_days")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
                 HStack(spacing: 0) {
@@ -383,16 +385,18 @@ private struct CountdownCard: View {
             Divider().padding(.horizontal, 16)
 
             VStack(spacing: 4) {
-                Text("時 · 分")
+                L("compose.hours_minutes_header")
                     .font(.caption2.uppercaseSmallCaps())
                     .foregroundStyle(.tertiary)
                     .padding(.top, 10)
 
                 HStack(alignment: .center, spacing: 2) {
-                    Picker("小時", selection: $hours) {
+                    Picker(selection: $hours) {
                         ForEach(0...23, id: \.self) { h in
                             Text(String(format: "%02d", h)).tag(h)
                         }
+                    } label: {
+                        L("compose.picker.hours")
                     }
                     .pickerStyle(.wheel)
                     .frame(width: 80, height: 140)
@@ -403,10 +407,12 @@ private struct CountdownCard: View {
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 4)
 
-                    Picker("分鐘", selection: $minutes) {
+                    Picker(selection: $minutes) {
                         ForEach(0...59, id: \.self) { m in
                             Text(String(format: "%02d", m)).tag(m)
                         }
+                    } label: {
+                        L("compose.picker.minutes")
                     }
                     .pickerStyle(.wheel)
                     .frame(width: 80, height: 140)
@@ -414,9 +420,9 @@ private struct CountdownCard: View {
                 }
 
                 HStack {
-                    Text("時").frame(width: 80)
+                    L("compose.hour_unit").frame(width: 80)
                     Spacer().frame(width: 20)
-                    Text("分").frame(width: 80)
+                    L("compose.minute_unit").frame(width: 80)
                 }
                 .font(.caption2.uppercaseSmallCaps())
                 .foregroundStyle(.tertiary)
@@ -466,17 +472,19 @@ private struct UnlockDateCard: View {
             Divider().padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("解鎖時間")
+                L("compose.unlock_time_label")
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                     .padding(.top, 12)
 
                 HStack(alignment: .center, spacing: 2) {
-                    Picker("時", selection: $hour) {
+                    Picker(selection: $hour) {
                         ForEach(1...12, id: \.self) { h in
                             Text("\(h)").tag(h)
                         }
+                    } label: {
+                        L("compose.picker.hour")
                     }
                     .pickerStyle(.wheel)
                     .frame(width: 64, height: 120)
@@ -487,10 +495,12 @@ private struct UnlockDateCard: View {
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 4)
 
-                    Picker("分", selection: $minute) {
+                    Picker(selection: $minute) {
                         ForEach(minuteSteps, id: \.self) { m in
                             Text(String(format: "%02d", m)).tag(m)
                         }
+                    } label: {
+                        L("compose.picker.minute")
                     }
                     .pickerStyle(.wheel)
                     .frame(width: 64, height: 120)

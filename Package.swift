@@ -33,7 +33,8 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "Supabase", package: "supabase-swift")
             ],
-            path: "Sources/LatergramPrototype"
+            path: "Sources/LatergramPrototype",
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "LatergramCoreTests",

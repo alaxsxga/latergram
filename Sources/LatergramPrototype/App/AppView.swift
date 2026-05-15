@@ -42,15 +42,15 @@ public struct AppView: View {
             set: { store.send(.tabSelected($0)) }
         )) {
             FriendsProfileView(store: store.scope(state: \.friends, action: \.friends))
-                .tabItem { Label("好友", systemImage: "person.2") }
+                .tabItem { Label(LS("tab.friends"), systemImage: "person.2") }
                 .tag(AppFeature.Tab.friends)
 
             CountdownInboxView(store: store.scope(state: \.countdown, action: \.countdown))
-                .tabItem { Label("信箱", systemImage: "envelope") }
+                .tabItem { Label(LS("tab.inbox"), systemImage: "envelope") }
                 .tag(AppFeature.Tab.countdown)
 
             ChatsView(store: store.scope(state: \.chats, action: \.chats))
-                .tabItem { Label("往來", systemImage: "arrow.left.arrow.right") }
+                .tabItem { Label(LS("tab.chats"), systemImage: "arrow.left.arrow.right") }
                 .tag(AppFeature.Tab.chats)
         }
         .tint(Color.brand)

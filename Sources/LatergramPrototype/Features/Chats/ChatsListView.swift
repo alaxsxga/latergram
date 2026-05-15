@@ -72,11 +72,11 @@ struct ChatsView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if friendsWithMessages.isEmpty {
-                    ContentUnavailableView(
-                        "沒有往來訊息",
-                        systemImage: "tray",
-                        description: Text("從信箱頁發送或接收訊息後就會出現")
-                    )
+                    ContentUnavailableView {
+                        Label(LS("chats.empty_title"), systemImage: "tray")
+                    } description: {
+                        L("chats.empty_description")
+                    }
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
@@ -134,8 +134,8 @@ private struct ChatRow: View {
             return message.body
         }
         switch effectiveStatus {
-        case .scheduled:     return "新訊息倒數中"
-        case .readyToReveal: return "有新訊息可開啟"
+        case .scheduled:     return LS("chats.preview.counting_down")
+        case .readyToReveal: return LS("chats.preview.ready_to_open")
         case .revealed:      return message.body
         }
     }

@@ -18,11 +18,11 @@ struct ChatDetailView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if store.messages.isEmpty {
-                ContentUnavailableView(
-                    "還沒有訊息",
-                    systemImage: "bubble.left",
-                    description: Text("傳送第一則倒數訊息吧")
-                )
+                ContentUnavailableView {
+                    Label(LS("chat_detail.empty_title"), systemImage: "bubble.left")
+                } description: {
+                    L("chat_detail.empty_description")
+                }
             } else {
                 messageList
             }
@@ -39,7 +39,7 @@ struct ChatDetailView: View {
                         Label(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(store.now)),
                               systemImage: "clock")
                     } else {
-                        Text("建立訊息")
+                        L("chat_detail.create_button")
                     }
                 }
             }
@@ -60,11 +60,11 @@ struct ChatDetailView: View {
             .presentationDetents([.height(300)])
             .presentationDragIndicator(.visible)
         }
-        .alert("錯誤", isPresented: Binding(
+        .alert(L("common.error_title"), isPresented: Binding(
             get: { store.errorMessage != nil },
             set: { if !$0 { store.send(.errorDismissed) } }
         )) {
-            Button("確定", role: .cancel) {}
+            Button(LS("common.ok"), role: .cancel) {}
         } message: {
             Text(store.errorMessage ?? "")
         }
@@ -125,7 +125,7 @@ private struct LimitInfoSheet: View {
                     Text(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(now)))
                         .font(.title.monospacedDigit().bold())
                 }
-                Text("前一則訊息開啟後才能再傳給同一位好友")
+                L("chat_detail.limit_info")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -136,12 +136,12 @@ private struct LimitInfoSheet: View {
                     // TODO: IAP — 導向購買頁
                     onDismiss()
                 } label: {
-                    Label("解鎖更多上限", systemImage: "star.fill")
+                    Label(LS("chat_detail.unlock_more"), systemImage: "star.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button("知道了", action: onDismiss)
+                Button(LS("chat_detail.got_it"), action: onDismiss)
                     .buttonStyle(.bordered)
                     .tint(.secondary)
             }
@@ -207,7 +207,7 @@ private struct MessageBubble: View {
                     .contextMenu {
                         if let onDelete {
                             Button(role: .destructive) { onDelete() } label: {
-                                Label("刪除此訊息", systemImage: "trash")
+                                Label(LS("chat_detail.delete_message"), systemImage: "trash")
                             }
                         }
                     }
@@ -294,7 +294,7 @@ private struct MessageBubble: View {
                     .foregroundStyle(.white.opacity(0.88))
                 HStack(spacing: 4) {
                     ClockCircleIcon(size: 16, bgColor: .brand, handColor: specTextDark)
-                    Text("unread")
+                    L("chat_detail.badge.unread")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(Color.brand)
                 }
@@ -327,7 +327,7 @@ private struct MessageBubble: View {
         case .readyToReveal:
             HStack(spacing: 8) {
                 ClockCircleIcon(size: 28, bgColor: .brand, handColor: specTextDark)
-                Text("not yet opened")
+                L("chat_detail.badge.not_yet_opened")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Color.brand)
             }

@@ -14,10 +14,10 @@ struct FriendsProfileView: View {
                     profileCard
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text("好友")
+                            L("friends.section_header")
                                 .font(.headline)
                             if !store.friends.isEmpty {
-                                Text("\(store.friends.count)人")
+                                Text(String(format: LS("friends.count"), store.friends.count))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -49,7 +49,7 @@ struct FriendsProfileView: View {
                         Button(role: .destructive) {
                             store.send(.logoutConfirmTapped)
                         } label: {
-                            Label("登出", systemImage: "rectangle.portrait.and.arrow.right")
+                            Label(LS("friends.logout_button"), systemImage: "rectangle.portrait.and.arrow.right")
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -76,50 +76,50 @@ struct FriendsProfileView: View {
                         .background(.thinMaterial)
                 }
             }
-            .alert("確定要登出嗎？", isPresented: Binding(
+            .alert(L("friends.logout_confirm_title"), isPresented: Binding(
                 get: { store.isConfirmingLogout },
                 set: { if !$0 { store.send(.logoutCancelled) } }
             )) {
-                Button("登出", role: .destructive) { store.send(.logoutTapped) }
-                Button("取消", role: .cancel) {}
+                Button(LS("friends.logout_button"), role: .destructive) { store.send(.logoutTapped) }
+                Button(LS("common.cancel"), role: .cancel) {}
             }
             .alert(
-                "刪除好友",
+                L("friends.delete_friend_title"),
                 isPresented: Binding(
                     get: { store.friendPendingDeletion != nil },
                     set: { if !$0 { store.send(.removeFriendCancelled) } }
                 ),
                 presenting: store.friendPendingDeletion
             ) { friend in
-                Button("刪除 \(friend.displayName)", role: .destructive) {
+                Button(String(format: LS("friends.delete_confirm_button"), friend.displayName), role: .destructive) {
                     store.send(.removeFriendConfirmed)
                 }
-                Button("取消", role: .cancel) {}
+                Button(LS("common.cancel"), role: .cancel) {}
             } message: { friend in
-                Text("確定要刪除 \(friend.displayName)？此操作無法復原。")
+                Text(String(format: LS("friends.delete_confirm_message"), friend.displayName))
             }
             .alert(
-                Text(store.inviteAcceptError == .alreadyFriends ? "已經是好友" : "無法加入好友"),
+                store.inviteAcceptError == .alreadyFriends ? L("friends.already_friends_title") : L("friends.add_failed_title"),
                 isPresented: Binding(
                     get: { store.inviteAcceptError != nil },
                     set: { if !$0 { store.send(.inviteAcceptErrorDismissed) } }
                 ),
                 presenting: store.inviteAcceptError
             ) { _ in
-                Button("確定", role: .cancel) { store.send(.inviteAcceptErrorDismissed) }
+                Button(LS("common.ok"), role: .cancel) { store.send(.inviteAcceptErrorDismissed) }
             } message: { failure in
                 if failure != .alreadyFriends {
                     Text(failure.message)
                 }
             }
-            .alert("邀請碼已貼上", isPresented: Binding(
+            .alert(L("friends.invite_pasted_title"), isPresented: Binding(
                 get: { store.showDeepLinkInviteAlert },
                 set: { if !$0 { store.send(.deepLinkAlertDismissed) } }
             )) {
-                Button("送出邀請") { store.send(.acceptInviteCodeTapped) }
-                Button("稍後再說", role: .cancel) { store.send(.deepLinkAlertDismissed) }
+                Button(LS("friends.invite_send_button")) { store.send(.acceptInviteCodeTapped) }
+                Button(LS("friends.invite_later_button"), role: .cancel) { store.send(.deepLinkAlertDismissed) }
             } message: {
-                Text("邀請碼 \(store.pastedInviteCode) 已填入，要立即加對方為好友嗎？")
+                Text(String(format: LS("friends.invite_confirm_message"), store.pastedInviteCode))
             }
             .sheet(isPresented: Binding(
                 get: { store.isSharingInvite },
@@ -175,9 +175,9 @@ struct FriendsProfileView: View {
             Image(systemName: "person.2")
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
-            Text("還沒有好友")
+            L("friends.empty_title")
                 .font(.subheadline.bold())
-            Text("點右上角邀請朋友加入")
+            L("friends.empty_description")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -203,7 +203,7 @@ private struct FriendRow: View {
 
             Menu {
                 Button(role: .destructive, action: onDelete) {
-                    Label("刪除好友", systemImage: "person.fill.xmark")
+                    Label(LS("friends.delete_friend_menu"), systemImage: "person.fill.xmark")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -227,7 +227,7 @@ private struct InviteSheet: View {
             // Header
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("邀請好友")
+                    L("friends.invite_sheet.title")
                         .font(.title2.bold())
                 }
                 Spacer()
@@ -262,7 +262,7 @@ private struct InviteSheet: View {
     private var myCodeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("我的邀請碼")
+                L("friends.invite_sheet.my_code")
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
@@ -272,7 +272,7 @@ private struct InviteSheet: View {
                     Button(role: .destructive) {
                         store.send(.revokeInviteCodeTapped)
                     } label: {
-                        Label("讓失效", systemImage: "arrow.counterclockwise")
+                        Label(LS("friends.invite_sheet.revoke"), systemImage: "arrow.counterclockwise")
                             .font(.caption.bold())
                             .font(.caption.bold())
                     }
@@ -283,7 +283,7 @@ private struct InviteSheet: View {
                 Button {
                     store.send(.generateInviteCodeTapped)
                 } label: {
-                    Text("產生邀請碼")
+                    L("friends.invite_sheet.generate")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -305,7 +305,7 @@ private struct InviteSheet: View {
                     Button {
                         store.send(.shareInviteCodeTapped)
                     } label: {
-                        Label("分享邀請碼", systemImage: "square.and.arrow.up")
+                        Label(LS("friends.invite_sheet.share"), systemImage: "square.and.arrow.up")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -330,11 +330,11 @@ private struct InviteSheet: View {
 
     private var enterCodeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("加入好友")
+            L("friends.invite_sheet.add_friend_title")
                 .font(.title2.bold())
 
             HStack(spacing: 10) {
-                TextField("貼上朋友的邀請碼", text: $store.pastedInviteCode)
+                TextField(LS("friends.invite_sheet.paste_placeholder"), text: $store.pastedInviteCode)
                     .autocorrectionDisabled()
                     .autocapitalization(.none)
                     .padding(.horizontal, 16)
@@ -346,7 +346,7 @@ private struct InviteSheet: View {
                 Button {
                     store.send(.acceptInviteCodeTapped)
                 } label: {
-                    Text("加入")
+                    L("friends.invite_sheet.add_button")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .padding(.horizontal, 22)

@@ -30,7 +30,7 @@ struct AuthView: View {
                 .foregroundStyle(.white)
 
             VStack(spacing: 12) {
-                TextField("Email", text: $store.email)
+                TextField(LS("auth.email_placeholder"), text: $store.email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .textContentType(.emailAddress)
@@ -40,7 +40,7 @@ struct AuthView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
 
-                SecureField("密碼", text: $store.password)
+                SecureField(LS("auth.password_placeholder"), text: $store.password)
                     .textContentType(store.mode == .login ? .password : .newPassword)
                     .foregroundStyle(.white)
                     .padding()
@@ -49,7 +49,7 @@ struct AuthView: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
 
                 if store.mode == .signUp {
-                    SecureField("確認密碼", text: $store.passwordConfirmation)
+                    SecureField(LS("auth.password_confirm_placeholder"), text: $store.passwordConfirmation)
                         .textContentType(.newPassword)
                         .foregroundStyle(.white)
                         .padding()
@@ -77,7 +77,7 @@ struct AuthView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 } else {
-                    Text(store.mode == .login ? "登入" : "下一步")
+                    L(store.mode == .login ? "auth.login_button" : "auth.next_button")
                         .font(.system(size: 16, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -91,7 +91,7 @@ struct AuthView: View {
             Button {
                 store.send(.modeSwitchTapped)
             } label: {
-                Text(store.mode == .login ? "還沒有帳號？註冊" : "已有帳號？登入")
+                L(store.mode == .login ? "auth.switch_to_signup" : "auth.switch_to_login")
                     .font(.footnote)
                     .foregroundStyle(Color.brand)
             }
@@ -115,11 +115,11 @@ struct AuthView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(Color.brand)
 
-            Text("請確認 Email")
+            L("auth.confirm_email_title")
                 .font(.title2.bold())
                 .foregroundStyle(.white)
 
-            Text("驗證信已寄至 \(store.email)\n點擊信中連結後會自動返回此頁")
+            Text(String(format: LS("auth.confirm_email_body"), store.email))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white.opacity(0.5))
 
@@ -128,7 +128,7 @@ struct AuthView: View {
             Button {
                 store.send(.backTapped)
             } label: {
-                Text("重新輸入")
+                L("auth.re_enter_button")
                     .font(.footnote)
                     .foregroundStyle(.white.opacity(0.45))
             }
@@ -143,11 +143,11 @@ struct AuthView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Text("設定你的名稱")
+            L("auth.set_name_title")
                 .font(.title2.bold())
                 .foregroundStyle(.white)
 
-            TextField("顯示名稱", text: $store.displayName)
+            TextField(LS("auth.display_name_placeholder"), text: $store.displayName)
                 .textContentType(.name)
                 .foregroundStyle(.white)
                 .padding()
@@ -169,7 +169,7 @@ struct AuthView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 } else {
-                    Text("完成")
+                    L("common.done")
                         .font(.system(size: 16, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -183,7 +183,7 @@ struct AuthView: View {
             Button {
                 store.send(.backTapped)
             } label: {
-                Text("返回")
+                L("common.back")
                     .font(.footnote)
                     .foregroundStyle(.white.opacity(0.45))
             }

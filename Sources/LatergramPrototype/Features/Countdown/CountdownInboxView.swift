@@ -68,10 +68,10 @@ private struct CardMeta: View {
                 Text(displayName)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
-                Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                     .font(.system(size: 12))
                     .foregroundStyle(fgMute)
-                Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
+                Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                     .font(.system(size: 12))
                     .foregroundStyle(fgMute)
             }
@@ -81,7 +81,7 @@ private struct CardMeta: View {
             if let onDelete {
                 Menu {
                     Button(role: .destructive, action: onDelete) {
-                        Label("刪除", systemImage: "trash")
+                        Label(LS("common.delete"), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -108,8 +108,8 @@ struct CountdownInboxView: View {
                 } else {
                     VStack(spacing: 0) {
                         Picker("", selection: $selectedTab) {
-                            Text("收到").tag(0)
-                            Text("送出").tag(1)
+                            L("inbox.tab.received").tag(0)
+                            L("inbox.tab.sent").tag(1)
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal, 16)
@@ -127,11 +127,11 @@ struct CountdownInboxView: View {
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { store.send(.onAppear) }
-            .alert("錯誤", isPresented: Binding(
+            .alert(L("common.error_title"), isPresented: Binding(
                 get: { store.errorMessage != nil },
                 set: { if !$0 { store.send(.errorDismissed) } }
             )) {
-                Button("確定", role: .cancel) {}
+                Button(LS("common.ok"), role: .cancel) {}
             } message: {
                 Text(store.errorMessage ?? "")
             }
@@ -166,11 +166,11 @@ private struct ReceivedPage: View {
     var body: some View {
         List {
             if readyToOpen.isEmpty && countingDown.isEmpty && revealed.isEmpty {
-                ContentUnavailableView(
-                    "沒有收到的訊息",
-                    systemImage: "timer",
-                    description: Text("請請好友傳送一則倒數訊息給你")
-                )
+                ContentUnavailableView {
+                    Label(LS("inbox.received.empty_title"), systemImage: "timer")
+                } description: {
+                    L("inbox.received.empty_description")
+                }
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
@@ -214,7 +214,7 @@ private struct ReceivedPage: View {
                             .cardRow()
                         }
                     } header: {
-                        InboxSectionHeader("已讀")
+                        InboxSectionHeader("inbox.section.revealed")
                     }
                 }
             }
@@ -256,11 +256,11 @@ private struct SentPage: View {
     var body: some View {
         List {
             if pending.isEmpty && revealed.isEmpty {
-                ContentUnavailableView(
-                    "沒有發送的訊息",
-                    systemImage: "paperplane",
-                    description: Text("傳送一則倒數訊息給好友")
-                )
+                ContentUnavailableView {
+                    Label(LS("inbox.sent.empty_title"), systemImage: "paperplane")
+                } description: {
+                    L("inbox.sent.empty_description")
+                }
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
@@ -276,7 +276,7 @@ private struct SentPage: View {
                             .cardRow()
                         }
                     } header: {
-                        InboxSectionHeader("未開啟")
+                        InboxSectionHeader("inbox.section.sent_pending")
                     }
                 }
                 if !revealed.isEmpty {
@@ -290,7 +290,7 @@ private struct SentPage: View {
                             .cardRow()
                         }
                     } header: {
-                        InboxSectionHeader("已開啟")
+                        InboxSectionHeader("inbox.section.sent_opened")
                     }
                 }
             }
@@ -315,7 +315,7 @@ private struct CountingDownCard: View {
                 .padding(.bottom, 20)
 
             VStack(spacing: 6) {
-                Text("解鎖倒數")
+                L("inbox.card.unlock_countdown")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(3)
                     .foregroundStyle(fgMute)
@@ -382,7 +382,7 @@ private struct ReadyToOpenCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: "lock.open")
                             .font(.system(size: 16, weight: .heavy))
-                        Text("Ready to Open")
+                        L("inbox.section.ready_to_open")
                             .font(.system(size: 16, weight: .heavy))
                     }
                     .foregroundStyle(Color(red: 0.102, green: 0.059, blue: 0.031))
@@ -419,15 +419,15 @@ private struct RevealedReceivedCard: View {
                     Text(message.senderName)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
-                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                    Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                         .font(.system(size: 12))
                         .foregroundStyle(fgMute)
-                    Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
+                    Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                         .font(.system(size: 12))
                         .foregroundStyle(fgMute)
                     HStack(spacing: 4) {
                         Image(systemName: "lock").font(.system(size: 11))
-                        Text("已於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened)) 開啟")
+                        Text(String(format: LS("inbox.card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
                             .font(.system(size: 12))
                     }
                     .foregroundStyle(fgMute)
@@ -436,13 +436,13 @@ private struct RevealedReceivedCard: View {
                 Spacer()
 
                 HStack(spacing: 12) {
-                    Button(isExpanded ? "隱藏" : "查看") { isExpanded.toggle() }
+                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(accentMint)
                         .buttonStyle(.plain)
                     Menu {
                         Button(role: .destructive, action: onDelete) {
-                            Label("刪除", systemImage: "trash")
+                            Label(LS("common.delete"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -482,12 +482,12 @@ private struct SentCard: View {
                 MessageAvatar(name: message.receiverName, style: message.style, size: 40, isReady: tier == .ready)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("to \(message.receiverName)")
+                    Text(String(format: LS("inbox.sent_card.to"), message.receiverName))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
-                    Text("發送於 \(message.sentAt.formatted(date: .abbreviated, time: .omitted))")
+                    Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                         .font(.system(size: 12)).foregroundStyle(fgMute)
-                    Text("總倒數 \(shortDuration(TimeInterval(message.delaySeconds)))")
+                    Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                         .font(.system(size: 12)).foregroundStyle(fgMute)
                 }
 
@@ -496,7 +496,7 @@ private struct SentCard: View {
                 if let onDelete {
                     Menu {
                         Button(role: .destructive, action: onDelete) {
-                            Label("刪除", systemImage: "trash")
+                            Label(LS("common.delete"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -522,12 +522,12 @@ private struct SentCard: View {
             HStack {
                 HStack(spacing: 4) {
                     Image(systemName: "lock").font(.system(size: 11))
-                    Text("對方已於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened)) 開啟")
+                    Text(String(format: LS("inbox.sent_card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
                         .font(.system(size: 12))
                 }
                 .foregroundStyle(fgMute)
                 Spacer()
-                Button(isExpanded ? "隱藏" : "查看") { isExpanded.toggle() }
+                Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(accentMint)
                     .buttonStyle(.plain)
@@ -536,7 +536,7 @@ private struct SentCard: View {
             ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
         } else if message.unlockAt > now {
             VStack(spacing: 6) {
-                Text("解鎖倒數")
+                L("inbox.card.unlock_countdown")
                     .font(.system(size: 11, weight: .semibold)).tracking(3).foregroundStyle(fgMute)
                 Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
@@ -550,7 +550,7 @@ private struct SentCard: View {
                     }
                     .foregroundStyle(fgMute)
                     Spacer()
-                    Button(isExpanded ? "隱藏" : "查看") { isExpanded.toggle() }
+                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                         .font(.caption).foregroundStyle(accentMint).buttonStyle(.plain)
                 }
             }
@@ -561,7 +561,7 @@ private struct SentCard: View {
                 Image(systemName: "clock.badge.checkmark")
                     .font(.system(size: 28, weight: .medium))
                     .foregroundStyle(message.style.styleColor)
-                Text("倒數已結束，等待對方開啟")
+                L("inbox.sent_card.waiting")
                     .font(.subheadline).foregroundStyle(fgMute)
                 HStack {
                     HStack(spacing: 4) {
@@ -570,7 +570,7 @@ private struct SentCard: View {
                     }
                     .foregroundStyle(fgMute)
                     Spacer()
-                    Button(isExpanded ? "隱藏" : "查看") { isExpanded.toggle() }
+                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                         .font(.caption).foregroundStyle(accentMint).buttonStyle(.plain)
                 }
             }
@@ -614,11 +614,11 @@ private struct ReadyToOpenHeader: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text("Ready to Open")
+            L("inbox.section.ready_to_open")
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(.white)
             Spacer()
-            Text("\(count) NEW")
+            Text(String(format: LS("inbox.badge.new_count"), count))
                 .font(.system(size: 11, weight: .heavy))
                 .foregroundStyle(Color(red: 0.016, green: 0.173, blue: 0.122))
                 .padding(.horizontal, 10)
@@ -633,7 +633,7 @@ private struct ReadyToOpenHeader: View {
 
 private struct CountingDownHeader: View {
     var body: some View {
-        Text("Counting Down")
+        L("inbox.section.counting_down")
             .font(.system(size: 17, weight: .bold))
             .foregroundStyle(.white)
             .textCase(nil)
@@ -642,11 +642,11 @@ private struct CountingDownHeader: View {
 }
 
 private struct InboxSectionHeader: View {
-    let title: String
-    init(_ title: String) { self.title = title }
+    let title: LocalizedStringKey
+    init(_ title: LocalizedStringKey) { self.title = title }
 
     var body: some View {
-        Text(title)
+        L(title)
             .font(.system(size: 17, weight: .bold))
             .foregroundStyle(.white)
             .textCase(nil)
@@ -689,7 +689,7 @@ private struct RevealFocusOverlay: View {
                 HStack(spacing: 10) {
                     MessageAvatar(name: message.senderName, style: message.style, size: 38, isReady: true)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("FROM")
+                        L("inbox.overlay.from")
                             .font(.system(size: 11, weight: .bold))
                             .tracking(1.5)
                             .foregroundStyle(.white.opacity(0.45))
@@ -718,7 +718,7 @@ private struct RevealFocusOverlay: View {
 
                     HStack(spacing: 6) {
                         Image(systemName: "lock").font(.system(size: 11))
-                        Text("已於 \(message.unlockAt.formatted(date: .abbreviated, time: .shortened)) 解鎖")
+                        Text(String(format: LS("inbox.overlay.unlocked_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
                             .font(.system(size: 12))
                     }
                     .foregroundStyle(.white.opacity(0.4))
