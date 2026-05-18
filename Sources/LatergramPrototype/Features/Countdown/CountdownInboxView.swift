@@ -112,6 +112,7 @@ struct CountdownInboxView: View {
                             L("inbox.tab.sent").tag(1)
                         }
                         .pickerStyle(.segmented)
+                        .frame(maxWidth: 300)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
 
@@ -124,8 +125,7 @@ struct CountdownInboxView: View {
                 }
             }
             .pageBackground()
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
             .onAppear { store.send(.onAppear) }
             .alert(L("common.error_title"), isPresented: Binding(
                 get: { store.errorMessage != nil },
@@ -134,6 +134,18 @@ struct CountdownInboxView: View {
                 Button(LS("common.ok"), role: .cancel) {}
             } message: {
                 Text(store.errorMessage ?? "")
+            }
+            .sheet(isPresented: Binding(
+                get: { store.showRecipientPicker },
+                set: { if !$0 { store.send(.recipientPickerDismissed) } }
+            )) {
+                RecipientPickerSheet(
+                    friends: store.friends,
+                    onSelect: { store.send(.recipientSelected($0)) }
+                )
+            }
+            .sheet(item: $store.scope(state: \.compose, action: \.compose)) {
+                ComposeView(store: $0)
             }
         }
     }
@@ -165,7 +177,23 @@ private struct ReceivedPage: View {
 
     var body: some View {
         List {
-            if readyToOpen.isEmpty && countingDown.isEmpty && revealed.isEmpty {
+            Section {
+                ForEach(readyToOpen) { message in
+                    ReadyToOpenCard(
+                        message: message,
+                        now: store.now,
+                        onOpenTapped: {
+                            focusedMessage = message
+                            store.send(.revealTapped(message.id))
+                        }
+                    )
+                    .cardRow()
+                }
+            } header: {
+                ReadyToOpenHeader(count: readyToOpen.count, onComposeTapped: { store.send(.plusTapped) })
+            }
+
+            if countingDown.isEmpty && revealed.isEmpty && readyToOpen.isEmpty {
                 ContentUnavailableView {
                     Label(LS("inbox.received.empty_title"), systemImage: "timer")
                 } description: {
@@ -175,24 +203,6 @@ private struct ReceivedPage: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
             } else {
-                if !readyToOpen.isEmpty {
-                    Section {
-                        ForEach(readyToOpen) { message in
-                            ReadyToOpenCard(
-                                message: message,
-                                now: store.now,
-                                onOpenTapped: {
-                                    focusedMessage = message
-                                    store.send(.revealTapped(message.id))
-                                }
-                            )
-                            .cardRow()
-                        }
-                    } header: {
-                        ReadyToOpenHeader(count: readyToOpen.count)
-                    }
-                }
-
                 if !countingDown.isEmpty {
                     Section {
                         ForEach(countingDown) { message in
@@ -611,20 +621,32 @@ private struct ExpandableMessageBody: View {
 
 private struct ReadyToOpenHeader: View {
     let count: Int
+    let onComposeTapped: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
             L("inbox.section.ready_to_open")
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(.white)
+            if count > 0 {
+                Text(String(format: LS("inbox.badge.new_count"), count))
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundStyle(Color(red: 0.016, green: 0.173, blue: 0.122))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentMint)
+                    .clipShape(Capsule())
+            }
             Spacer()
-            Text(String(format: LS("inbox.badge.new_count"), count))
-                .font(.system(size: 11, weight: .heavy))
-                .foregroundStyle(Color(red: 0.016, green: 0.173, blue: 0.122))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(accentMint)
-                .clipShape(Capsule())
+            Button(action: onComposeTapped) {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.pageBg)
+                    .padding(6)
+                    .background(Color.brand)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
         }
         .textCase(nil)
         .padding(.vertical, 4)
@@ -728,7 +750,7 @@ private struct RevealFocusOverlay: View {
                 .background {
                     ZStack {
                         RoundedRectangle(cornerRadius: 22)
-                            .fill(Color(red: 0.078, green: 0.082, blue: 0.102).opacity(0.92))
+                            .fill(cardBase.opacity(0.92))
                         RoundedRectangle(cornerRadius: 22)
                             .fill(LinearGradient(
                                 stops: [
@@ -756,6 +778,60 @@ private struct RevealFocusOverlay: View {
             withAnimation(.easeOut(duration: 0.3)) { scrimVisible = true }
             withAnimation(.easeOut(duration: 1.2).delay(0.4)) { bubbleVisible = true }
         }
+    }
+}
+
+// MARK: - Recipient Picker Sheet
+
+private struct RecipientPickerSheet: View {
+    let friends: [Friend]
+    let onSelect: (Friend) -> Void
+
+    private func initials(for name: String) -> String {
+        let w = name.split(separator: " ")
+        return w.count >= 2
+            ? "\(w[0].prefix(1))\(w[1].prefix(1))".uppercased()
+            : String(name.prefix(2)).uppercased()
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if friends.isEmpty {
+                    ContentUnavailableView {
+                        Label(LS("compose.pick_recipient.empty_title"), systemImage: "person.2")
+                    } description: {
+                        L("compose.pick_recipient.empty_description")
+                    }
+                } else {
+                    List(friends) { friend in
+                        Button {
+                            onSelect(friend)
+                        } label: {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle().fill(avatarBase)
+                                    Text(initials(for: friend.displayName))
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(.white.opacity(0.85))
+                                }
+                                .frame(width: 40, height: 40)
+                                Text(friend.displayName)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .listRowBackground(Color.cardBg)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .background(Color.pageBg)
+            .navigationTitle(LS("compose.pick_recipient"))
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.medium])
+        .preferredColorScheme(.dark)
     }
 }
 

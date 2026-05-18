@@ -929,6 +929,54 @@
         }
       }
     },
+    "compose.pick_recipient" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Recipient"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇傳送對象"
+          }
+        }
+      }
+    },
+    "compose.pick_recipient.empty_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Friends Yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒有朋友"
+          }
+        }
+      }
+    },
+    "compose.pick_recipient.empty_description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add friends first to send a message."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先加好友，才能傳送訊息。"
+          }
+        }
+      }
+    },
     "friends.add_failed_title" : {
       "localizations" : {
         "en" : {

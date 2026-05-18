@@ -17,6 +17,10 @@ struct CountdownInboxFeature {
         var infoBanner: String?
         var lastNotificationRebuildAt: Date?
         var currentUserID: UUID = UUID()
+        var currentUserName: String = ""
+        var friends: [Friend] = []
+        var showRecipientPicker: Bool = false
+        @Presents var compose: ComposeFeature.State?
     }
 
     enum Action {
@@ -33,6 +37,11 @@ struct CountdownInboxFeature {
         case errorDismissed
         case deleteTapped(UUID)
         case deleteResponse(id: UUID, error: String?)
+        case plusTapped
+        case friendsLoaded([Friend])
+        case recipientSelected(Friend)
+        case recipientPickerDismissed
+        case compose(PresentationAction<ComposeFeature.Action>)
     }
 
     enum CancelID { case timer, load }
@@ -40,6 +49,7 @@ struct CountdownInboxFeature {
     @Dependency(\.messageClient) var messageClient
     @Dependency(\.revealGateClient) var revealGateClient
     @Dependency(\.notificationClient) var notificationClient
+    @Dependency(\.friendClient) var friendClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
 
@@ -188,7 +198,52 @@ struct CountdownInboxFeature {
                     state.messages.remove(id: id)
                 }
                 return .none
+
+            case .plusTapped:
+                state.showRecipientPicker = true
+                if state.friends.isEmpty {
+                    return .run { [id = state.currentUserID] send in
+                        let friends = (try? await friendClient.fetchFriends(id)) ?? []
+                        await send(.friendsLoaded(friends))
+                    }
+                }
+                return .none
+
+            case .friendsLoaded(let friends):
+                state.friends = friends.filter { $0.status == .accepted }
+                return .none
+
+            case .recipientSelected(let friend):
+                state.showRecipientPicker = false
+                state.compose = ComposeFeature.State(
+                    friend: friend,
+                    senderID: state.currentUserID,
+                    senderName: state.currentUserName
+                )
+                return .none
+
+            case .recipientPickerDismissed:
+                state.showRecipientPicker = false
+                return .none
+
+            case .compose(.presented(.sendSucceeded(let message))):
+                state.compose = nil
+                return .send(.messageSent(message))
+
+            case .compose(.presented(.sendFailed)):
+                state.compose = nil
+                return .none
+
+            case .compose(.presented(.cancelTapped)):
+                state.compose = nil
+                return .none
+
+            case .compose:
+                return .none
             }
+        }
+        .ifLet(\.$compose, action: \.compose) {
+            ComposeFeature()
         }
     }
 

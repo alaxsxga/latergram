@@ -76,6 +76,7 @@ struct AppFeature {
                     CurrentUserStore.shared.user = user
                     state.friends.me = user
                     state.countdown.currentUserID = user.id
+                    state.countdown.currentUserName = user.displayName
                     state.chats.currentUserID = user.id
                     state.chats.currentUserName = user.displayName
                     state.route = .main
@@ -99,6 +100,7 @@ struct AppFeature {
                 CurrentUserStore.shared.user = user
                 state.friends.me = user
                 state.countdown.currentUserID = user.id
+                state.countdown.currentUserName = user.displayName
                 state.chats.currentUserID = user.id
                 state.chats.currentUserName = user.displayName
                 state.route = .main
