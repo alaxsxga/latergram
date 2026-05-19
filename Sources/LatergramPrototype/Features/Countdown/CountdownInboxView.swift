@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import LatergramCore
 import SwiftUI
@@ -913,3 +914,4 @@ private struct RevealAnimationPreview: View {
         }
     }
 }
+#endif

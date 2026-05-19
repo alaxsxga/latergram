@@ -53,7 +53,7 @@ final class AuthFeatureTests: XCTestCase {
         }
     }
 
-    func test_nextTapped_success_transitionsToSetName() async {
+    func test_nextTapped_success_transitionsToAwaitingConfirmation() async {
         let expectedID = UUID()
         let store = TestStore(initialState: {
             var s = AuthFeature.State()
@@ -74,7 +74,24 @@ final class AuthFeatureTests: XCTestCase {
         await store.receive(\.accountCreated) {
             $0.isSubmitting = false
             $0.pendingUserID = expectedID
+            $0.mode = .awaitingConfirmation
+        }
+    }
+
+    func test_emailConfirmed_transitionsToSetName() async {
+        let userID = UUID()
+        let store = TestStore(initialState: {
+            var s = AuthFeature.State()
+            s.mode = .awaitingConfirmation
+            s.pendingUserID = userID
+            return s
+        }()) {
+            AuthFeature()
+        }
+
+        await store.send(.emailConfirmed(userID)) {
             $0.mode = .setName
+            $0.pendingUserID = userID
         }
     }
 

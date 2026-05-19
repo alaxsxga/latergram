@@ -21,7 +21,8 @@ final class NotificationRebuildPolicyTests: XCTestCase {
                 receiverName: "r\(idx)",
                 body: "b",
                 style: .classic,
-                unlockAt: now.addingTimeInterval(TimeInterval(60 + idx))
+                unlockAt: now.addingTimeInterval(TimeInterval(60 + idx)),
+                delaySeconds: 60 + idx
             )
         }
 

@@ -44,7 +44,9 @@ final class ComposeFeatureTests: XCTestCase {
     }
 
     func test_submitTapped_unlockTooSoon_setsError() async {
-        let store = TestStore(initialState: makeState(unlockAt: now.addingTimeInterval(30))) {
+        var state = makeState(unlockAt: now.addingTimeInterval(30))
+        state.timingMode = .unlockDate
+        let store = TestStore(initialState: state) {
             ComposeFeature()
         } withDependencies: {
             $0.date = .constant(now)
@@ -55,15 +57,17 @@ final class ComposeFeatureTests: XCTestCase {
         }
     }
 
-    func test_submitTapped_unlockTooLate_setsError() async {
-        let store = TestStore(initialState: makeState(unlockAt: now.addingTimeInterval(8 * 24 * 3600))) {
+    func test_submitTapped_over24h_nonPremium_showsPaywall() async {
+        var state = makeState(unlockAt: now.addingTimeInterval(25 * 3600))
+        state.timingMode = .unlockDate
+        let store = TestStore(initialState: state) {
             ComposeFeature()
         } withDependencies: {
             $0.date = .constant(now)
         }
 
         await store.send(.submitTapped) {
-            $0.errorMessage = "解鎖時間最多 7 天後"
+            $0.showLongDelayPaywall = true
         }
     }
 
@@ -81,6 +85,56 @@ final class ComposeFeatureTests: XCTestCase {
         await store.send(.submitTapped) {
             $0.isSending = true
             $0.errorMessage = nil
+        }
+    }
+
+    // MARK: - premium bypass
+
+    func test_submitTapped_over24h_premium_doesNotShowPaywall() async {
+        var state = makeState(unlockAt: now.addingTimeInterval(25 * 3600))
+        state.timingMode = .unlockDate
+        state.isPremium = true
+
+        let store = TestStore(initialState: state) {
+            ComposeFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+            $0.messageClient.send = { _ in }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.submitTapped) {
+            $0.isSending = true
+            $0.showLongDelayPaywall = false
+        }
+    }
+
+    // MARK: - binding unlockAt > 24h triggers paywall immediately
+
+    func test_binding_unlockAt_over24h_nonPremium_showsPaywall() async {
+        let store = TestStore(initialState: makeState()) {
+            ComposeFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+        }
+
+        await store.send(.binding(.set(\.unlockAt, now.addingTimeInterval(25 * 3600)))) {
+            $0.unlockAt = self.now.addingTimeInterval(25 * 3600)
+            $0.showLongDelayPaywall = true
+        }
+    }
+
+    // MARK: - sendFailed
+
+    func test_sendFailed_setsErrorAndClearsSending() async {
+        var state = makeState()
+        state.isSending = true
+
+        let store = TestStore(initialState: state) { ComposeFeature() }
+
+        await store.send(.sendFailed("network_error")) {
+            $0.isSending = false
+            $0.errorMessage = "network_error"
         }
     }
 }

@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import SwiftUI
 
@@ -57,3 +58,4 @@ public struct AppView: View {
         .preferredColorScheme(.dark)
     }
 }
+#endif

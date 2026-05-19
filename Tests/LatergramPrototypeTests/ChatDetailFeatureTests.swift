@@ -110,6 +110,157 @@ final class ChatDetailFeatureTests: XCTestCase {
 
         XCTAssertEqual(store.state.messages[id: overdue.id]?.status, .readyToReveal)
     }
+    // MARK: - revealResponse
+
+    func test_revealResponse_true_setsRevealedStatus() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(-60), status: .readyToReveal)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) {
+            ChatDetailFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+            $0.messageClient.reveal = { _, _ in true }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.revealResponse(id: msg.id, result: true)) {
+            $0.messages[id: msg.id]?.status = MessageStatus.revealed
+            $0.messages[id: msg.id]?.revealedAt = self.now
+        }
+    }
+
+    func test_revealResponse_false_setsTimeError() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(-60), status: .readyToReveal)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.revealResponse(id: msg.id, result: false)) {
+            $0.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
+        }
+    }
+
+    func test_revealResponse_nil_setsNetworkError() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(-60), status: .readyToReveal)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.revealResponse(id: msg.id, result: nil)) {
+            $0.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
+        }
+    }
+
+    func test_revealCommitFailed_rollsBackStatus() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(-60), status: .revealed)
+        var initialState = makeState()
+        var revealedMsg = msg
+        revealedMsg.revealedAt = now
+        initialState.messages = [revealedMsg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.revealCommitFailed(msg.id)) {
+            $0.messages[id: msg.id]?.status = .readyToReveal
+            $0.messages[id: msg.id]?.revealedAt = nil
+            $0.errorMessage = "開啟失敗，請確認網路後再試"
+        }
+    }
+
+    // MARK: - revealTapped guard
+
+    func test_revealTapped_scheduledMessage_doesNothing() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        // Guard returns .none for non-readyToReveal
+        await store.send(.revealTapped(msg.id))
+    }
+
+    // MARK: - deleteResponse
+
+    func test_deleteResponse_success_removesMessage() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.deleteResponse(id: msg.id, error: nil)) {
+            $0.messages = []
+        }
+    }
+
+    func test_deleteResponse_failure_setsError() async {
+        let msg = makeMessage(senderID: friend.id, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
+        var initialState = makeState()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.deleteResponse(id: msg.id, error: "刪除失敗")) {
+            $0.errorMessage = "刪除失敗"
+        }
+    }
+
+    // MARK: - compose.sendSucceeded
+
+    func test_composeSendSucceeded_appendsMessageAndSendsDelegate() async {
+        let msg = makeMessage(senderID: meID, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
+        var initialState = makeState()
+        initialState.compose = ComposeFeature.State(
+            friend: friend, senderID: meID, senderName: "Alice"
+        )
+
+        let store = TestStore(initialState: initialState) {
+            ChatDetailFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+        }
+        store.exhaustivity = .off
+
+        await store.send(.compose(.presented(.sendSucceeded(msg)))) {
+            $0.compose = nil
+            $0.messages = [msg]
+        }
+    }
+
+    // MARK: - compose.sendFailed
+
+    func test_composeSendFailed_limitExceeded_setsLimitError() async {
+        var initialState = makeState()
+        initialState.compose = ComposeFeature.State(
+            friend: friend, senderID: meID, senderName: "Alice"
+        )
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.compose(.presented(.sendFailed("friend_message_limit_exceeded")))) {
+            $0.compose = nil
+            $0.errorMessage = "已達上限，等訊息開啟後再傳"
+        }
+    }
+
+    func test_composeSendFailed_other_setsRawError() async {
+        var initialState = makeState()
+        initialState.compose = ComposeFeature.State(
+            friend: friend, senderID: meID, senderName: "Alice"
+        )
+
+        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+
+        await store.send(.compose(.presented(.sendFailed("network_error")))) {
+            $0.compose = nil
+            $0.errorMessage = "network_error"
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -128,6 +279,7 @@ private func makeMessage(
         style: .classic,
         sentAt: unlockAt.addingTimeInterval(-3600),
         unlockAt: unlockAt,
+        delaySeconds: 3600,
         status: status
     )
 }

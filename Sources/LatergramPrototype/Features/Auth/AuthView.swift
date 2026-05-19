@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import SwiftUI
 
@@ -248,3 +249,4 @@ struct AuthView: View {
 #Preview("Set Name") {
     AuthView(store: Store(initialState: AuthFeature.State(mode: .setName, pendingUserID: UUID())) { AuthFeature() })
 }
+#endif

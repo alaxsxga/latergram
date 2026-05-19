@@ -278,6 +278,205 @@ final class CountdownInboxFeatureTests: XCTestCase {
         XCTAssertEqual(store.state.revealedSortOrder.first, newerRevealed.id)
         XCTAssertEqual(store.state.revealedSortOrder.last,  olderRevealed.id)
     }
+
+    // MARK: - revealResponse
+
+    func test_revealResponse_true_setsRevealedStatus() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(-60), now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        var readyMsg = msg
+        readyMsg.status = .readyToReveal
+        initialState.messages = [readyMsg]
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+            $0.messageClient.reveal = { _, _ in true }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.revealResponse(id: msg.id, result: true)) {
+            $0.messages[id: msg.id]?.status = .revealed
+            $0.messages[id: msg.id]?.revealedAt = now
+        }
+    }
+
+    func test_revealResponse_false_setsTimeError() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(-60), now: now)
+        var initialState = CountdownInboxFeature.State()
+        var readyMsg = msg; readyMsg.status = .readyToReveal
+        initialState.messages = [readyMsg]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        await store.send(.revealResponse(id: msg.id, result: false)) {
+            $0.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
+        }
+    }
+
+    func test_revealResponse_nil_setsNetworkError() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(-60), now: now)
+        var initialState = CountdownInboxFeature.State()
+        var readyMsg = msg; readyMsg.status = .readyToReveal
+        initialState.messages = [readyMsg]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        await store.send(.revealResponse(id: msg.id, result: nil)) {
+            $0.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
+        }
+    }
+
+    func test_revealCommitFailed_rollsBackStatus() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(-60), now: now)
+        var initialState = CountdownInboxFeature.State()
+        var revealedMsg = msg
+        revealedMsg.status = .revealed
+        revealedMsg.revealedAt = now
+        initialState.messages = [revealedMsg]
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+        }
+        store.exhaustivity = .off
+
+        await store.send(.revealCommitFailed(msg.id)) {
+            $0.messages[id: msg.id]?.status = .readyToReveal
+            $0.messages[id: msg.id]?.revealedAt = nil
+            $0.errorMessage = "開啟失敗，請確認網路後再試"
+        }
+    }
+
+    // MARK: - plusTapped
+
+    func test_plusTapped_withCachedFriends_opensPickerWithoutFetch() async {
+        let alice = Friend(displayName: "Alice", status: .accepted)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        initialState.friends = [alice]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        await store.send(.plusTapped) {
+            $0.showRecipientPicker = true
+        }
+    }
+
+    func test_plusTapped_noFriends_opensPickerAndFetches() async {
+        let alice = Friend(displayName: "Alice", status: .accepted)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        initialState.friends = []
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendClient.fetchFriends = { _ in [alice] }
+        }
+
+        await store.send(.plusTapped) {
+            $0.showRecipientPicker = true
+            $0.isLoadingFriends = true
+        }
+        await store.receive(\.friendsLoaded) {
+            $0.isLoadingFriends = false
+            $0.friends = [alice]
+        }
+    }
+
+    // MARK: - revealTapped guard
+
+    func test_revealTapped_scheduledMessage_doesNothing() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(3600), now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        // No state change expected — guard returns .none for non-readyToReveal
+        await store.send(.revealTapped(msg.id))
+    }
+
+    // MARK: - deleteResponse
+
+    func test_deleteResponse_success_removesMessage() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(3600), now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        await store.send(.deleteResponse(id: msg.id, error: nil)) {
+            $0.messages = []
+        }
+    }
+
+    func test_deleteResponse_failure_setsError() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(3600), now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.messages = [msg]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+
+        await store.send(.deleteResponse(id: msg.id, error: "刪除失敗")) {
+            $0.errorMessage = "刪除失敗"
+        }
+    }
+
+    // MARK: - recipientSelected
+
+    func test_recipientSelected_opensComposeForFriend() async {
+        let alice = Friend(displayName: "Alice", status: .accepted)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        initialState.currentUserName = "Bob"
+        initialState.showRecipientPicker = true
+        initialState.friends = [alice]
+
+        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.recipientSelected(alice)) {
+            $0.showRecipientPicker = false
+        }
+        XCTAssertEqual(store.state.compose?.friend, alice)
+        XCTAssertEqual(store.state.compose?.senderID, meID)
+        XCTAssertEqual(store.state.compose?.senderName, "Bob")
+    }
+
+    // MARK: - messageSent
+
+    func test_messageSent_appendsToMessages() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: meID, receiverID: friendID,
+                                       unlockAt: now.addingTimeInterval(3600), now: now)
+        let store = TestStore(initialState: CountdownInboxFeature.State()) {
+            CountdownInboxFeature()
+        }
+
+        await store.send(.messageSent(msg)) {
+            $0.messages = [msg]
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -297,6 +496,7 @@ private func makeScheduledMessage(
         style: .classic,
         sentAt: now.addingTimeInterval(-3600),
         unlockAt: unlockAt,
+        delaySeconds: 3600,
         status: .scheduled
     )
 }
@@ -317,6 +517,7 @@ private func makeScheduledMessageWithSentAt(
         style: .classic,
         sentAt: sentAt,
         unlockAt: unlockAt,
+        delaySeconds: 3600,
         status: .scheduled
     )
 }
@@ -336,6 +537,7 @@ private func makeRevealedMessageWithSentAt(
         style: .classic,
         sentAt: sentAt,
         unlockAt: revealedAt,
+        delaySeconds: 3600,
         status: .revealed,
         revealedAt: revealedAt
     )
@@ -356,6 +558,7 @@ private func makeRevealedMessage(
         style: .classic,
         sentAt: now.addingTimeInterval(-3600),
         unlockAt: revealedAt,
+        delaySeconds: 3600,
         status: .revealed,
         revealedAt: revealedAt
     )

@@ -106,6 +106,7 @@ final class AppFeatureTests: XCTestCase {
             style: .classic,
             sentAt: now.addingTimeInterval(-3600),
             unlockAt: now.addingTimeInterval(-1800),
+            delaySeconds: 3600,
             status: .revealed,
             revealedAt: now.addingTimeInterval(-1800)
         )
@@ -116,6 +117,7 @@ final class AppFeatureTests: XCTestCase {
             style: .classic,
             sentAt: now.addingTimeInterval(-900),
             unlockAt: now.addingTimeInterval(-600),
+            delaySeconds: 3600,
             status: .revealed,
             revealedAt: now.addingTimeInterval(-600)
         )
@@ -155,6 +157,7 @@ final class AppFeatureTests: XCTestCase {
             style: .classic,
             sentAt: now.addingTimeInterval(-3600),
             unlockAt: now.addingTimeInterval(-1),
+            delaySeconds: 3600,
             status: .revealed,
             revealedAt: now.addingTimeInterval(-1)
         )
@@ -166,6 +169,7 @@ final class AppFeatureTests: XCTestCase {
             style: .classic,
             sentAt: now.addingTimeInterval(-1800),
             unlockAt: now.addingTimeInterval(-900),
+            delaySeconds: 3600,
             status: .revealed,
             revealedAt: now.addingTimeInterval(-900)
         )
@@ -202,6 +206,7 @@ final class AppFeatureTests: XCTestCase {
             style: .classic,
             sentAt: now,
             unlockAt: now.addingTimeInterval(3600),
+            delaySeconds: 3600,
             status: .scheduled
         )
 

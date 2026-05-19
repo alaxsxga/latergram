@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import LatergramCore
 import SwiftUI
@@ -376,3 +377,4 @@ private struct ChatBubbleAvatar: View {
             : String(name.prefix(2)).uppercased()
     }
 }
+#endif

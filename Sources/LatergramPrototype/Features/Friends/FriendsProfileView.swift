@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import LatergramCore
 import SwiftUI
@@ -389,3 +390,4 @@ struct InitialsAvatar: View {
             )
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if os(iOS)
 import ComposableArchitecture
 import LatergramCore
 import SwiftUI
@@ -628,3 +629,4 @@ private struct LongDelayPaywallSheet: View {
         .padding()
     }
 }
+#endif
