@@ -56,7 +56,7 @@ struct FriendsProfileView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.primary)
                             .frame(width: 34, height: 34)
-                            .background(Color(white: 0.18))
+                            .background(Color.surfaceMid)
                             .clipShape(Circle())
                     }
                 }
@@ -288,14 +288,14 @@ private struct InviteSheet: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.accentColor)
+                        .background(Color.brand)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             } else {
                 VStack(spacing: 14) {
                     Text(store.generatedInviteCode)
                         .font(.system(size: 28, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color.brand)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 28)
@@ -310,7 +310,7 @@ private struct InviteSheet: View {
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.accentColor)
+                            .background(Color.brand)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                 }
@@ -351,7 +351,7 @@ private struct InviteSheet: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 22)
                         .padding(.vertical, 14)
-                        .background(canJoin ? Color.accentColor : Color.accentColor.opacity(0.35))
+                        .background(canJoin ? Color.brand : Color.brand.opacity(0.35))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .disabled(!canJoin)

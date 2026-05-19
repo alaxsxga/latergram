@@ -2,12 +2,6 @@ import ComposableArchitecture
 import LatergramCore
 import SwiftUI
 
-// MARK: - File-private design tokens
-
-private let cardBase   = Color(red: 0.078, green: 0.082, blue: 0.102)  // #14151A
-private let avatarBase = Color(red: 0.165, green: 0.173, blue: 0.204)  // #2A2C34
-private let fgMute     = Color(red: 0.373, green: 0.384, blue: 0.427)  // #5F626D
-private let accentMint = Color(red: 0.373, green: 0.890, blue: 0.690)  // #5FE3B0
 private let cardRadius: CGFloat = 22
 
 private func shortDuration(_ interval: TimeInterval) -> String {
@@ -29,7 +23,7 @@ private struct MessageAvatar: View {
     let size: CGFloat
     var isReady: Bool = false
 
-    private var bg: Color { isReady ? style.styleColor.opacity(0.18) : avatarBase }
+    private var bg: Color { isReady ? style.styleColor.opacity(0.18) : Color.surfaceMid }
     private var fg: Color { isReady ? style.styleTextColor : .white.opacity(0.85) }
 
     private var initials: String {
@@ -70,10 +64,10 @@ private struct CardMeta: View {
                     .foregroundStyle(.white)
                 Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                     .font(.system(size: 12))
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
                 Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                     .font(.system(size: 12))
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
             }
 
             Spacer()
@@ -329,7 +323,7 @@ private struct CountingDownCard: View {
                 L("inbox.card.unlock_countdown")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(3)
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
 
                 Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
                     .font(.system(size: 38, weight: .bold, design: .monospaced))
@@ -342,7 +336,7 @@ private struct CountingDownCard: View {
                     Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
                 }
-                .foregroundStyle(fgMute)
+                .foregroundStyle(Color.fgMuted)
             }
             .frame(maxWidth: .infinity)
         }
@@ -432,16 +426,16 @@ private struct RevealedReceivedCard: View {
                         .foregroundStyle(.white)
                     Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                         .font(.system(size: 12))
-                        .foregroundStyle(fgMute)
+                        .foregroundStyle(Color.fgMuted)
                     Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                         .font(.system(size: 12))
-                        .foregroundStyle(fgMute)
+                        .foregroundStyle(Color.fgMuted)
                     HStack(spacing: 4) {
                         Image(systemName: "lock").font(.system(size: 11))
                         Text(String(format: LS("inbox.card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
                             .font(.system(size: 12))
                     }
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
                 }
 
                 Spacer()
@@ -449,7 +443,7 @@ private struct RevealedReceivedCard: View {
                 HStack(spacing: 12) {
                     Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(accentMint)
+                        .foregroundStyle(Color.accentMint)
                         .buttonStyle(.plain)
                     Menu {
                         Button(role: .destructive, action: onDelete) {
@@ -497,9 +491,9 @@ private struct SentCard: View {
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
                     Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
-                        .font(.system(size: 12)).foregroundStyle(fgMute)
+                        .font(.system(size: 12)).foregroundStyle(Color.fgMuted)
                     Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
-                        .font(.system(size: 12)).foregroundStyle(fgMute)
+                        .font(.system(size: 12)).foregroundStyle(Color.fgMuted)
                 }
 
                 Spacer()
@@ -536,11 +530,11 @@ private struct SentCard: View {
                     Text(String(format: LS("inbox.sent_card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
                         .font(.system(size: 12))
                 }
-                .foregroundStyle(fgMute)
+                .foregroundStyle(Color.fgMuted)
                 Spacer()
                 Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(accentMint)
+                    .foregroundStyle(Color.accentMint)
                     .buttonStyle(.plain)
             }
             .transaction { $0.animation = nil }
@@ -548,7 +542,7 @@ private struct SentCard: View {
         } else if message.unlockAt > now {
             VStack(spacing: 6) {
                 L("inbox.card.unlock_countdown")
-                    .font(.system(size: 11, weight: .semibold)).tracking(3).foregroundStyle(fgMute)
+                    .font(.system(size: 11, weight: .semibold)).tracking(3).foregroundStyle(Color.fgMuted)
                 Text(CountdownFormatter.dHms(from: message.unlockAt.timeIntervalSince(now)))
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundStyle(message.style.styleColor)
@@ -559,10 +553,10 @@ private struct SentCard: View {
                         Image(systemName: "lock").font(.caption)
                         Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
                     }
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
                     Spacer()
                     Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                        .font(.caption).foregroundStyle(accentMint).buttonStyle(.plain)
+                        .font(.caption).foregroundStyle(Color.accentMint).buttonStyle(.plain)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -573,16 +567,16 @@ private struct SentCard: View {
                     .font(.system(size: 28, weight: .medium))
                     .foregroundStyle(message.style.styleColor)
                 L("inbox.sent_card.waiting")
-                    .font(.subheadline).foregroundStyle(fgMute)
+                    .font(.subheadline).foregroundStyle(Color.fgMuted)
                 HStack {
                     HStack(spacing: 4) {
                         Image(systemName: "lock.open").font(.caption)
                         Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
                     }
-                    .foregroundStyle(fgMute)
+                    .foregroundStyle(Color.fgMuted)
                     Spacer()
                     Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                        .font(.caption).foregroundStyle(accentMint).buttonStyle(.plain)
+                        .font(.caption).foregroundStyle(Color.accentMint).buttonStyle(.plain)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -632,10 +626,10 @@ private struct ReadyToOpenHeader: View {
             if count > 0 {
                 Text(String(format: LS("inbox.badge.new_count"), count))
                     .font(.system(size: 11, weight: .heavy))
-                    .foregroundStyle(Color(red: 0.016, green: 0.173, blue: 0.122))
+                    .foregroundStyle(Color.brandDark)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
-                    .background(accentMint)
+                    .background(Color.accentMint)
                     .clipShape(Capsule())
             }
             Spacer()
@@ -751,7 +745,7 @@ private struct RevealFocusOverlay: View {
                 .background {
                     ZStack {
                         RoundedRectangle(cornerRadius: 22)
-                            .fill(cardBase.opacity(0.92))
+                            .fill(Color.cardBase.opacity(0.92))
                         RoundedRectangle(cornerRadius: 22)
                             .fill(LinearGradient(
                                 stops: [
@@ -815,7 +809,7 @@ private struct RecipientPickerSheet: View {
                         } label: {
                             HStack(spacing: 12) {
                                 ZStack {
-                                    Circle().fill(avatarBase)
+                                    Circle().fill(Color.surfaceMid)
                                     Text(initials(for: friend.displayName))
                                         .font(.system(size: 14, weight: .semibold))
                                         .foregroundStyle(.white.opacity(0.85))

@@ -61,7 +61,7 @@ struct AuthView: View {
 
             if let error = store.errorMessage {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.errorRed)
                     .font(.footnote)
             }
 
@@ -84,7 +84,7 @@ struct AuthView: View {
                 }
             }
             .background(Color.brand)
-            .foregroundStyle(Color(red: 0.06, green: 0.06, blue: 0.06))
+            .foregroundStyle(Color.pageBg)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .disabled(store.isSubmitting)
 
@@ -157,7 +157,7 @@ struct AuthView: View {
 
             if let error = store.errorMessage {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.errorRed)
                     .font(.footnote)
             }
 
@@ -176,7 +176,7 @@ struct AuthView: View {
                 }
             }
             .background(Color.brand)
-            .foregroundStyle(Color(red: 0.06, green: 0.06, blue: 0.06))
+            .foregroundStyle(Color.pageBg)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .disabled(store.isSubmitting)
 

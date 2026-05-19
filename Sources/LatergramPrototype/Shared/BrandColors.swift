@@ -4,9 +4,17 @@ import SwiftUI
 
 extension Color {
     static let brand = Color(red: 0.00, green: 0.80, blue: 0.64)
+    static let brandDark  = Color(red: 0.016, green: 0.173, blue: 0.122) // brand 按鈕上的深色文字
 
     static let pageBg = Color(red: 0.06, green: 0.06, blue: 0.06)
     static let cardBg = Color(red: 0.13, green: 0.13, blue: 0.13)
+    static let cardBase   = Color(red: 0.078, green: 0.082, blue: 0.102) // 訊息卡片底色
+    static let surfaceMid = Color(red: 0.165, green: 0.173, blue: 0.204) // 輕提升面板／大頭貼底色
+
+    static let fgMuted    = Color(red: 0.373, green: 0.384, blue: 0.427) // 次要文字
+    static let accentMint = Color(red: 0.373, green: 0.890, blue: 0.690) // Inbox 強調色
+    static let errorRed   = Color.red                                     // 表單錯誤
+    static let badgeNew   = Color(red: 0.6,   green: 0.85,  blue: 0.6)   // NEW badge
 
     // Avatar palette — index by abs(name.hashValue) % count
     static let avatarPalette: [Color] = [

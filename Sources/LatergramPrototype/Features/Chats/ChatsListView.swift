@@ -143,7 +143,7 @@ private struct ChatRow: View {
     private var statusIcon: (name: String, color: Color)? {
         switch effectiveStatus {
         case .scheduled:     return ("clock.circle.fill", Color(.systemGray))
-        case .readyToReveal: return ("clock.circle.fill", Color(red: 0.6, green: 0.85, blue: 0.6))
+        case .readyToReveal: return ("clock.circle.fill", Color.badgeNew)
         case .revealed:      return nil
         }
     }

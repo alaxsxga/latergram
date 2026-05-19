@@ -56,7 +56,7 @@ struct ComposeView: View {
                     if let error = store.errorMessage {
                         Text(error)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color.errorRed)
                             .padding(.bottom, 8)
                     }
                 }
@@ -152,7 +152,7 @@ struct ComposeView: View {
                 .scrollContentBackground(.hidden)
             Text("\(store.body.count)/1000")
                 .font(.caption)
-                .foregroundStyle(store.body.count > 1000 ? .red : .secondary)
+                .foregroundStyle(store.body.count > 1000 ? Color.errorRed : .secondary)
         }
         .padding(14)
         .cardBackground(radius: 16)
@@ -207,10 +207,10 @@ struct ComposeView: View {
     }
 
     private var summaryPill: some View {
-        let accent: Color = isTimingValid ? .brand : .red
+        let accent: Color = isTimingValid ? .brand : Color.errorRed
         return Text(summaryText)
             .font(.footnote)
-            .foregroundStyle(isTimingValid ? AnyShapeStyle(.secondary) : AnyShapeStyle(Color.red))
+            .foregroundStyle(isTimingValid ? AnyShapeStyle(.secondary) : AnyShapeStyle(Color.errorRed))
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -242,7 +242,6 @@ struct ComposeView: View {
     // MARK: - Style Preview
 
     private var stylePreview: some View {
-        let fgMute = Color(red: 0.373, green: 0.384, blue: 0.427)
         return VStack(alignment: .leading, spacing: 0) {
             composeLabel("compose.label.preview")
 
@@ -255,7 +254,7 @@ struct ComposeView: View {
                             .foregroundStyle(.white)
                         Text(summaryText)
                             .font(.system(size: 12))
-                            .foregroundStyle(fgMute)
+                            .foregroundStyle(Color.fgMuted)
                     }
                 }
                 .padding(.bottom, 20)
@@ -264,7 +263,7 @@ struct ComposeView: View {
                     L("compose.unlock_countdown")
                         .font(.system(size: 11, weight: .semibold))
                         .tracking(3)
-                        .foregroundStyle(fgMute)
+                        .foregroundStyle(Color.fgMuted)
 
                     Text(CountdownFormatter.dHms(from: max(0, store.unlockAt.timeIntervalSince(Date()))))
                         .font(.system(size: 38, weight: .bold, design: .monospaced))
@@ -384,7 +383,7 @@ private struct CountdownCard: View {
                             .foregroundStyle(Color.brand)
                     }
                 }
-                .background(Color(white: 0.18))
+                .background(Color.surfaceMid)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding(.horizontal, 16)
@@ -539,7 +538,7 @@ private struct UnlockDateCard: View {
             .foregroundStyle(.tertiary)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
-            .background(Color(white: 0.18))
+            .background(Color.surfaceMid)
             .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }
@@ -572,7 +571,7 @@ private struct DatePill: View {
 
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(isSelected ? Color.brand : Color(white: 0.18))
+                        .fill(isSelected ? Color.brand : Color.surfaceMid)
                         .frame(width: 44, height: 52)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)

@@ -78,7 +78,7 @@ enum GlowTier {
 
 // MARK: - MessageCardModifier
 
-private let _cardBase   = Color(red: 0.078, green: 0.082, blue: 0.102)  // #14151A
+private let _cardBase   = Color.cardBase
 private let _cardRadius: CGFloat = 22
 
 struct MessageCardModifier: ViewModifier {
