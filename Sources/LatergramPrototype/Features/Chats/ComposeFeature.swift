@@ -18,6 +18,8 @@ struct ComposeFeature {
         var timingMode: TimingMode = .countdown
         var errorMessage: String?
         var isSending = false
+        var showLongDelayPaywall: Bool = false
+        var isPremium: Bool = false
     }
 
     enum Action: BindableAction {
@@ -26,6 +28,7 @@ struct ComposeFeature {
         case cancelTapped
         case sendSucceeded(DelayedMessage)
         case sendFailed(String)
+        case longDelayPaywallDismissed
     }
 
     @Dependency(\.messageClient) var messageClient
@@ -37,6 +40,12 @@ struct ComposeFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+
+            case .binding(\.unlockAt):
+                if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > 86_400 {
+                    state.showLongDelayPaywall = true
+                }
+                return .none
 
             case .binding:
                 return .none
@@ -56,6 +65,11 @@ struct ComposeFeature {
                 case .unlockDate:
                     finalUnlockAt = state.unlockAt
                     finalDelaySeconds = max(60, Int(finalUnlockAt.timeIntervalSince(now)))
+                }
+
+                if !state.isPremium && finalDelaySeconds > 86_400 {
+                    state.showLongDelayPaywall = true
+                    return .none
                 }
 
                 if let error = rules.validate(body: state.body, unlockAt: finalUnlockAt, now: now) {
@@ -84,6 +98,10 @@ struct ComposeFeature {
                         await send(.sendFailed(error.localizedDescription))
                     }
                 }
+
+            case .longDelayPaywallDismissed:
+                state.showLongDelayPaywall = false
+                return .none
 
             case .cancelTapped:
                 return .none

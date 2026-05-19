@@ -625,6 +625,22 @@
         }
       }
     },
+    "compose.long_delay_paywall_info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delays longer than 24 hours are a paid feature"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定超過 24 小時的延遲為付費功能"
+          }
+        }
+      }
+    },
     "compose.max_days" : {
       "localizations" : {
         "en" : {
@@ -829,6 +845,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "📅 指定日期"
+          }
+        }
+      }
+    },
+    "compose.unlock_long_delay" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock Long Delays"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解鎖長延遲"
           }
         }
       }

@@ -90,6 +90,14 @@ struct ComposeView: View {
         .onChange(of: unlockIsAM) { _ in updateUnlockAt() }
         .onChange(of: store.timingMode) { _ in updateUnlockAt() }
         .onAppear { updateUnlockAt() }
+        .sheet(isPresented: Binding(
+            get: { store.showLongDelayPaywall },
+            set: { if !$0 { store.send(.longDelayPaywallDismissed) } }
+        )) {
+            LongDelayPaywallSheet(onDismiss: { store.send(.longDelayPaywallDismissed) })
+                .presentationDetents([.height(280)])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Helpers
@@ -586,5 +594,42 @@ private struct DatePill: View {
         }
         .buttonStyle(.plain)
         .frame(width: 48)
+    }
+}
+
+// MARK: - Long Delay Paywall Sheet
+
+private struct LongDelayPaywallSheet: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "hourglass.badge.plus")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+
+            L("compose.long_delay_paywall_info")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: 12) {
+                Button {
+                    // TODO: IAP — 導向購買頁
+                    onDismiss()
+                } label: {
+                    Label(LS("compose.unlock_long_delay"), systemImage: "star.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button(LS("chat_detail.got_it"), action: onDismiss)
+                    .buttonStyle(.bordered)
+                    .tint(.secondary)
+            }
+            .padding(.horizontal)
+        }
+        .padding()
     }
 }
