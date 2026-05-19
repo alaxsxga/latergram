@@ -19,6 +19,7 @@ struct CountdownInboxFeature {
         var currentUserID: UUID = UUID()
         var currentUserName: String = ""
         var friends: [Friend] = []
+        var isLoadingFriends: Bool = false
         var showRecipientPicker: Bool = false
         @Presents var compose: ComposeFeature.State?
     }
@@ -50,6 +51,7 @@ struct CountdownInboxFeature {
     @Dependency(\.revealGateClient) var revealGateClient
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.friendClient) var friendClient
+    @Dependency(\.friendsCacheClient) var friendsCacheClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
 
@@ -202,6 +204,10 @@ struct CountdownInboxFeature {
             case .plusTapped:
                 state.showRecipientPicker = true
                 if state.friends.isEmpty {
+                    let cached = friendsCacheClient.load(state.currentUserID).filter { $0.status == .accepted }
+                        .sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
+                    state.friends = cached
+                    state.isLoadingFriends = cached.isEmpty
                     return .run { [id = state.currentUserID] send in
                         let friends = (try? await friendClient.fetchFriends(id)) ?? []
                         await send(.friendsLoaded(friends))
@@ -210,7 +216,11 @@ struct CountdownInboxFeature {
                 return .none
 
             case .friendsLoaded(let friends):
-                state.friends = friends.filter { $0.status == .accepted }
+                state.isLoadingFriends = false
+                let accepted = friends.filter { $0.status == .accepted }
+                    .sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
+                state.friends = accepted
+                friendsCacheClient.save(accepted, state.currentUserID)
                 return .none
 
             case .recipientSelected(let friend):

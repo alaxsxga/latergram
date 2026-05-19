@@ -141,6 +141,7 @@ struct CountdownInboxView: View {
             )) {
                 RecipientPickerSheet(
                     friends: store.friends,
+                    isLoading: store.isLoadingFriends,
                     onSelect: { store.send(.recipientSelected($0)) }
                 )
             }
@@ -785,6 +786,7 @@ private struct RevealFocusOverlay: View {
 
 private struct RecipientPickerSheet: View {
     let friends: [Friend]
+    var isLoading: Bool = false
     let onSelect: (Friend) -> Void
 
     private func initials(for name: String) -> String {
@@ -797,7 +799,10 @@ private struct RecipientPickerSheet: View {
     var body: some View {
         NavigationStack {
             Group {
-                if friends.isEmpty {
+                if isLoading && friends.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if friends.isEmpty {
                     ContentUnavailableView {
                         Label(LS("compose.pick_recipient.empty_title"), systemImage: "person.2")
                     } description: {
@@ -830,7 +835,7 @@ private struct RecipientPickerSheet: View {
             .navigationTitle(LS("compose.pick_recipient"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .preferredColorScheme(.dark)
     }
 }
