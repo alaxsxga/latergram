@@ -2,15 +2,6 @@ import SwiftUI
 import LatergramCore
 
 extension MessageStyle {
-    var localizedName: String {
-        switch self {
-        case .classic: "簡約"
-        case .warm:    "溫暖"
-        case .cool:    "冷靜"
-        case .heart:   "心意"
-        }
-    }
-
     var background: Color {
         switch self {
         case .classic: Color.gray.opacity(0.15)

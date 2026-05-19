@@ -302,13 +302,9 @@ private struct StyleCard: View {
                 .background(style.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            HStack(spacing: 3) {
-                Image(systemName: style.icon)
-                    .font(.system(size: 9))
-                Text(style.localizedName)
-                    .font(.system(size: 11, weight: .semibold))
-            }
-            .foregroundStyle(style.accent)
+            Image(systemName: style.icon)
+                .font(.system(size: 14))
+                .foregroundStyle(style.accent)
         }
         .frame(width: 68, height: 60)
         .padding(8)
