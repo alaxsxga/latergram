@@ -47,7 +47,6 @@ struct ChatDetailFeature {
         case loadFailed(String)
         case errorDismissed
         case limitInfoDismissed
-        case messageLimitUpdated(Int)
         case deleteTapped(UUID)
         case deleteResponse(id: UUID, error: String?)
         case compose(PresentationAction<ComposeFeature.Action>)
@@ -65,12 +64,14 @@ struct ChatDetailFeature {
     @Dependency(\.revealGateClient) var revealGateClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
+    @Dependency(\.currentUserClient) var currentUserClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
 
             case .onAppear:
+                state.userMessageLimit = currentUserClient.messageLimit()
                 let cached = messagesCacheClient.load(state.currentUserID, state.friend.id)
                 if !cached.isEmpty {
                     state.messages = IdentifiedArray(
@@ -100,7 +101,9 @@ struct ChatDetailFeature {
                     state.compose = ComposeFeature.State(
                         friend: state.friend,
                         senderID: state.currentUserID,
-                        senderName: state.senderName
+                        senderName: state.senderName,
+                        isPremium: currentUserClient.isPremium(),
+                        maxDelaySeconds: currentUserClient.maxDelaySeconds()
                     )
                 }
                 return .none
@@ -189,10 +192,6 @@ struct ChatDetailFeature {
 
             case .limitInfoDismissed:
                 state.showLimitInfo = false
-                return .none
-
-            case .messageLimitUpdated(let limit):
-                state.userMessageLimit = limit
                 return .none
 
             case .compose(.presented(.sendSucceeded(let message))):

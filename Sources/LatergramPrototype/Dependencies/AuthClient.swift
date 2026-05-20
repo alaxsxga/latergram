@@ -25,12 +25,7 @@ extension AuthClient: DependencyKey {
                 .single()
                 .execute()
                 .value
-            return UserProfile(
-                id: session.user.id,
-                displayName: profile.display_name,
-                username: profile.username,
-                messageLimit: profile.message_limit ?? 1
-            )
+            return profile.toUserProfile(id: session.user.id)
         },
         signUp: { email, password, displayName in
             let response = try await supabase.auth.signUp(email: email, password: password)
@@ -46,12 +41,7 @@ extension AuthClient: DependencyKey {
                 .single()
                 .execute()
                 .value
-            return UserProfile(
-                id: response.user.id,
-                displayName: profile.display_name,
-                username: profile.username,
-                messageLimit: profile.message_limit ?? 1
-            )
+            return profile.toUserProfile(id: response.user.id)
         },
         createAccount: { email, password in
             let response = try await supabase.auth.signUp(email: email, password: password)
@@ -74,12 +64,7 @@ extension AuthClient: DependencyKey {
                 .single()
                 .execute()
                 .value
-            return UserProfile(
-                id: userID,
-                displayName: profile.display_name,
-                username: profile.username,
-                messageLimit: profile.message_limit ?? 1
-            )
+            return profile.toUserProfile(id: userID)
         },
         signOut: {
             try await supabase.auth.signOut()
@@ -101,12 +86,7 @@ extension AuthClient: DependencyKey {
                     username: (user.email ?? "").components(separatedBy: "@").first ?? ""
                 )
             }
-            return UserProfile(
-                id: user.id,
-                displayName: profile.display_name,
-                username: profile.username,
-                messageLimit: profile.message_limit ?? 1
-            )
+            return profile.toUserProfile(id: user.id)
         },
         handleDeepLink: { url in
             let session = try await supabase.auth.session(from: url)

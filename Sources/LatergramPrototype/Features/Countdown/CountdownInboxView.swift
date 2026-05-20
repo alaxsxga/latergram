@@ -140,6 +140,18 @@ struct CountdownInboxView: View {
                     onSelect: { store.send(.recipientSelected($0)) }
                 )
             }
+            .sheet(isPresented: Binding(
+                get: { store.showLimitInfo },
+                set: { if !$0 { store.send(.limitInfoDismissed) } }
+            )) {
+                LimitInfoSheet(
+                    unlockAt: store.limitInfoUnlockAt,
+                    now: store.now,
+                    onDismiss: { store.send(.limitInfoDismissed) }
+                )
+                .presentationDetents([.height(300)])
+                .presentationDragIndicator(.visible)
+            }
             .sheet(item: $store.scope(state: \.compose, action: \.compose)) {
                 ComposeView(store: $0)
             }

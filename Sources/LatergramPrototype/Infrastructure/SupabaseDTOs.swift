@@ -58,6 +58,19 @@ struct ProfileRow: Codable {
     let display_name: String
     let username: String
     let message_limit: Int?
+    let is_premium: Bool?
+    let max_delay_seconds: Int?
+
+    func toUserProfile(id: UUID? = nil) -> UserProfile {
+        UserProfile(
+            id: id ?? self.id,
+            displayName: display_name,
+            username: username,
+            messageLimit: message_limit ?? 1,
+            isPremium: is_premium ?? false,
+            maxDelaySeconds: max_delay_seconds ?? 86400
+        )
+    }
 }
 
 // MARK: - Friendship

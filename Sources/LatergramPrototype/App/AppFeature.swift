@@ -46,6 +46,7 @@ struct AppFeature {
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.notificationClient) var notificationClient
+    @Dependency(\.currentUserClient) var currentUserClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.countdown, action: \.countdown) { CountdownInboxFeature() }
@@ -73,7 +74,7 @@ struct AppFeature {
             case .sessionChecked(let user):
                 if let user {
                     state.currentUser = user
-                    CurrentUserStore.shared.user = user
+                    currentUserClient.update(user)
                     state.friends.me = user
                     state.countdown.currentUserID = user.id
                     state.countdown.currentUserName = user.displayName
@@ -97,7 +98,7 @@ struct AppFeature {
 
             case .auth(.succeeded(let user)):
                 state.currentUser = user
-                CurrentUserStore.shared.user = user
+                currentUserClient.update(user)
                 state.friends.me = user
                 state.countdown.currentUserID = user.id
                 state.countdown.currentUserName = user.displayName
@@ -157,8 +158,8 @@ struct AppFeature {
 
             case .profileRefreshed(let user):
                 state.currentUser = user
-                CurrentUserStore.shared.user = user
-                return .send(.chats(.messageLimitUpdated(user.messageLimit)))
+                currentUserClient.update(user)
+                return .none
 
             case .loggedOut:
                 state.currentUser = nil
@@ -191,7 +192,7 @@ struct AppFeature {
 
             case .friends(.logoutSucceeded):
                 state.currentUser = nil
-                CurrentUserStore.shared.user = UserProfile(displayName: "", username: "")
+                currentUserClient.update(UserProfile(displayName: "", username: ""))
                 state.friends = FriendsFeature.State()
                 state.countdown = CountdownInboxFeature.State()
                 state.selectedTab = .countdown

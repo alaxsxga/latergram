@@ -21,6 +21,8 @@ struct CountdownInboxFeature {
         var friends: [Friend] = []
         var isLoadingFriends: Bool = false
         var showRecipientPicker: Bool = false
+        var showLimitInfo: Bool = false
+        var limitInfoUnlockAt: Date? = nil
         @Presents var compose: ComposeFeature.State?
     }
 
@@ -42,6 +44,7 @@ struct CountdownInboxFeature {
         case friendsLoaded([Friend])
         case recipientSelected(Friend)
         case recipientPickerDismissed
+        case limitInfoDismissed
         case compose(PresentationAction<ComposeFeature.Action>)
     }
 
@@ -54,6 +57,7 @@ struct CountdownInboxFeature {
     @Dependency(\.friendsCacheClient) var friendsCacheClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
+    @Dependency(\.currentUserClient) var currentUserClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -225,15 +229,33 @@ struct CountdownInboxFeature {
 
             case .recipientSelected(let friend):
                 state.showRecipientPicker = false
+                let scheduled = state.messages.filter {
+                    $0.senderID == state.currentUserID &&
+                    $0.receiverID == friend.id &&
+                    $0.status == .scheduled &&
+                    $0.unlockAt > state.now
+                }
+                if scheduled.count >= currentUserClient.messageLimit() {
+                    state.limitInfoUnlockAt = scheduled.map(\.unlockAt).min()
+                    state.showLimitInfo = true
+                    return .none
+                }
                 state.compose = ComposeFeature.State(
                     friend: friend,
                     senderID: state.currentUserID,
-                    senderName: state.currentUserName
+                    senderName: state.currentUserName,
+                    isPremium: currentUserClient.isPremium(),
+                    maxDelaySeconds: currentUserClient.maxDelaySeconds()
                 )
                 return .none
 
             case .recipientPickerDismissed:
                 state.showRecipientPicker = false
+                return .none
+
+            case .limitInfoDismissed:
+                state.showLimitInfo = false
+                state.limitInfoUnlockAt = nil
                 return .none
 
             case .compose(.presented(.sendSucceeded(let message))):

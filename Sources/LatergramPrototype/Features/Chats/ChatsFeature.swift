@@ -21,7 +21,6 @@ struct ChatsFeature {
         case friendTapped(Friend)
         case friendsLoaded([Friend])
         case loadFailed(String)
-        case messageLimitUpdated(Int)
         case latestMessagesUpdated([UUID: DelayedMessage])
         case path(StackActionOf<ChatDetailFeature>)
     }
@@ -63,12 +62,6 @@ struct ChatsFeature {
 
             case .loadFailed:
                 state.isLoading = false
-                return .none
-
-            case .messageLimitUpdated(let limit):
-                for id in state.path.ids {
-                    state.path[id: id]?.userMessageLimit = limit
-                }
                 return .none
 
             case .latestMessagesUpdated(let latest):

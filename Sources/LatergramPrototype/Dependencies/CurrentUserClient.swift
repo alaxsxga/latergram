@@ -20,22 +20,34 @@ final class CurrentUserStore: @unchecked Sendable {
     }
 }
 
-// MARK: - Dependency
+// MARK: - Client
 
-extension DependencyValues {
-    var currentUser: UserProfile {
-        get { self[CurrentUserKey.self] }
-        set { self[CurrentUserKey.self] = newValue }
-    }
+struct CurrentUserClient: Sendable {
+    var isPremium: @Sendable () -> Bool
+    var messageLimit: @Sendable () -> Int
+    var maxDelaySeconds: @Sendable () -> Int
+    var update: @Sendable (UserProfile) -> Void
 }
 
-private enum CurrentUserKey: DependencyKey {
-    static var liveValue: UserProfile {
-        CurrentUserStore.shared.user
-    }
-    static let testValue = UserProfile(
-        id: UUID(uuidString: "00000000-0000-0000-0000-000000000099")!,
-        displayName: "TestUser",
-        username: "testuser"
+extension CurrentUserClient: DependencyKey {
+    static let liveValue = CurrentUserClient(
+        isPremium: { CurrentUserStore.shared.user.isPremium },
+        messageLimit: { CurrentUserStore.shared.user.messageLimit },
+        maxDelaySeconds: { CurrentUserStore.shared.user.maxDelaySeconds },
+        update: { CurrentUserStore.shared.user = $0 }
     )
+
+    static let testValue = CurrentUserClient(
+        isPremium: { false },
+        messageLimit: { 1 },
+        maxDelaySeconds: { 86400 },
+        update: { _ in }
+    )
+}
+
+extension DependencyValues {
+    var currentUserClient: CurrentUserClient {
+        get { self[CurrentUserClient.self] }
+        set { self[CurrentUserClient.self] = newValue }
+    }
 }

@@ -20,6 +20,7 @@ struct ComposeFeature {
         var isSending = false
         var showLongDelayPaywall: Bool = false
         var isPremium: Bool = false
+        var maxDelaySeconds: Int = 86400
     }
 
     enum Action: BindableAction {
@@ -42,7 +43,7 @@ struct ComposeFeature {
             switch action {
 
             case .binding(\.unlockAt):
-                if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > 86_400 {
+                if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > state.maxDelaySeconds {
                     state.showLongDelayPaywall = true
                 }
                 return .none
@@ -67,7 +68,7 @@ struct ComposeFeature {
                     finalDelaySeconds = max(60, Int(finalUnlockAt.timeIntervalSince(now)))
                 }
 
-                if !state.isPremium && finalDelaySeconds > 86_400 {
+                if !state.isPremium && finalDelaySeconds > state.maxDelaySeconds {
                     state.showLongDelayPaywall = true
                     return .none
                 }

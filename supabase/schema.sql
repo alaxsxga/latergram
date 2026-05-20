@@ -5,7 +5,9 @@ create table public.profiles (
     id uuid primary key references auth.users(id) on delete cascade,
     username text unique not null,
     display_name text not null,
-    message_limit int not null default 1,  -- 每位好友最多可同時 scheduled 的訊息數
+    message_limit int not null default 1,          -- 每位好友最多可同時 scheduled 的訊息數
+    is_premium bool not null default false,
+    max_delay_seconds int not null default 86400,  -- 免費版 24h；付費版可動態調整
     created_at timestamptz not null default now()
 );
 

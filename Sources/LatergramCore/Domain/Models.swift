@@ -90,11 +90,22 @@ public struct UserProfile: Identifiable, Equatable, Sendable {
     public var displayName: String
     public var username: String
     public var messageLimit: Int
+    public var isPremium: Bool
+    public var maxDelaySeconds: Int
 
-    public init(id: UUID = UUID(), displayName: String, username: String, messageLimit: Int = 1) {
+    public init(
+        id: UUID = UUID(),
+        displayName: String,
+        username: String,
+        messageLimit: Int = 1,
+        isPremium: Bool = false,
+        maxDelaySeconds: Int = 86400
+    ) {
         self.id = id
         self.displayName = displayName
         self.username = username
         self.messageLimit = messageLimit
+        self.isPremium = isPremium
+        self.maxDelaySeconds = maxDelaySeconds
     }
 }
