@@ -131,9 +131,9 @@ struct CountdownInboxFeature {
             case .revealResponse(let id, let result):
                 switch result {
                 case true:
-                    state.messages[id: id]?.status = .revealed
-                    state.messages[id: id]?.revealedAt = date()
                     let now = date()
+                    state.messages[id: id]?.status = .revealed
+                    state.messages[id: id]?.revealedAt = now
                     applySort(to: &state, now: now)
                     return .run { send in
                         do {

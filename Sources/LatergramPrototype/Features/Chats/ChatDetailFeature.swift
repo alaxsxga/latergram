@@ -120,9 +120,9 @@ struct ChatDetailFeature {
             case .revealResponse(let id, let result):
                 switch result {
                 case true:
-                    state.messages[id: id]?.status = .revealed
-                    state.messages[id: id]?.revealedAt = date()
                     let now = date()
+                    state.messages[id: id]?.status = .revealed
+                    state.messages[id: id]?.revealedAt = now
                     return .run { send in
                         do {
                             try await messageClient.reveal(id, now)
