@@ -79,6 +79,7 @@ struct CountdownInboxFeature {
 
             case .messageSent(let message):
                 state.messages.updateOrAppend(message)
+                applySort(to: &state, now: date())
                 return .none
 
             case .refreshRequested:
