@@ -33,7 +33,6 @@ struct AppFeature {
         case tabSelected(Tab)
         case scenePhaseChanged(ScenePhase)
         case notificationTapped(messageID: UUID)
-        case loggedOut
         case profileRefreshed(UserProfile)
         case urlOpened(URL)
         case auth(AuthFeature.Action)
@@ -161,11 +160,6 @@ struct AppFeature {
                 currentUserClient.update(user)
                 return .none
 
-            case .loggedOut:
-                state.currentUser = nil
-                state.route = .auth(AuthFeature.State())
-                return .none
-
             case .notificationTapped:
                 state.selectedTab = .countdown
                 return .none
@@ -204,7 +198,8 @@ struct AppFeature {
                     .cancel(id: CountdownInboxFeature.CancelID.timer),
                     .cancel(id: CountdownInboxFeature.CancelID.load),
                     .cancel(id: CountdownInboxFeature.CancelID.messageStream),
-                    .send(.chats(.reset))
+                    .send(.chats(.reset)),
+                    .run { [notificationClient] _ in await notificationClient.cancelAll() }
                 )
 
             case .chats(.path(.element(_, .delegate(.messageSent(let message))))):
