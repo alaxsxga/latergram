@@ -14,7 +14,7 @@ struct CountdownInboxFeature {
         var now: Date = Date()
         var isLoading = false
         var errorMessage: String?
-        var infoBanner: String?
+
         var lastNotificationRebuildAt: Date?
         var currentUserID: UUID = UUID()
         var currentUserName: String = ""
@@ -101,7 +101,6 @@ struct CountdownInboxFeature {
                     }
                 }
                 let toSchedule = policy.selectMessagesForScheduling(Array(state.messages), now: now)
-                state.infoBanner = "已重排本地通知 \(toSchedule.count) 則"
                 return .merge(
                     loadMessages(userID: state.currentUserID),
                     .run { [toSchedule] _ in
