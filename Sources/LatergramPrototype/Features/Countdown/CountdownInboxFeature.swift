@@ -312,9 +312,9 @@ struct CountdownInboxFeature {
     }
 
     private func startTimer() -> Effect<Action> {
-        .run { send in
+        .run { [date] send in
             for await _ in clock.timer(interval: .seconds(1)) {
-                await send(.timerTick(Date()))
+                await send(.timerTick(date()))
             }
         }
         .cancellable(id: CancelID.timer, cancelInFlight: true)
