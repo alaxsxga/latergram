@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import LatergramCore
 import Foundation
+import Realtime
 
 @DependencyClient
 struct MessageClient: Sendable {
@@ -9,6 +10,7 @@ struct MessageClient: Sendable {
     var send: @Sendable (_ message: DelayedMessage) async throws -> Void
     var reveal: @Sendable (_ messageID: UUID, _ now: Date) async throws -> Bool = { _, _ in false }
     var delete: @Sendable (_ messageID: UUID, _ userID: UUID) async throws -> Void
+    var messageStream: @Sendable (_ userID: UUID) -> AsyncStream<Void> = { _ in .finished }
 }
 
 extension MessageClient: DependencyKey {
@@ -77,6 +79,26 @@ extension MessageClient: DependencyKey {
                 .from("message_deletions")
                 .insert(InsertDeletionRow(user_id: userID, message_id: messageID))
                 .execute()
+        },
+        messageStream: { userID in
+            AsyncStream { continuation in
+                let task = Task {
+                    let channel = await supabase.channel("messages-\(userID)")
+                    defer { Task { await supabase.removeChannel(channel) } }
+                    let insertions = await channel.postgresChange(
+                        InsertAction.self,
+                        schema: "public",
+                        table: "messages",
+                        filter: "receiver_id=eq.\(userID.uuidString)"
+                    )
+                    await channel.subscribe()
+                    for await _ in insertions {
+                        continuation.yield(())
+                    }
+                    continuation.finish()
+                }
+                continuation.onTermination = { _ in task.cancel() }
+            }
         }
     )
 
@@ -98,7 +120,8 @@ extension MessageClient: DependencyKey {
             },
             send: { _ in },
             reveal: { _, _ in true },
-            delete: { _, _ in }
+            delete: { _, _ in },
+            messageStream: { _ in .finished }
         )
     }()
 }

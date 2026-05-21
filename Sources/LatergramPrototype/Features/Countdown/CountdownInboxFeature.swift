@@ -48,7 +48,7 @@ struct CountdownInboxFeature {
         case compose(PresentationAction<ComposeFeature.Action>)
     }
 
-    enum CancelID { case timer, load }
+    enum CancelID { case timer, load, messageStream }
 
     @Dependency(\.messageClient) var messageClient
     @Dependency(\.revealGateClient) var revealGateClient
@@ -70,6 +70,7 @@ struct CountdownInboxFeature {
                 if state.messages.isEmpty { state.isLoading = true }
                 var effects: [Effect<Action>] = [
                     startTimer(),
+                    startMessageStream(userID: state.currentUserID),
                     .run { _ in _ = await notificationClient.requestPermission() }
                 ]
                 if shouldFetch {
@@ -299,6 +300,15 @@ struct CountdownInboxFeature {
         state.revealedSortOrder = revealed
             .sorted { $0.sentAt > $1.sentAt }
             .map(\.id)
+    }
+
+    private func startMessageStream(userID: UUID) -> Effect<Action> {
+        .run { send in
+            for await _ in messageClient.messageStream(userID) {
+                await send(.refreshRequested)
+            }
+        }
+        .cancellable(id: CancelID.messageStream, cancelInFlight: true)
     }
 
     private func startTimer() -> Effect<Action> {
