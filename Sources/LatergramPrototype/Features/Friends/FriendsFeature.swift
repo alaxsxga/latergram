@@ -81,7 +81,7 @@ struct FriendsFeature {
                 return .none
 
             case .onAppear:
-                print("[FriendsFeature] onAppear — state.me = \(state.me.username)")
+
                 let cached = friendsCacheClient.load(state.me.id)
                 if !cached.isEmpty {
                     state.friends = IdentifiedArray(uniqueElements: cached)
@@ -194,7 +194,7 @@ struct FriendsFeature {
                 let sorted = remote.sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
                 let remoteArray = IdentifiedArray(uniqueElements: sorted)
                 let changed = remoteArray != state.friends
-                print("[FriendsFeature] remote fetch succeeded, changed=\(changed), count=\(remote.count)")
+
                 if changed {
                     state.friends = remoteArray
                     let userID = state.me.id
