@@ -203,6 +203,7 @@ struct AppFeature {
                 return .merge(
                     .cancel(id: CountdownInboxFeature.CancelID.timer),
                     .cancel(id: CountdownInboxFeature.CancelID.load),
+                    .cancel(id: CountdownInboxFeature.CancelID.messageStream),
                     .send(.chats(.reset))
                 )
 
