@@ -71,6 +71,8 @@ struct AuthFeature {
 
             case .backTapped:
                 state.mode = .signUp
+                state.password = ""
+                state.passwordConfirmation = ""
                 state.errorMessage = nil
                 state.displayName = ""
                 state.pendingUserID = nil
