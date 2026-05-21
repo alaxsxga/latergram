@@ -79,8 +79,9 @@ extension FriendClient: DependencyKey {
         },
         friendshipStream: { userID in
             AsyncStream { continuation in
-                Task {
+                let task = Task {
                     let channel = await supabase.channel("friendships-\(userID)")
+                    defer { Task { await supabase.removeChannel(channel) } }
                     let insertions = await channel.postgresChange(
                         InsertAction.self,
                         schema: "public",
@@ -102,6 +103,7 @@ extension FriendClient: DependencyKey {
                     }
                     continuation.finish()
                 }
+                continuation.onTermination = { _ in task.cancel() }
             }
         },
         removeFriend: { userID, friendID in
