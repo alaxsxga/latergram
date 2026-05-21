@@ -53,6 +53,7 @@ struct ComposeFeature {
 
             case .submitTapped:
                 let now = date()
+                state.body = state.body.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 // Compute final unlockAt and delaySeconds at submit time.
                 // Countdown mode: delaySeconds is the intent; unlockAt is derived now.
