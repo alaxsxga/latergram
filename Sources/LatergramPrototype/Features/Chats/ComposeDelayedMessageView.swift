@@ -11,6 +11,7 @@ struct ComposeView: View {
     @State private var countdownMinutes = 0
 
     @State private var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    @State private var now = Date()
     @State private var unlockHour = 9
     @State private var unlockMinute = 0
     @State private var unlockIsAM = true
@@ -91,6 +92,7 @@ struct ComposeView: View {
         .onChange(of: unlockIsAM) { _ in updateUnlockAt() }
         .onChange(of: store.timingMode) { _ in updateUnlockAt() }
         .onAppear { updateUnlockAt() }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now = $0 }
         .sheet(isPresented: Binding(
             get: { store.showLongDelayPaywall },
             set: { if !$0 { store.send(.longDelayPaywallDismissed) } }
@@ -104,7 +106,7 @@ struct ComposeView: View {
     // MARK: - Helpers
 
     private var isTimingValid: Bool {
-        store.unlockAt > Date().addingTimeInterval(59)
+        store.unlockAt > now.addingTimeInterval(59)
     }
 
     private var canSend: Bool {
@@ -190,7 +192,6 @@ struct ComposeView: View {
 
     private var summaryText: String {
         let cal = Calendar.current
-        let now = Date()
         switch store.timingMode {
         case .countdown:
             var parts: [String] = []
@@ -266,7 +267,7 @@ struct ComposeView: View {
                         .tracking(3)
                         .foregroundStyle(Color.fgMuted)
 
-                    Text(CountdownFormatter.dHms(from: max(0, store.unlockAt.timeIntervalSince(Date()))))
+                    Text(CountdownFormatter.dHms(from: max(0, store.unlockAt.timeIntervalSince(now))))
                         .font(.system(size: 38, weight: .bold, design: .monospaced))
                         .foregroundStyle(store.style.styleColor)
                         .minimumScaleFactor(0.6)

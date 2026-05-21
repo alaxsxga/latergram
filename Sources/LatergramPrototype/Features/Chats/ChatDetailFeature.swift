@@ -10,7 +10,7 @@ struct ChatDetailFeature {
         let friend: Friend
         var messages: IdentifiedArrayOf<DelayedMessage> = []
         var now: Date = Date()
-        var userMessageLimit: Int = 1
+        var isAtSendLimit: Bool = false
         var isLoading = false
         var errorMessage: String?
         @Presents var compose: ComposeFeature.State?
@@ -26,8 +26,6 @@ struct ChatDetailFeature {
                 $0.unlockAt > now
             }.count
         }
-
-        var isAtSendLimit: Bool { scheduledCountToFriend >= userMessageLimit }
 
         var earliestBlockedUnlockAt: Date? {
             messages
@@ -71,7 +69,7 @@ struct ChatDetailFeature {
             switch action {
 
             case .onAppear:
-                state.userMessageLimit = currentUserClient.messageLimit()
+                refreshIsAtSendLimit(&state)
                 let cached = messagesCacheClient.load(state.currentUserID, state.friend.id)
                 if !cached.isEmpty {
                     state.messages = IdentifiedArray(
@@ -92,9 +90,11 @@ struct ChatDetailFeature {
                         state.messages[id: id]?.status = .readyToReveal
                     }
                 }
+                refreshIsAtSendLimit(&state)
                 return .none
 
             case .composeTapped:
+                refreshIsAtSendLimit(&state)
                 if state.isAtSendLimit {
                     state.showLimitInfo = true
                 } else {
@@ -156,6 +156,7 @@ struct ChatDetailFeature {
                     return m
                 }
                 state.messages = IdentifiedArray(uniqueElements: transitioned)
+                refreshIsAtSendLimit(&state)
                 let userID = state.currentUserID
                 let friendID = state.friend.id
                 return .run { [transitioned] _ in
@@ -187,6 +188,7 @@ struct ChatDetailFeature {
                     state.errorMessage = error
                 } else {
                     state.messages.remove(id: id)
+                    refreshIsAtSendLimit(&state)
                 }
                 return .none
 
@@ -196,6 +198,7 @@ struct ChatDetailFeature {
 
             case .compose(.presented(.sendSucceeded(let message))):
                 state.messages.append(message)
+                refreshIsAtSendLimit(&state)
                 state.compose = nil
                 return .send(.delegate(.messageSent(message)))
 
@@ -222,6 +225,10 @@ struct ChatDetailFeature {
         .ifLet(\.$compose, action: \.compose) {
             ComposeFeature()
         }
+    }
+
+    private func refreshIsAtSendLimit(_ state: inout State) {
+        state.isAtSendLimit = state.scheduledCountToFriend >= currentUserClient.messageLimit()
     }
 
     private func startTimer() -> Effect<Action> {
