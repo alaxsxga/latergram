@@ -209,11 +209,11 @@ struct CountdownInboxFeature {
 
             case .plusTapped:
                 state.showRecipientPicker = true
-                if state.friends.isEmpty {
-                    let cached = friendsCacheClient.load(state.currentUserID).filter { $0.status == .accepted }
-                        .sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
-                    state.friends = cached
-                    state.isLoadingFriends = cached.isEmpty
+                let cached = friendsCacheClient.load(state.currentUserID).filter { $0.status == .accepted }
+                    .sorted { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
+                state.friends = cached
+                if cached.isEmpty {
+                    state.isLoadingFriends = true
                     return .run { [id = state.currentUserID] send in
                         let friends = (try? await friendClient.fetchFriends(id)) ?? []
                         await send(.friendsLoaded(friends))
