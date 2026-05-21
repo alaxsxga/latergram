@@ -163,7 +163,8 @@ struct CountdownInboxFeature {
                 let twoDays: TimeInterval = 2 * 24 * 60 * 60
                 let filtered = messages.filter { msg in
                     guard msg.status == .revealed else { return true }
-                    return now.timeIntervalSince(msg.revealedAt ?? msg.unlockAt) < twoDays
+                    guard let revealedAt = msg.revealedAt else { return true }
+                    return now.timeIntervalSince(revealedAt) < twoDays
                 }
                 // Apply client-side scheduled → readyToReveal transition immediately
                 // so the first render matches what the timer would produce, avoiding a flash
