@@ -205,6 +205,13 @@ struct AppFeature {
             case .chats(.path(.element(_, .delegate(.messageSent(let message))))):
                 return .send(.countdown(.messageSent(message)))
 
+            case .countdown(.messageSent(let message)):
+                guard let currentUserID = state.currentUser?.id else { return .none }
+                let friendID = message.senderID == currentUserID ? message.receiverID : message.senderID
+                var updated = state.chats.latestMessages
+                updated[friendID] = message
+                return .send(.chats(.latestMessagesUpdated(updated)))
+
             case .countdown(.messagesLoaded(let messages)):
                 guard let currentUserID = state.currentUser?.id else { return .none }
                 var latest: [UUID: DelayedMessage] = [:]
