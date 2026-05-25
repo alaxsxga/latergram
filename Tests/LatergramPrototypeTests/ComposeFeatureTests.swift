@@ -67,7 +67,7 @@ final class ComposeFeatureTests: XCTestCase {
         }
 
         await store.send(.submitTapped) {
-            $0.showLongDelayPaywall = true
+            $0.showPaywallHint = true
         }
     }
 
@@ -105,7 +105,7 @@ final class ComposeFeatureTests: XCTestCase {
 
         await store.send(.submitTapped) {
             $0.isSending = true
-            $0.showLongDelayPaywall = false
+            $0.showPaywallHint = false
         }
     }
 
@@ -120,7 +120,7 @@ final class ComposeFeatureTests: XCTestCase {
 
         await store.send(.binding(.set(\.unlockAt, now.addingTimeInterval(25 * 3600)))) {
             $0.unlockAt = self.now.addingTimeInterval(25 * 3600)
-            $0.showLongDelayPaywall = true
+            $0.showPaywallHint = true
         }
     }
 

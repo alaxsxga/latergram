@@ -625,7 +625,7 @@
         }
       }
     },
-    "compose.long_delay_paywall_info": {
+    "compose.paywall_hint_message": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -849,7 +849,7 @@
         }
       }
     },
-    "compose.unlock_long_delay": {
+    "compose.paywall_hint_upgrade_button": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1825,7 +1825,7 @@
         }
       }
     },
-    "paywall.feature_long_delay": {
+    "paywall.feature_extended_delay": {
       "localizations": {
         "en": {
           "stringUnit": {

@@ -94,12 +94,12 @@ struct ComposeView: View {
         .onAppear { updateUnlockAt() }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now = $0 }
         .sheet(isPresented: Binding(
-            get: { store.showLongDelayHint },
-            set: { if !$0 { store.send(.longDelayHintDismissed) } }
+            get: { store.showPaywallHint },
+            set: { if !$0 { store.send(.paywallHintDismissed) } }
         )) {
-            LongDelayHintSheet(
-                onDismiss: { store.send(.longDelayHintDismissed) },
-                onUpgrade: { store.send(.longDelayHintUpgradeTapped) }
+            PaywallHintSheet(
+                onDismiss: { store.send(.paywallHintDismissed) },
+                onUpgrade: { store.send(.paywallHintUpgradeTapped) }
             )
             .presentationDetents([.height(280)])
             .presentationDragIndicator(.visible)
@@ -600,9 +600,9 @@ private struct DatePill: View {
     }
 }
 
-// MARK: - Long Delay Hint Sheet
+// MARK: - Paywall Hint Sheet
 
-private struct LongDelayHintSheet: View {
+private struct PaywallHintSheet: View {
     let onDismiss: () -> Void
     let onUpgrade: () -> Void
 
@@ -613,7 +613,7 @@ private struct LongDelayHintSheet: View {
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
 
-            L("compose.long_delay_paywall_info")
+            L("compose.paywall_hint_message")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -622,7 +622,7 @@ private struct LongDelayHintSheet: View {
                 Button {
                     onUpgrade()
                 } label: {
-                    Label(LS("compose.unlock_long_delay"), systemImage: "star.fill")
+                    Label(LS("compose.paywall_hint_upgrade_button"), systemImage: "star.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)

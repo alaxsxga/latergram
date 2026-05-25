@@ -36,7 +36,7 @@ struct PaywallView: View {
 
                     // Feature list
                     VStack(alignment: .leading, spacing: 10) {
-                        featureRow(icon: "clock.badge.checkmark", text: LS("paywall.feature_long_delay"))
+                        featureRow(icon: "clock.badge.checkmark", text: LS("paywall.feature_extended_delay"))
                     }
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, alignment: .leading)

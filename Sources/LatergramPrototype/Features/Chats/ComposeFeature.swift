@@ -18,7 +18,7 @@ struct ComposeFeature {
         var timingMode: TimingMode = .countdown
         var errorMessage: String?
         var isSending = false
-        var showLongDelayHint: Bool = false
+        var showPaywallHint: Bool = false
         @Presents var paywall: PaywallFeature.State?
         var isPremium: Bool = false
         var maxDelaySeconds: Int = 86400
@@ -30,8 +30,8 @@ struct ComposeFeature {
         case cancelTapped
         case sendSucceeded(DelayedMessage)
         case sendFailed(String)
-        case longDelayHintDismissed
-        case longDelayHintUpgradeTapped
+        case paywallHintDismissed
+        case paywallHintUpgradeTapped
         case paywall(PresentationAction<PaywallFeature.Action>)
         case delegate(Delegate)
 
@@ -52,7 +52,7 @@ struct ComposeFeature {
 
             case .binding(\.unlockAt):
                 if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > state.maxDelaySeconds {
-                    state.showLongDelayHint = true
+                    state.showPaywallHint = true
                 }
                 return .none
 
@@ -78,7 +78,7 @@ struct ComposeFeature {
                 }
 
                 if !state.isPremium && finalDelaySeconds > state.maxDelaySeconds {
-                    state.showLongDelayHint = true
+                    state.showPaywallHint = true
                     return .none
                 }
 
@@ -109,12 +109,12 @@ struct ComposeFeature {
                     }
                 }
 
-            case .longDelayHintDismissed:
-                state.showLongDelayHint = false
+            case .paywallHintDismissed:
+                state.showPaywallHint = false
                 return .none
 
-            case .longDelayHintUpgradeTapped:
-                state.showLongDelayHint = false
+            case .paywallHintUpgradeTapped:
+                state.showPaywallHint = false
                 state.paywall = PaywallFeature.State()
                 return .none
 
