@@ -28,10 +28,10 @@ struct PaywallFeature {
         @CasePathable
         enum Delegate: Equatable {
             case purchaseSucceeded(UserProfile)
-            case dismissed
         }
     }
 
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.purchaseClient) var purchaseClient
     @Dependency(\.currentUserClient) var currentUserClient
 
@@ -97,7 +97,7 @@ struct PaywallFeature {
                 return .none
 
             case .dismissTapped:
-                return .send(.delegate(.dismissed))
+                return .run { _ in await dismiss() }
 
             case .delegate:
                 return .none
