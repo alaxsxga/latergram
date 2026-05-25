@@ -509,7 +509,7 @@ private struct SentCard: View {
                 openedAtText: message.status == .revealed
                     ? String(format: LS("inbox.sent_card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened))
                     : nil,
-                isExpanded: message.status == .revealed ? $isExpanded : nil
+                isExpanded: $isExpanded
             )
             .padding(.bottom, message.status == .revealed ? (isExpanded ? 4 : 12) : 20)
             .transaction { $0.animation = nil }
@@ -535,16 +535,11 @@ private struct SentCard: View {
                     .foregroundStyle(message.style.styleColor)
                     .shadow(color: message.style.styleColor.opacity(0.35), radius: 12, x: 0, y: 0)
                     .lineLimit(1)
-                HStack {
-                    HStack(spacing: 4) {
-                        Image(systemName: "lock").font(.caption)
-                        Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
-                    }
-                    .foregroundStyle(Color.fgMuted)
-                    Spacer()
-                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                        .font(.caption).foregroundStyle(Color.accentMint).buttonStyle(.plain)
+                HStack(spacing: 4) {
+                    Image(systemName: "lock").font(.caption)
+                    Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
                 }
+                .foregroundStyle(Color.fgMuted)
             }
             .frame(maxWidth: .infinity)
             ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
@@ -555,16 +550,11 @@ private struct SentCard: View {
                     .foregroundStyle(message.style.styleColor)
                 L("inbox.sent_card.waiting")
                     .font(.subheadline).foregroundStyle(Color.fgMuted)
-                HStack {
-                    HStack(spacing: 4) {
-                        Image(systemName: "lock.open").font(.caption)
-                        Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
-                    }
-                    .foregroundStyle(Color.fgMuted)
-                    Spacer()
-                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                        .font(.caption).foregroundStyle(Color.accentMint).buttonStyle(.plain)
+                HStack(spacing: 4) {
+                    Image(systemName: "lock.open").font(.caption)
+                    Text(message.unlockAt.formatted(date: .abbreviated, time: .shortened)).font(.caption)
                 }
+                .foregroundStyle(Color.fgMuted)
             }
             .frame(maxWidth: .infinity)
             ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
