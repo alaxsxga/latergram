@@ -14,6 +14,7 @@ struct ChatDetailFeature {
         var isLoading = false
         var errorMessage: String?
         @Presents var compose: ComposeFeature.State?
+        @Presents var paywall: PaywallFeature.State?
 
         var currentUserID: UUID = UUID()
         var senderName: String = ""
@@ -45,13 +46,16 @@ struct ChatDetailFeature {
         case loadFailed(String)
         case errorDismissed
         case limitInfoDismissed
+        case upgradeTapped
         case deleteTapped(UUID)
         case deleteResponse(id: UUID, error: String?)
         case compose(PresentationAction<ComposeFeature.Action>)
+        case paywall(PresentationAction<PaywallFeature.Action>)
         case delegate(Delegate)
 
         enum Delegate {
             case messageSent(DelayedMessage)
+            case purchaseSucceeded(UserProfile)
         }
     }
 
@@ -69,16 +73,18 @@ struct ChatDetailFeature {
             switch action {
 
             case .onAppear:
-                refreshIsAtSendLimit(&state)
-                let cached = messagesCacheClient.load(state.currentUserID, state.friend.id)
-                if !cached.isEmpty {
-                    state.messages = IdentifiedArray(
-                        uniqueElements: cached.sorted { $0.unlockAt < $1.unlockAt }
-                    )
-                    state.isLoading = false
-                } else {
-                    state.isLoading = true
+                if state.messages.isEmpty {
+                    let cached = messagesCacheClient.load(state.currentUserID, state.friend.id)
+                    if !cached.isEmpty {
+                        state.messages = IdentifiedArray(
+                            uniqueElements: cached.sorted { $0.unlockAt < $1.unlockAt }
+                        )
+                        state.isLoading = false
+                    } else {
+                        state.isLoading = true
+                    }
                 }
+                refreshIsAtSendLimit(&state)
                 return .merge(startTimer(), loadThread(userID: state.currentUserID, friendID: state.friend.id))
 
             case .timerTick(let now):
@@ -196,11 +202,32 @@ struct ChatDetailFeature {
                 state.showLimitInfo = false
                 return .none
 
+            case .upgradeTapped:
+                state.showLimitInfo = false
+                state.paywall = PaywallFeature.State()
+                return .none
+
+            case .paywall(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                state.paywall = nil
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
+            case .paywall:
+                return .none
+
+            case .compose(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
             case .compose(.presented(.sendSucceeded(let message))):
                 state.messages.append(message)
                 refreshIsAtSendLimit(&state)
                 state.compose = nil
-                return .send(.delegate(.messageSent(message)))
+                let updatedMessages = Array(state.messages)
+                let userID = state.currentUserID
+                let friendID = state.friend.id
+                return .merge(
+                    .run { _ in messagesCacheClient.save(updatedMessages, userID, friendID) },
+                    .send(.delegate(.messageSent(message)))
+                )
 
             case .compose(.presented(.sendFailed(let error))):
                 state.compose = nil
@@ -224,6 +251,9 @@ struct ChatDetailFeature {
         }
         .ifLet(\.$compose, action: \.compose) {
             ComposeFeature()
+        }
+        .ifLet(\.$paywall, action: \.paywall) {
+            PaywallFeature()
         }
     }
 

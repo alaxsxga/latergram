@@ -56,10 +56,14 @@ struct ChatDetailView: View {
             LimitInfoSheet(
                 unlockAt: store.earliestBlockedUnlockAt,
                 now: store.now,
-                onDismiss: { store.send(.limitInfoDismissed) }
+                onDismiss: { store.send(.limitInfoDismissed) },
+                onUpgrade: { store.send(.upgradeTapped) }
             )
             .presentationDetents([.height(300)])
             .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) { paywallStore in
+            PaywallView(store: paywallStore)
         }
         .alert(L("common.error_title"), isPresented: Binding(
             get: { store.errorMessage != nil },

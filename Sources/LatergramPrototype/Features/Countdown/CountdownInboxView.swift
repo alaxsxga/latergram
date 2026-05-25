@@ -147,13 +147,17 @@ struct CountdownInboxView: View {
                 LimitInfoSheet(
                     unlockAt: store.limitInfoUnlockAt,
                     now: store.now,
-                    onDismiss: { store.send(.limitInfoDismissed) }
+                    onDismiss: { store.send(.limitInfoDismissed) },
+                    onUpgrade: { store.send(.upgradeTapped) }
                 )
                 .presentationDetents([.height(300)])
                 .presentationDragIndicator(.visible)
             }
             .sheet(item: $store.scope(state: \.compose, action: \.compose)) {
                 ComposeView(store: $0)
+            }
+            .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
+                PaywallView(store: $0)
             }
         }
     }
@@ -469,9 +473,10 @@ private struct RevealedReceivedCard: View {
                     .buttonStyle(.plain)
                 }
             }
+            .padding(.bottom, 12)
             .transaction { $0.animation = nil }
 
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, includesDivider: false)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
         }
         .padding(16)
         .messageCard(style: message.style, tier: .opened)

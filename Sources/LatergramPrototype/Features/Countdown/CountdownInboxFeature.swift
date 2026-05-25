@@ -24,6 +24,7 @@ struct CountdownInboxFeature {
         var showLimitInfo: Bool = false
         var limitInfoUnlockAt: Date? = nil
         @Presents var compose: ComposeFeature.State?
+        @Presents var paywall: PaywallFeature.State?
     }
 
     enum Action {
@@ -45,7 +46,14 @@ struct CountdownInboxFeature {
         case recipientSelected(Friend)
         case recipientPickerDismissed
         case limitInfoDismissed
+        case upgradeTapped
         case compose(PresentationAction<ComposeFeature.Action>)
+        case paywall(PresentationAction<PaywallFeature.Action>)
+        case delegate(Delegate)
+
+        enum Delegate {
+            case purchaseSucceeded(UserProfile)
+        }
     }
 
     enum CancelID { case timer, load, messageStream }
@@ -260,6 +268,25 @@ struct CountdownInboxFeature {
                 state.limitInfoUnlockAt = nil
                 return .none
 
+            case .upgradeTapped:
+                state.showLimitInfo = false
+                state.limitInfoUnlockAt = nil
+                state.paywall = PaywallFeature.State()
+                return .none
+
+            case .paywall(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                state.paywall = nil
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
+            case .paywall:
+                return .none
+
+            case .delegate:
+                return .none
+
+            case .compose(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
             case .compose(.presented(.sendSucceeded(let message))):
                 state.compose = nil
                 return .send(.messageSent(message))
@@ -278,6 +305,9 @@ struct CountdownInboxFeature {
         }
         .ifLet(\.$compose, action: \.compose) {
             ComposeFeature()
+        }
+        .ifLet(\.$paywall, action: \.paywall) {
+            PaywallFeature()
         }
     }
 

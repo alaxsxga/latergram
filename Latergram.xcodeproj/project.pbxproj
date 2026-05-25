@@ -20,6 +20,7 @@
 /* Begin PBXFileReference section */
 		6487AF7E2FB8CA6800E29A58 /* Latergram.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Latergram.entitlements; sourceTree = "<group>"; };
 		64AE37102F67DDE7002252B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		64CC959F2FC15C79005A191A /* LatergramStore.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = LatergramStore.storekit; sourceTree = "<group>"; };
 		A00100012026030300000010 /* Latergram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Latergram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00100012026030300000011 /* LatergramApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatergramApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -52,6 +53,7 @@
 		A00100012026030300000030 = {
 			isa = PBXGroup;
 			children = (
+				64CC959F2FC15C79005A191A /* LatergramStore.storekit */,
 				A00100012026030300000031 /* Latergram */,
 				64DFB3CE2F62595C00B355F3 /* Frameworks */,
 				A00100012026030300000032 /* Products */,

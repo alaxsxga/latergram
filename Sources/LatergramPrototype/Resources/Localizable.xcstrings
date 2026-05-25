@@ -1,1814 +1,1894 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "auth.confirm_email_body" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A verification email has been sent to %@\nClick the link to return to this page"
+  "sourceLanguage": "en",
+  "strings": {
+    "auth.confirm_email_body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A verification email has been sent to %@\nClick the link to return to this page"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "驗證信已寄至 %@\n點擊信中連結後會自動返回此頁"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證信已寄至 %@\n點擊信中連結後會自動返回此頁"
           }
         }
       }
     },
-    "auth.confirm_email_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verify Your Email"
+    "auth.confirm_email_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verify Your Email"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請確認 Email"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請確認 Email"
           }
         }
       }
     },
-    "auth.display_name_placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Display Name"
+    "auth.display_name_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display Name"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示名稱"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示名稱"
           }
         }
       }
     },
-    "auth.email_placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Email"
+    "auth.email_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Email"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
           }
         }
       }
     },
-    "auth.login_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log In"
+    "auth.login_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log In"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入"
           }
         }
       }
     },
-    "auth.next_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next"
+    "auth.next_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下一步"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步"
           }
         }
       }
     },
-    "auth.password_confirm_placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirm Password"
+    "auth.password_confirm_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm Password"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確認密碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認密碼"
           }
         }
       }
     },
-    "auth.password_placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Password"
+    "auth.password_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "密碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼"
           }
         }
       }
     },
-    "auth.re_enter_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Re-enter"
+    "auth.re_enter_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Re-enter"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新輸入"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新輸入"
           }
         }
       }
     },
-    "auth.set_name_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set Your Name"
+    "auth.set_name_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Your Name"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定你的名稱"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定你的名稱"
           }
         }
       }
     },
-    "auth.switch_to_login" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Already have an account? Log In"
+    "auth.switch_to_login": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already have an account? Log In"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已有帳號？登入"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已有帳號？登入"
           }
         }
       }
     },
-    "auth.switch_to_signup" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Don't have an account? Sign Up"
+    "auth.switch_to_signup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't have an account? Sign Up"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "還沒有帳號？註冊"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有帳號？註冊"
           }
         }
       }
     },
-    "chat_detail.badge.not_yet_opened" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not yet opened"
+    "chat_detail.badge.not_yet_opened": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not yet opened"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "等待開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待開啟"
           }
         }
       }
     },
-    "chat_detail.badge.unread" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "unread"
+    "chat_detail.badge.unread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unread"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未讀"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未讀"
           }
         }
       }
     },
-    "chat_detail.create_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New Message"
+    "chat_detail.create_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "建立訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立訊息"
           }
         }
       }
     },
-    "chat_detail.delete_message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Message"
+    "chat_detail.delete_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除此訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除此訊息"
           }
         }
       }
     },
-    "chat_detail.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send your first delayed message"
+    "chat_detail.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send your first delayed message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "傳送第一則倒數訊息吧"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送第一則倒數訊息吧"
           }
         }
       }
     },
-    "chat_detail.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Messages Yet"
+    "chat_detail.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Messages Yet"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "還沒有訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有訊息"
           }
         }
       }
     },
-    "chat_detail.got_it" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Got It"
+    "chat_detail.got_it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got It"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "知道了"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "知道了"
           }
         }
       }
     },
-    "chat_detail.limit_info" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The previous message must be opened before sending another to this friend"
+    "chat_detail.limit_info": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previous message must be opened before sending another to this friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "前一則訊息開啟後才能再傳給同一位好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前一則訊息開啟後才能再傳給同一位好友"
           }
         }
       }
     },
-    "chat_detail.unlock_more" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock More"
+    "chat_detail.unlock_more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to Unlock"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解鎖更多上限"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級以解鎖"
           }
         }
       }
     },
-    "chats.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send or receive a message from the Inbox tab to get started"
+    "chats.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send or receive a message from the Inbox tab to get started"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從信箱頁發送或接收訊息後就會出現"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從信箱頁發送或接收訊息後就會出現"
           }
         }
       }
     },
-    "chats.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Messages"
+    "chats.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Messages"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有往來訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有往來訊息"
           }
         }
       }
     },
-    "chats.preview.counting_down" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New message counting down"
+    "chats.preview.counting_down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message counting down"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新訊息倒數中"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新訊息倒數中"
           }
         }
       }
     },
-    "chats.preview.ready_to_open" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New message ready to open"
+    "chats.preview.ready_to_open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message ready to open"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有新訊息可開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有新訊息可開啟"
           }
         }
       }
     },
-    "common.back" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back"
+    "common.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返回"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
           }
         }
       }
     },
-    "common.cancel" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
+    "common.cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
     },
-    "common.delete" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete"
+    "common.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除"
           }
         }
       }
     },
-    "common.done" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
+    "common.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }
     },
-    "common.error_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error"
+    "common.error_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "錯誤"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "錯誤"
           }
         }
       }
     },
-    "common.ok" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
+    "common.ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定"
           }
         }
       }
     },
-    "compose.days_label" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Days"
+    "compose.days_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "天數"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天數"
           }
         }
       }
     },
-    "compose.hour_unit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "H"
+    "compose.hour_unit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "H"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時"
           }
         }
       }
     },
-    "compose.hours_minutes_header" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "H · M"
+    "compose.hours_minutes_header": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "H · M"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時 · 分"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時 · 分"
           }
         }
       }
     },
-    "compose.label.message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Message"
+    "compose.label.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訊息"
           }
         }
       }
     },
-    "compose.label.preview" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preview"
+    "compose.label.preview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "預覽"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預覽"
           }
         }
       }
     },
-    "compose.label.recipient" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recipient"
+    "compose.label.recipient": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recipient"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "收件人"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收件人"
           }
         }
       }
     },
-    "compose.label.style" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Style"
+    "compose.label.style": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Style"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "樣式"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "樣式"
           }
         }
       }
     },
-    "compose.label.time" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time"
+    "compose.label.time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
           }
         }
       }
     },
-    "compose.long_delay_paywall_info" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delays longer than 24 hours are a paid feature"
+    "compose.long_delay_paywall_info": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free plan supports delays up to 24 hours. Upgrade to set up to 7 days."
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定超過 24 小時的延遲為付費功能"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免費版上限 24 小時，升級後最長可設 7 天"
           }
         }
       }
     },
-    "compose.max_days" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Up to 7 days"
+    "compose.max_days": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up to 7 days"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最多 7 天"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最多 7 天"
           }
         }
       }
     },
-    "compose.minute_unit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "M"
+    "compose.minute_unit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "分"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
           }
         }
       }
     },
-    "compose.nav_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New Message"
+    "compose.nav_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新訊息"
           }
         }
       }
     },
-    "compose.picker.hour" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hour"
+    "compose.picker.hour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hour"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時"
           }
         }
       }
     },
-    "compose.picker.hours" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hours"
+    "compose.picker.hours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hours"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "小時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小時"
           }
         }
       }
     },
-    "compose.picker.minute" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minute"
+    "compose.picker.minute": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minute"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "分"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
           }
         }
       }
     },
-    "compose.picker.minutes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minutes"
+    "compose.picker.minutes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minutes"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "分鐘"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分鐘"
           }
         }
       }
     },
-    "compose.preview.to" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "to %@"
+    "compose.preview.to": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "給 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "給 %@"
           }
         }
       }
     },
-    "compose.send_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send"
+    "compose.send_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "送出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送出"
           }
         }
       }
     },
-    "compose.summary.countdown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏳ Opens in %@ · %@"
+    "compose.summary.countdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ Opens in %@ · %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏳ %@ 後開啟 · %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ %@ 後開啟 · %@"
           }
         }
       }
     },
-    "compose.summary.unlock_date" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔓 Unlocks on %@ · in %d days"
+    "compose.summary.unlock_date": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔓 Unlocks on %@ · in %d days"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔓 %@ 解鎖 · %d 天後"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔓 %@ 解鎖 · %d 天後"
           }
         }
       }
     },
-    "compose.timing.countdown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏳ Countdown"
+    "compose.timing.countdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ Countdown"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏳ 倒數"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ 倒數"
           }
         }
       }
     },
-    "compose.timing.unlock_date" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "📅 Specific Date"
+    "compose.timing.unlock_date": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📅 Specific Date"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "📅 指定日期"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📅 指定日期"
           }
         }
       }
     },
-    "compose.unlock_long_delay" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock Long Delays"
+    "compose.unlock_long_delay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to Unlock"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解鎖長延遲"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級以解鎖"
           }
         }
       }
     },
-    "compose.unlock_countdown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "UNLOCK COUNTDOWN"
+    "compose.unlock_countdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNLOCK COUNTDOWN"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解鎖倒數"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解鎖倒數"
           }
         }
       }
     },
-    "compose.unlock_time_label" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock Time"
+    "compose.unlock_time_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Time"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解鎖時間"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解鎖時間"
           }
         }
       }
     },
-    "compose.unit.day_count" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d days"
+    "compose.unit.day_count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d days"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d 天"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 天"
           }
         }
       }
     },
-    "compose.unit.hour_count" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d hrs"
+    "compose.unit.hour_count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d hrs"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d 小時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 小時"
           }
         }
       }
     },
-    "compose.unit.minute_count" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d min"
+    "compose.unit.minute_count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d min"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d 分鐘"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 分鐘"
           }
         }
       }
     },
-    "compose.unit.zero_minutes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "0 min"
+    "compose.unit.zero_minutes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 min"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "0 分鐘"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 分鐘"
           }
         }
       }
     },
-    "compose.pick_recipient" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select Recipient"
+    "compose.pick_recipient": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Recipient"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選擇傳送對象"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇傳送對象"
           }
         }
       }
     },
-    "compose.pick_recipient.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Friends Yet"
+    "compose.pick_recipient.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Friends Yet"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "還沒有朋友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有朋友"
           }
         }
       }
     },
-    "compose.pick_recipient.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add friends first to send a message."
+    "compose.pick_recipient.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add friends first to send a message."
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "先加好友，才能傳送訊息。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先加好友，才能傳送訊息。"
           }
         }
       }
     },
-    "friends.add_failed_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Could Not Add Friend"
+    "friends.add_failed_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could Not Add Friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法加入好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法加入好友"
           }
         }
       }
     },
-    "friends.already_friends_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Already Friends"
+    "friends.already_friends_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already Friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已經是好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已經是好友"
           }
         }
       }
     },
-    "friends.count" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d friends"
+    "friends.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d 人"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 人"
           }
         }
       }
     },
-    "friends.delete_confirm_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete %@"
+    "friends.delete_confirm_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除 %@"
           }
         }
       }
     },
-    "friends.delete_confirm_message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete %@? This action cannot be undone."
+    "friends.delete_confirm_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %@? This action cannot be undone."
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定要刪除 %@？此操作無法復原。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除 %@？此操作無法復原。"
           }
         }
       }
     },
-    "friends.delete_friend_menu" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Friend"
+    "friends.delete_friend_menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除好友"
           }
         }
       }
     },
-    "friends.delete_friend_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Friend"
+    "friends.delete_friend_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除好友"
           }
         }
       }
     },
-    "friends.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap the top-right button to invite friends"
+    "friends.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the top-right button to invite friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "點右上角邀請朋友加入"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點右上角邀請朋友加入"
           }
         }
       }
     },
-    "friends.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Friends Yet"
+    "friends.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Friends Yet"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "還沒有好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還沒有好友"
           }
         }
       }
     },
-    "friends.invite_confirm_message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invite code %@ has been entered. Add this person as a friend now?"
+    "friends.invite_confirm_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite code %@ has been entered. Add this person as a friend now?"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "邀請碼 %@ 已填入，要立即加對方為好友嗎？"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請碼 %@ 已填入，要立即加對方為好友嗎？"
           }
         }
       }
     },
-    "friends.invite_later_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Later"
+    "friends.invite_later_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "稍後再說"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍後再說"
           }
         }
       }
     },
-    "friends.invite_pasted_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invite Code Pasted"
+    "friends.invite_pasted_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite Code Pasted"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "邀請碼已貼上"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請碼已貼上"
           }
         }
       }
     },
-    "friends.invite_send_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send Invite"
+    "friends.invite_send_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Invite"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "送出邀請"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送出邀請"
           }
         }
       }
     },
-    "friends.invite_sheet.add_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add"
+    "friends.invite_sheet.add_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入"
           }
         }
       }
     },
-    "friends.invite_sheet.add_friend_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add Friend"
+    "friends.invite_sheet.add_friend_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入好友"
           }
         }
       }
     },
-    "friends.invite_sheet.generate" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Generate Invite Code"
+    "friends.invite_sheet.generate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate Invite Code"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "產生邀請碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "產生邀請碼"
           }
         }
       }
     },
-    "friends.invite_sheet.my_code" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "My Invite Code"
+    "friends.invite_sheet.my_code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Invite Code"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "我的邀請碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的邀請碼"
           }
         }
       }
     },
-    "friends.invite_sheet.paste_placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paste a friend's invite code"
+    "friends.invite_sheet.paste_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste a friend's invite code"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "貼上朋友的邀請碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "貼上朋友的邀請碼"
           }
         }
       }
     },
-    "friends.invite_sheet.revoke" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Revoke"
+    "friends.invite_sheet.revoke": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "讓失效"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "讓失效"
           }
         }
       }
     },
-    "friends.invite_sheet.share" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Share Invite Code"
+    "friends.invite_sheet.share": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Invite Code"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "分享邀請碼"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享邀請碼"
           }
         }
       }
     },
-    "friends.invite_sheet.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invite Friends"
+    "friends.invite_sheet.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite Friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "邀請好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請好友"
           }
         }
       }
     },
-    "friends.logout_button" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log Out"
+    "friends.logout_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log Out"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出"
           }
         }
       }
     },
-    "friends.logout_confirm_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log Out?"
+    "friends.logout_confirm_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log Out?"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定要登出嗎？"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要登出嗎？"
           }
         }
       }
     },
-    "friends.section_header" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Friends"
+    "friends.section_header": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好友"
           }
         }
       }
     },
-    "inbox.badge.new_count" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d NEW"
+    "inbox.badge.new_count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d NEW"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d NEW"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d NEW"
           }
         }
       }
     },
-    "inbox.card.hide" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide"
+    "inbox.card.hide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隱藏"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隱藏"
           }
         }
       }
     },
-    "inbox.card.opened_at" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opened on %@"
+    "inbox.card.opened_at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened on %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已於 %@ 開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已於 %@ 開啟"
           }
         }
       }
     },
-    "inbox.card.sent_at" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sent on %@"
+    "inbox.card.sent_at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent on %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "發送於 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "發送於 %@"
           }
         }
       }
     },
-    "inbox.card.show" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show"
+    "inbox.card.show": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看"
           }
         }
       }
     },
-    "inbox.card.total_countdown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total %@"
+    "inbox.card.total_countdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "總倒數 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "總倒數 %@"
           }
         }
       }
     },
-    "inbox.card.unlock_countdown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "UNLOCK COUNTDOWN"
+    "inbox.card.unlock_countdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNLOCK COUNTDOWN"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解鎖倒數"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解鎖倒數"
           }
         }
       }
     },
-    "inbox.overlay.from" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FROM"
+    "inbox.overlay.from": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FROM"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FROM"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FROM"
           }
         }
       }
     },
-    "inbox.overlay.unlocked_at" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlocked on %@"
+    "inbox.overlay.unlocked_at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocked on %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已於 %@ 解鎖"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已於 %@ 解鎖"
           }
         }
       }
     },
-    "inbox.received.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ask a friend to send you a delayed message"
+    "inbox.received.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask a friend to send you a delayed message"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請請好友傳送一則倒數訊息給你"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請請好友傳送一則倒數訊息給你"
           }
         }
       }
     },
-    "inbox.received.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Received Messages"
+    "inbox.received.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Received Messages"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有收到的訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有收到的訊息"
           }
         }
       }
     },
-    "inbox.section.counting_down" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Counting Down"
+    "inbox.section.counting_down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Counting Down"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "倒數中"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒數中"
           }
         }
       }
     },
-    "inbox.section.ready_to_open" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ready to Open"
+    "inbox.section.ready_to_open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to Open"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可以開啟了"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以開啟了"
           }
         }
       }
     },
-    "inbox.section.revealed" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opened"
+    "inbox.section.revealed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已讀"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已讀"
           }
         }
       }
     },
-    "inbox.section.sent_opened" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opened"
+    "inbox.section.sent_opened": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已開啟"
           }
         }
       }
     },
-    "inbox.section.sent_pending" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unopened"
+    "inbox.section.sent_pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unopened"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未開啟"
           }
         }
       }
     },
-    "inbox.sent.empty_description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Send a delayed message to a friend"
+    "inbox.sent.empty_description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a delayed message to a friend"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "傳送一則倒數訊息給好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送一則倒數訊息給好友"
           }
         }
       }
     },
-    "inbox.sent.empty_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Sent Messages"
+    "inbox.sent.empty_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Sent Messages"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有發送的訊息"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有發送的訊息"
           }
         }
       }
     },
-    "inbox.sent_card.opened_at" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "They opened it on %@"
+    "inbox.sent_card.opened_at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They opened it on %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "對方已於 %@ 開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "對方已於 %@ 開啟"
           }
         }
       }
     },
-    "inbox.sent_card.to" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "to %@"
+    "inbox.sent_card.to": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to %@"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "給 %@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "給 %@"
           }
         }
       }
     },
-    "inbox.sent_card.waiting" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Countdown ended, waiting for them to open"
+    "inbox.sent_card.waiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countdown ended, waiting for them to open"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "倒數已結束，等待對方開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒數已結束，等待對方開啟"
           }
         }
       }
     },
-    "inbox.tab.received" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Received"
+    "inbox.tab.received": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "收到"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到"
           }
         }
       }
     },
-    "inbox.tab.sent" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sent"
+    "inbox.tab.sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "送出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送出"
           }
         }
       }
     },
-    "tab.chats" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chats"
+    "tab.chats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "往來"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "往來"
           }
         }
       }
     },
-    "tab.friends" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Friends"
+    "tab.friends": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Friends"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "好友"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好友"
           }
         }
       }
     },
-    "tab.inbox" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inbox"
+    "tab.inbox": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inbox"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "信箱"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信箱"
+          }
+        }
+      }
+    },
+    "paywall.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latergram Premium"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latergram Premium"
+          }
+        }
+      }
+    },
+    "paywall.feature_long_delay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send delayed messages up to 7 days"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送延遲訊息，最長 7 天後開啟"
+          }
+        }
+      }
+    },
+    "paywall.subscribe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribe"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱"
+          }
+        }
+      }
+    },
+    "paywall.restore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Purchases"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還原購買"
+          }
+        }
+      }
+    },
+    "paywall.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入中…"
           }
         }
       }
     }
   },
-  "version" : "1.1"
+  "version": "1.1"
 }

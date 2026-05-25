@@ -94,12 +94,18 @@ struct ComposeView: View {
         .onAppear { updateUnlockAt() }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now = $0 }
         .sheet(isPresented: Binding(
-            get: { store.showLongDelayPaywall },
-            set: { if !$0 { store.send(.longDelayPaywallDismissed) } }
+            get: { store.showLongDelayHint },
+            set: { if !$0 { store.send(.longDelayHintDismissed) } }
         )) {
-            LongDelayPaywallSheet(onDismiss: { store.send(.longDelayPaywallDismissed) })
-                .presentationDetents([.height(280)])
-                .presentationDragIndicator(.visible)
+            LongDelayHintSheet(
+                onDismiss: { store.send(.longDelayHintDismissed) },
+                onUpgrade: { store.send(.longDelayHintUpgradeTapped) }
+            )
+            .presentationDetents([.height(280)])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
+            PaywallView(store: $0)
         }
     }
 
@@ -594,10 +600,11 @@ private struct DatePill: View {
     }
 }
 
-// MARK: - Long Delay Paywall Sheet
+// MARK: - Long Delay Hint Sheet
 
-private struct LongDelayPaywallSheet: View {
+private struct LongDelayHintSheet: View {
     let onDismiss: () -> Void
+    let onUpgrade: () -> Void
 
     var body: some View {
         VStack(spacing: 20) {
@@ -613,8 +620,7 @@ private struct LongDelayPaywallSheet: View {
 
             VStack(spacing: 12) {
                 Button {
-                    // TODO: IAP — 導向購買頁
-                    onDismiss()
+                    onUpgrade()
                 } label: {
                     Label(LS("compose.unlock_long_delay"), systemImage: "star.fill")
                         .frame(maxWidth: .infinity)
@@ -630,4 +636,5 @@ private struct LongDelayPaywallSheet: View {
         .padding()
     }
 }
+
 #endif

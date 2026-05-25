@@ -46,6 +46,7 @@ struct AppFeature {
     @Dependency(\.authClient) var authClient
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.currentUserClient) var currentUserClient
+    @Dependency(\.purchaseClient) var purchaseClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.countdown, action: \.countdown) { CountdownInboxFeature() }
@@ -88,7 +89,12 @@ struct AppFeature {
                     }
                     return .merge(
                         .send(.countdown(.refreshRequested)),
-                        .send(.chats(.foregroundRefresh))
+                        .send(.chats(.foregroundRefresh)),
+                        .run { [purchaseClient] send in
+                            if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
+                                await send(.profileRefreshed(profile))
+                            }
+                        }
                     )
                 } else {
                     state.route = .auth(AuthFeature.State())
@@ -111,7 +117,12 @@ struct AppFeature {
                 }
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
-                    .send(.chats(.foregroundRefresh))
+                    .send(.chats(.foregroundRefresh)),
+                    .run { [purchaseClient] send in
+                        if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
+                            await send(.profileRefreshed(profile))
+                        }
+                    }
                 )
 
             case .auth:
@@ -170,15 +181,10 @@ struct AppFeature {
 
             case .scenePhaseChanged(.active):
                 guard state.route == .main else { return .none }
-                // TODO: 測試用，IAP 完成後移除 profile re-fetch（改用 profileRefreshed 在購買成功時呼叫）
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),
-                    .send(.friends(.foregroundRefresh)),
-                    .run { [authClient] send in
-                        let user = await authClient.currentSession()
-                        if let user { await send(.profileRefreshed(user)) }
-                    }
+                    .send(.friends(.foregroundRefresh))
                 )
 
             case .scenePhaseChanged:
@@ -201,6 +207,12 @@ struct AppFeature {
                     .send(.chats(.reset)),
                     .run { [notificationClient] _ in await notificationClient.cancelAll() }
                 )
+
+            case .chats(.path(.element(_, .delegate(.purchaseSucceeded(let profile))))):
+                return .send(.profileRefreshed(profile))
+
+            case .countdown(.delegate(.purchaseSucceeded(let profile))):
+                return .send(.profileRefreshed(profile))
 
             case .chats(.path(.element(_, .delegate(.messageSent(let message))))):
                 return .send(.countdown(.messageSent(message)))

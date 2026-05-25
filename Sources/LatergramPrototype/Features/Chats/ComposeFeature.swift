@@ -18,7 +18,8 @@ struct ComposeFeature {
         var timingMode: TimingMode = .countdown
         var errorMessage: String?
         var isSending = false
-        var showLongDelayPaywall: Bool = false
+        var showLongDelayHint: Bool = false
+        @Presents var paywall: PaywallFeature.State?
         var isPremium: Bool = false
         var maxDelaySeconds: Int = 86400
     }
@@ -29,7 +30,14 @@ struct ComposeFeature {
         case cancelTapped
         case sendSucceeded(DelayedMessage)
         case sendFailed(String)
-        case longDelayPaywallDismissed
+        case longDelayHintDismissed
+        case longDelayHintUpgradeTapped
+        case paywall(PresentationAction<PaywallFeature.Action>)
+        case delegate(Delegate)
+
+        enum Delegate {
+            case purchaseSucceeded(UserProfile)
+        }
     }
 
     @Dependency(\.messageClient) var messageClient
@@ -44,7 +52,7 @@ struct ComposeFeature {
 
             case .binding(\.unlockAt):
                 if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > state.maxDelaySeconds {
-                    state.showLongDelayPaywall = true
+                    state.showLongDelayHint = true
                 }
                 return .none
 
@@ -70,7 +78,7 @@ struct ComposeFeature {
                 }
 
                 if !state.isPremium && finalDelaySeconds > state.maxDelaySeconds {
-                    state.showLongDelayPaywall = true
+                    state.showLongDelayHint = true
                     return .none
                 }
 
@@ -101,8 +109,25 @@ struct ComposeFeature {
                     }
                 }
 
-            case .longDelayPaywallDismissed:
-                state.showLongDelayPaywall = false
+            case .longDelayHintDismissed:
+                state.showLongDelayHint = false
+                return .none
+
+            case .longDelayHintUpgradeTapped:
+                state.showLongDelayHint = false
+                state.paywall = PaywallFeature.State()
+                return .none
+
+            case .paywall(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                state.paywall = nil
+                state.isPremium = profile.isPremium
+                state.maxDelaySeconds = profile.maxDelaySeconds
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
+            case .paywall:
+                return .none
+
+            case .delegate:
                 return .none
 
             case .cancelTapped:
@@ -117,6 +142,9 @@ struct ComposeFeature {
                 state.errorMessage = error
                 return .none
             }
+        }
+        .ifLet(\.$paywall, action: \.paywall) {
+            PaywallFeature()
         }
     }
 

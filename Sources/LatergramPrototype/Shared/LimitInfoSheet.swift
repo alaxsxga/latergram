@@ -6,6 +6,7 @@ struct LimitInfoSheet: View {
     let unlockAt: Date?
     let now: Date
     let onDismiss: () -> Void
+    let onUpgrade: () -> Void
 
     var body: some View {
         VStack(spacing: 20) {
@@ -27,8 +28,7 @@ struct LimitInfoSheet: View {
 
             VStack(spacing: 12) {
                 Button {
-                    // TODO: IAP — 導向購買頁
-                    onDismiss()
+                    onUpgrade()
                 } label: {
                     Label(LS("chat_detail.unlock_more"), systemImage: "star.fill")
                         .frame(maxWidth: .infinity)
