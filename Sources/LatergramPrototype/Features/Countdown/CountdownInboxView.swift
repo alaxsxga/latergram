@@ -49,41 +49,69 @@ private struct MessageAvatar: View {
 
 private struct CardMeta: View {
     let message: DelayedMessage
-    var name: String? = nil
+    var titleText: String? = nil
+    var avatarName: String? = nil
     var onDelete: (() -> Void)? = nil
     var isReady: Bool = false
+    var openedAtText: String? = nil
+    var isExpanded: Binding<Bool>? = nil
 
-    private var displayName: String { name ?? message.senderName }
+    private var resolvedTitle: String { titleText ?? message.senderName }
+    private var resolvedAvatarName: String { avatarName ?? titleText ?? message.senderName }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            MessageAvatar(name: displayName, style: message.style, size: 40, isReady: isReady)
+            MessageAvatar(name: resolvedAvatarName, style: message.style, size: 40, isReady: isReady)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(displayName)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
+                HStack(spacing: 12) {
+                    Text(resolvedTitle)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    if let isExpanded {
+                        Button(isExpanded.wrappedValue ? LS("inbox.card.hide") : LS("inbox.card.show")) {
+                            isExpanded.wrappedValue.toggle()
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.accentMint)
+                        .buttonStyle(.plain)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                    }
+                    if let onDelete {
+                        Menu {
+                            Button(role: .destructive, action: onDelete) {
+                                Label(LS("common.delete"), systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .foregroundStyle(.white.opacity(0.35))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
                 Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
                     .font(.system(size: 12))
                     .foregroundStyle(Color.fgMuted)
+                    .lineLimit(1)
                 Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
                     .font(.system(size: 12))
                     .foregroundStyle(Color.fgMuted)
-            }
-
-            Spacer()
-
-            if let onDelete {
-                Menu {
-                    Button(role: .destructive, action: onDelete) {
-                        Label(LS("common.delete"), systemImage: "trash")
+                    .lineLimit(1)
+                if let openedAtText {
+                    HStack(spacing: 4) {
+                        Image(systemName: "lock").font(.system(size: 11))
+                        Text(openedAtText)
+                            .font(.system(size: 12))
+                            .lineLimit(1)
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(.white.opacity(0.35))
+                    .foregroundStyle(Color.fgMuted)
                 }
-                .buttonStyle(.plain)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -434,46 +462,13 @@ private struct RevealedReceivedCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 12) {
-                MessageAvatar(name: message.senderName, style: message.style, size: 40)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(message.senderName)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.fgMuted)
-                    Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.fgMuted)
-                    HStack(spacing: 4) {
-                        Image(systemName: "lock").font(.system(size: 11))
-                        Text(String(format: LS("inbox.card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
-                            .font(.system(size: 12))
-                    }
-                    .foregroundStyle(Color.fgMuted)
-                }
-
-                Spacer()
-
-                HStack(spacing: 12) {
-                    Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.accentMint)
-                        .buttonStyle(.plain)
-                    Menu {
-                        Button(role: .destructive, action: onDelete) {
-                            Label(LS("common.delete"), systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.white.opacity(0.35))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.bottom, 12)
+            CardMeta(
+                message: message,
+                onDelete: onDelete,
+                openedAtText: String(format: LS("inbox.card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)),
+                isExpanded: $isExpanded
+            )
+            .padding(.bottom, isExpanded ? 4 : 12)
             .transaction { $0.animation = nil }
 
             ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
@@ -499,36 +494,24 @@ private struct SentCard: View {
         return .countingDown
     }
 
+    private var titleText: String {
+        String(format: LS("inbox.sent_card.to"), message.receiverName)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 12) {
-                MessageAvatar(name: message.receiverName, style: message.style, size: 40, isReady: tier == .ready)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(format: LS("inbox.sent_card.to"), message.receiverName))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text(String(format: LS("inbox.card.sent_at"), message.sentAt.formatted(date: .abbreviated, time: .omitted)))
-                        .font(.system(size: 12)).foregroundStyle(Color.fgMuted)
-                    Text(String(format: LS("inbox.card.total_countdown"), shortDuration(TimeInterval(message.delaySeconds))))
-                        .font(.system(size: 12)).foregroundStyle(Color.fgMuted)
-                }
-
-                Spacer()
-
-                if let onDelete {
-                    Menu {
-                        Button(role: .destructive, action: onDelete) {
-                            Label(LS("common.delete"), systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.white.opacity(0.35))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.bottom, message.status == .revealed ? 12 : 20)
+            CardMeta(
+                message: message,
+                titleText: titleText,
+                avatarName: message.receiverName,
+                onDelete: onDelete,
+                isReady: tier == .ready,
+                openedAtText: message.status == .revealed
+                    ? String(format: LS("inbox.sent_card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened))
+                    : nil,
+                isExpanded: message.status == .revealed ? $isExpanded : nil
+            )
+            .padding(.bottom, message.status == .revealed ? (isExpanded ? 4 : 12) : 20)
             .transaction { $0.animation = nil }
 
             sentBody
@@ -542,20 +525,6 @@ private struct SentCard: View {
     @ViewBuilder
     private var sentBody: some View {
         if message.status == .revealed {
-            HStack {
-                HStack(spacing: 4) {
-                    Image(systemName: "lock").font(.system(size: 11))
-                    Text(String(format: LS("inbox.sent_card.opened_at"), message.unlockAt.formatted(date: .abbreviated, time: .shortened)))
-                        .font(.system(size: 12))
-                }
-                .foregroundStyle(Color.fgMuted)
-                Spacer()
-                Button(isExpanded ? LS("inbox.card.hide") : LS("inbox.card.show")) { isExpanded.toggle() }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.accentMint)
-                    .buttonStyle(.plain)
-            }
-            .transaction { $0.animation = nil }
             ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
         } else if message.unlockAt > now {
             VStack(spacing: 6) {
@@ -611,22 +580,18 @@ private struct ExpandableMessageBody: View {
     var includesDivider = true
 
     var body: some View {
-        VStack(spacing: 0) {
-            if isExpanded {
-                VStack(alignment: .leading, spacing: 0) {
-                    if includesDivider {
-                        Divider().opacity(0.15).padding(.top, 2)
-                    }
-                    Text(text)
-                        .font(.body)
-                        .foregroundStyle(.white.opacity(0.88))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, includesDivider ? 8 : 0)
+        if isExpanded {
+            VStack(alignment: .leading, spacing: 0) {
+                if includesDivider {
+                    Divider().opacity(0.15)
                 }
-                .transition(.opacity)
+                Text(text)
+                    .font(.body)
+                    .foregroundStyle(.white.opacity(0.88))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, includesDivider ? 8 : 0)
             }
         }
-        .animation(.easeOut(duration: 0.25), value: isExpanded)
     }
 }
 
