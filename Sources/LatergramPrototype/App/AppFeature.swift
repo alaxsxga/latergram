@@ -41,7 +41,7 @@ struct AppFeature {
         case chats(ChatsFeature.Action)
     }
 
-    private enum CancelID { case notificationTap }
+    private enum CancelID { case notificationTap, transactionUpdates }
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.notificationClient) var notificationClient
@@ -58,6 +58,7 @@ struct AppFeature {
 
             case .onAppear:
                 let nc = notificationClient
+                let pc = purchaseClient
                 return .merge(
                     .run { send in
                         let user = await authClient.currentSession()
@@ -68,7 +69,13 @@ struct AppFeature {
                             await send(.notificationTapped(messageID: messageID))
                         }
                     }
-                    .cancellable(id: CancelID.notificationTap)
+                    .cancellable(id: CancelID.notificationTap),
+                    .run { send in
+                        for await profile in pc.observeTransactionUpdates() {
+                            await send(.profileRefreshed(profile))
+                        }
+                    }
+                    .cancellable(id: CancelID.transactionUpdates)
                 )
 
             case .sessionChecked(let user):
@@ -184,7 +191,12 @@ struct AppFeature {
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),
-                    .send(.friends(.foregroundRefresh))
+                    .send(.friends(.foregroundRefresh)),
+                    .run { [purchaseClient] send in
+                        if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
+                            await send(.profileRefreshed(profile))
+                        }
+                    }
                 )
 
             case .scenePhaseChanged:
