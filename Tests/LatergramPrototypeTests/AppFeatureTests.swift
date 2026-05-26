@@ -68,23 +68,27 @@ final class AppFeatureTests: XCTestCase {
     // MARK: - logoutSucceeded
 
     func test_logoutSucceeded_clearsAllState() async {
+        let alice = UserProfile(id: UUID(), displayName: "Alice", username: "alice")
         let initialState = {
             var s = AppFeature.State()
-            s.currentUser = UserProfile(id: UUID(), displayName: "Alice", username: "alice")
+            s.currentUser = alice
             s.route = .main
             s.selectedTab = .chats
-            s.friends.me = UserProfile(displayName: "Alice", username: "alice")
+            s.friends.me = alice
+            s.friends.path.append(SettingsFeature.State(me: alice))
             return s
         }()
 
         let store = TestStore(initialState: initialState) { AppFeature() }
         store.exhaustivity = .off
 
-        await store.send(.friends(.logoutSucceeded))
+        let stackID = store.state.friends.path.ids[0]
+        await store.send(.friends(.path(.element(id: stackID, action: .delegate(.logoutSucceeded)))))
 
         XCTAssertNil(store.state.currentUser)
         XCTAssertEqual(store.state.selectedTab, .countdown)
         XCTAssertTrue(store.state.friends.friends.isEmpty)
+        XCTAssertTrue(store.state.friends.path.isEmpty)
         XCTAssertTrue(store.state.countdown.messages.isEmpty)
         XCTAssertTrue(store.state.chats.latestMessages.isEmpty)
         if case .auth = store.state.route { } else {

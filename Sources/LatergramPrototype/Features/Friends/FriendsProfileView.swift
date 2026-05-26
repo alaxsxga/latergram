@@ -9,7 +9,7 @@ struct FriendsProfileView: View {
     @State private var showInviteSheet = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
                 VStack(spacing: 20) {
                     profileCard
@@ -46,20 +46,17 @@ struct FriendsProfileView: View {
                     .buttonStyle(.plain)
                 }
                 ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        Button(role: .destructive) {
-                            store.send(.logoutConfirmTapped)
-                        } label: {
-                            Label(LS("friends.logout_button"), systemImage: "rectangle.portrait.and.arrow.right")
-                        }
+                    Button {
+                        store.send(.settingsButtonTapped)
                     } label: {
-                        Image(systemName: "ellipsis")
+                        Image(systemName: "gearshape")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.primary)
                             .frame(width: 34, height: 34)
                             .background(Color.surfaceMid)
                             .clipShape(Circle())
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .onAppear { store.send(.onAppear) }
@@ -76,13 +73,6 @@ struct FriendsProfileView: View {
                         .frame(maxWidth: .infinity)
                         .background(.thinMaterial)
                 }
-            }
-            .alert(L("friends.logout_confirm_title"), isPresented: Binding(
-                get: { store.isConfirmingLogout },
-                set: { if !$0 { store.send(.logoutCancelled) } }
-            )) {
-                Button(LS("friends.logout_button"), role: .destructive) { store.send(.logoutTapped) }
-                Button(LS("common.cancel"), role: .cancel) {}
             }
             .alert(
                 L("friends.delete_friend_title"),
@@ -134,6 +124,8 @@ struct FriendsProfileView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
+        } destination: { settingsStore in
+            SettingsView(store: settingsStore)
         }
     }
 

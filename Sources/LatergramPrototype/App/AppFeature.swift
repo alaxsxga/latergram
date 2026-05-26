@@ -202,21 +202,21 @@ struct AppFeature {
             case .scenePhaseChanged:
                 return .none
 
-            case .friends(.logoutSucceeded):
+            case .friends(.path(.element(_, .delegate(.logoutSucceeded)))):
                 state.currentUser = nil
                 currentUserClient.update(UserProfile(displayName: "", username: ""))
-                state.friends = FriendsFeature.State()
                 state.countdown = CountdownInboxFeature.State()
                 state.selectedTab = .countdown
                 state.route = .auth(AuthFeature.State())
-                // Send .chats(.reset) as an effect so TCA's forEach(\.path) can
-                // detect path elements being removed and cancel ChatDetailFeature
-                // timer + load effects before state is wiped.
+                // Send .reset to features with StackState so forEach(\.path) can
+                // detect path elements being removed and cancel child effects
+                // before state is wiped.
                 return .merge(
                     .cancel(id: CountdownInboxFeature.CancelID.timer),
                     .cancel(id: CountdownInboxFeature.CancelID.load),
                     .cancel(id: CountdownInboxFeature.CancelID.messageStream),
                     .send(.chats(.reset)),
+                    .send(.friends(.reset)),
                     .run { [notificationClient] _ in await notificationClient.cancelAll() }
                 )
 

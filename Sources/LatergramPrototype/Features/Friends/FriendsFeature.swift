@@ -25,25 +25,24 @@ struct FriendsFeature {
         var isLoading = false
         var isSharingInvite = false
         var inviteShareMessage = ""
-        var isConfirmingLogout = false
         var banner: String?
         var lastFetchedAt: Date? = nil
         var friendPendingDeletion: Friend? = nil
         var showDeepLinkInviteAlert = false
         var inviteAcceptError: AcceptInviteFailure? = nil
+        var path = StackState<SettingsFeature.State>()
     }
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
+        case reset
+        case settingsButtonTapped
         case generateInviteCodeTapped
         case shareInviteCodeTapped
         case shareSheetDismissed
         case revokeInviteCodeTapped
         case acceptInviteCodeTapped
-        case logoutConfirmTapped
-        case logoutCancelled
-        case logoutTapped
         case inviteCodeGenerated(String)
         case existingInviteCodeLoaded(String)
         case friendsLoaded([Friend])
@@ -52,7 +51,6 @@ struct FriendsFeature {
         case remoteFetchFailed(String)
         case inviteAccepted(Friend)
         case inviteAcceptFailed(AcceptInviteFailure)
-        case logoutSucceeded
         case foregroundRefresh
         case realtimeChangeDetected
         case removeFriendSwiped(Friend)
@@ -63,14 +61,13 @@ struct FriendsFeature {
         case acceptInviteFromDeepLink(String)
         case deepLinkAlertDismissed
         case inviteAcceptErrorDismissed
+        case path(StackActionOf<SettingsFeature>)
     }
 
     @Dependency(\.friendClient) var friendClient
-    @Dependency(\.authClient) var authClient
     @Dependency(\.friendsCacheClient) var friendsCacheClient
-    @Dependency(\.messagesCacheClient) var messagesCacheClient
 
-    private enum CancelID { case realtimeSubscription }
+    enum CancelID { case realtimeSubscription }
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -234,28 +231,15 @@ struct FriendsFeature {
                 state.inviteAcceptError = nil
                 return .none
 
-            case .logoutConfirmTapped:
-                state.isConfirmingLogout = true
+            case .reset:
+                state = State()
+                return .cancel(id: CancelID.realtimeSubscription)
+
+            case .settingsButtonTapped:
+                state.path.append(SettingsFeature.State(me: state.me))
                 return .none
 
-            case .logoutCancelled:
-                state.isConfirmingLogout = false
-                return .none
-
-            case .logoutTapped:
-                state.isConfirmingLogout = false
-                let userID = state.me.id
-                return .merge(
-                    .cancel(id: CancelID.realtimeSubscription),
-                    .run { send in
-                        friendsCacheClient.clear(userID)
-                        messagesCacheClient.clear(userID)
-                        try? await authClient.signOut()
-                        await send(.logoutSucceeded)
-                    }
-                )
-
-            case .logoutSucceeded:
+            case .path:
                 return .none
 
             case .foregroundRefresh:
@@ -312,6 +296,9 @@ struct FriendsFeature {
                 state.banner = "刪除失敗：\(error)"
                 return .none
             }
+        }
+        .forEach(\.path, action: \.path) {
+            SettingsFeature()
         }
     }
 }
