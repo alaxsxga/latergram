@@ -83,6 +83,30 @@ struct PaywallView: View {
                         .disabled(store.isPurchasing || store.isRestoring)
                     }
                     .padding(.horizontal)
+
+                    // Auto-renewal disclosure + legal links (required by App Review)
+                    VStack(spacing: 8) {
+                        L("paywall.terms_disclosure")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+
+                        HStack(spacing: 16) {
+                            Link(destination: LegalURLs.privacyPolicy) {
+                                L("legal.privacy_policy")
+                                    .font(.caption2)
+                            }
+                            Text(verbatim: "·")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Link(destination: LegalURLs.termsOfUse) {
+                                L("legal.terms_of_use")
+                                    .font(.caption2)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                 }
                 .padding(.bottom, 32)
             }

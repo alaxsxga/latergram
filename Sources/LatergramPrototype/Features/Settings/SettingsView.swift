@@ -32,6 +32,15 @@ struct SettingsView: View {
                 }
             }
 
+            Section(LS("settings.section_about")) {
+                Link(destination: LegalURLs.privacyPolicy) {
+                    Label(LS("legal.privacy_policy"), systemImage: "hand.raised")
+                }
+                Link(destination: LegalURLs.termsOfUse) {
+                    Label(LS("legal.terms_of_use"), systemImage: "doc.text")
+                }
+            }
+
             Section {
                 Button(role: .destructive) {
                     store.send(.logoutConfirmTapped)
