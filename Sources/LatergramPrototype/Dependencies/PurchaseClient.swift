@@ -54,8 +54,10 @@ extension PurchaseClient: DependencyKey {
                 guard case .verified(let transaction) = verification else {
                     throw PurchaseError.verificationFailed
                 }
+                // 先 sync 成功再 finish；失敗時 transaction 留著，下次 verifyAndSyncEntitlement 會從 currentEntitlements 撿回重試
+                let profile = try await syncPremium(true)
                 await transaction.finish()
-                return try await syncPremium(true)
+                return profile
             case .userCancelled:
                 throw PurchaseError.userCancelled
             case .pending:
@@ -102,10 +104,14 @@ extension PurchaseClient: DependencyKey {
                         guard (try? await supabase.auth.session) != nil else { continue }
 
                         let isActive = transaction.revocationDate == nil
-                        if let profile = try? await syncPremium(isActive) {
+                        // 先 sync 成功再 finish；失敗時保留 transaction，下次 verifyAndSyncEntitlement 會撿回
+                        do {
+                            let profile = try await syncPremium(isActive)
                             continuation.yield(profile)
+                            await transaction.finish()
+                        } catch {
+                            // 留待下次 verify 重試
                         }
-                        await transaction.finish()
                     }
                     continuation.finish()
                 }
