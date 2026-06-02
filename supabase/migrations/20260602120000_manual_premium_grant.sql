@@ -1,0 +1,62 @@
+-- =====================================================================
+-- 加上 manual premium 發放機制（白名單 / 客服補償）
+--
+-- 設計：
+--   - premium_source ('iap' / 'manual' / null)：記錄 entitlement 來源
+--   - premium_until (timestamptz)：到期日；null = 無限期（永久白名單）
+--   - is_premium 仍是主開關（trigger 自動同步 message_limit）
+--
+-- 規則：
+--   - Edge Function 升級路徑：以 IAP 為最終真實狀態，會覆寫 manual 標記
+--   - Edge Function 降級路徑：.eq('premium_source','iap')，不誤撤 manual
+--   - 手動只對「目前無有效 IAP」的用戶使用（見下方 SQL 範本）
+--   - 過期 manual 由 Edge Function self-heal 清理（用戶下次開 App 時順手清）
+--     → 不開 pg_cron，接受「永遠不開 App 的用戶會虛胖」
+--
+-- 已知 trade-off：
+--   - 手動白名單用戶若自己訂閱 IAP → source 變 'iap'，訂閱到期會降回 free
+--     → 白名單「失憶」，需手動再加一次。已接受（換取 entitlement 語意清晰）。
+-- =====================================================================
+
+alter table public.profiles
+    add column premium_source text
+        check (premium_source in ('iap', 'manual')),
+    add column premium_until timestamptz;
+
+-- =====================================================================
+-- 手動操作 SQL 範本（直接在 SQL Editor 用 service_role 跑）
+-- =====================================================================
+--
+-- ── 永久白名單 ──
+-- update public.profiles
+-- set is_premium = true, premium_source = 'manual', premium_until = null
+-- where username = 'xxx'
+--   and (
+--     premium_source is null
+--     or premium_source = 'manual'
+--     or (premium_source = 'iap'
+--         and (premium_until is null or premium_until < now()))
+--   );
+--
+-- ── 送 N 天 ──
+-- update public.profiles
+-- set is_premium = true, premium_source = 'manual',
+--     premium_until = now() + interval '10 days'
+-- where username = 'xxx'
+--   and (
+--     premium_source is null
+--     or premium_source = 'manual'
+--     or (premium_source = 'iap'
+--         and (premium_until is null or premium_until < now()))
+--   );
+--
+-- ── 撤回（只撤 manual，別誤撤 IAP）──
+-- update public.profiles
+-- set is_premium = false, premium_source = null, premium_until = null
+-- where username = 'xxx' and premium_source = 'manual';
+--
+-- ── 跑完一定要 select 確認真的有寫到 ──
+-- select id, username, is_premium, premium_source, premium_until
+-- from public.profiles where username = 'xxx';
+--
+-- =====================================================================

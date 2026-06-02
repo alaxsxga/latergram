@@ -2,8 +2,11 @@
 // sync-entitlement Edge Function
 //
 // 用途：取代 client 直接 UPDATE profiles.is_premium 的舊路徑
-//   - 升級（POST { jws }）：驗證 Apple JWS → 寫 is_premium=true
-//   - 降級（POST {})    ：信任 client 報告 → 寫 is_premium=false
+//   - 升級（POST { jws }）：驗證 Apple JWS → 寫 is_premium=true, premium_source='iap'
+//     （IAP 為最終真實狀態，會覆寫 manual 標記；manual 白名單若自己訂閱會「失憶」）
+//   - 降級（POST {})    ：信任 client 報告 → 寫 is_premium=false（只動 premium_source='iap' 的 row）
+//     manual 白名單 / 客服補償不會被誤撤
+//   - 進入 handler 時順手清過期 manual（self-heal，替代 pg_cron）
 //
 // 安全性：
 //   - service_role 寫 DB，bypass RLS（client 端 authenticated 已被撤回 update 權限）
@@ -115,7 +118,17 @@ serve(async (req: Request) => {
     return jsonError("invalid session", 401);
   }
 
-  // 2. 解析 body
+  // 2. self-heal：把該用戶過期的 manual entitlement 清掉
+  //    （不開 pg_cron，靠用戶下次開 App 觸發；永遠不開 App 的會虛胖，可接受）
+  await supabaseAdmin
+    .from("profiles")
+    .update({ is_premium: false, premium_source: null, premium_until: null })
+    .eq("id", userId)
+    .eq("premium_source", "manual")
+    .not("premium_until", "is", null)
+    .lt("premium_until", new Date().toISOString());
+
+  // 3. 解析 body
   const body = await req.json().catch(() => ({} as Record<string, unknown>));
   const jws = typeof body.jws === "string" ? body.jws : undefined;
 
@@ -187,9 +200,18 @@ serve(async (req: Request) => {
       }
     }
 
+    // 升級 entitlement：有真實 IAP 就以 IAP 為準（覆寫任何 manual 標記）
+    // → manual 用戶若自己訂閱會被改成 source='iap'；訂閱到期會降回 free，
+    //   原本的 manual 白名單會「失憶」需手動再加一次（已接受 trade-off）
     const { error: updateErr } = await supabaseAdmin
       .from("profiles")
-      .update({ is_premium: true })
+      .update({
+        is_premium: true,
+        premium_source: "iap",
+        premium_until: claims.expiresDate
+          ? new Date(claims.expiresDate).toISOString()
+          : null,
+      })
       .eq("id", userId);
     if (updateErr) {
       console.error("profile update failed", updateErr);
@@ -198,17 +220,19 @@ serve(async (req: Request) => {
   } else {
     // ──────── 降級路徑 ────────
     // client 端 verifyAndSyncEntitlement 掃完 currentEntitlements 為空時呼叫
+    // 只動 premium_source='iap' 的 row，manual 白名單 / 補償不被誤撤
     const { error: updateErr } = await supabaseAdmin
       .from("profiles")
-      .update({ is_premium: false })
-      .eq("id", userId);
+      .update({ is_premium: false, premium_source: null, premium_until: null })
+      .eq("id", userId)
+      .eq("premium_source", "iap");
     if (updateErr) {
       console.error("profile update failed", updateErr);
       return jsonError("profile update failed", 500);
     }
   }
 
-  // 3. 回更新後的 profile
+  // 4. 回更新後的 profile
   const { data: profile, error: fetchErr } = await supabaseAdmin
     .from("profiles")
     .select()

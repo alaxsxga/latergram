@@ -7,6 +7,8 @@ create table public.profiles (
     display_name text not null,
     message_limit int not null default 1,          -- 每位好友最多可同時 scheduled 的訊息數
     is_premium bool not null default false,
+    premium_source text check (premium_source in ('iap', 'manual')),  -- entitlement 來源
+    premium_until timestamptz,                     -- entitlement 到期日；null = 無限期（永久白名單）
     max_delay_seconds int not null default 86400,  -- 免費版 24h；付費版可動態調整
     created_at timestamptz not null default now()
 );
