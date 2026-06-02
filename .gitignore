@@ -4,6 +4,7 @@ Sources/LatergramPrototype/Infrastructure/Secrets.swift
 # Spec & planning documents
 *.md
 !README.md
+!IAP_DESIGN.md
 
 # SPM build artifacts
 .build/
