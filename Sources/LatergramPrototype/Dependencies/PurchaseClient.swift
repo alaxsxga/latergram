@@ -2,11 +2,12 @@ import ComposableArchitecture
 import StoreKit
 import LatergramCore
 import Foundation
+import Functions
 
 // MARK: - Product IDs
 
 enum LatergramProduct {
-    static let premiumMonthly = "com.ininder.latergram.premium.monthly"
+    static let premiumMonthly = "com.ininder.ed.latergram.premium.monthly"
     static let all: [String] = [premiumMonthly]
 }
 
@@ -48,14 +49,18 @@ extension PurchaseClient: DependencyKey {
             return products.sorted { $0.price < $1.price }
         },
         purchase: { product in
-            let result = try await product.purchase()
+            // C3: 帶 appAccountToken，讓 server 端 JWS 驗證能比對「交易確實屬於這位用戶」
+            let session = try await supabase.auth.session
+            let userID = session.user.id
+            let options: Set<Product.PurchaseOption> = [.appAccountToken(userID)]
+            let result = try await product.purchase(options: options)
             switch result {
             case .success(let verification):
                 guard case .verified(let transaction) = verification else {
                     throw PurchaseError.verificationFailed
                 }
                 // 先 sync 成功再 finish；失敗時 transaction 留著，下次 verifyAndSyncEntitlement 會從 currentEntitlements 撿回重試
-                let profile = try await syncPremium(true)
+                let profile = try await syncPremium(jws: verification.jwsRepresentation)
                 await transaction.finish()
                 return profile
             case .userCancelled:
@@ -69,25 +74,36 @@ extension PurchaseClient: DependencyKey {
         verifyAndSyncEntitlement: {
             // 掃完 currentEntitlements 後依結果決定 promote 或 demote
             // 訂閱自然過期不會觸發 Transaction.updates，必須靠這裡每次登入/foreground 比對
-            var hasEntitlement = false
+            let session = try await supabase.auth.session
+            let userID = session.user.id
+
+            var validJWS: String? = nil
             for await result in Transaction.currentEntitlements {
                 guard case .verified(let transaction) = result,
                       LatergramProduct.all.contains(transaction.productID),
-                      transaction.revocationDate == nil
+                      transaction.revocationDate == nil,
+                      // 防禦：currentEntitlements 理論上只回有效訂閱，但 sandbox 可能殘留過期的
+                      (transaction.expirationDate.map { $0 > Date() } ?? true)
                 else { continue }
-                hasEntitlement = true
+                // C3: 若 transaction 帶 appAccountToken，必須等於當前 user；未帶（legacy）暫時通過
+                if let token = transaction.appAccountToken, token != userID { continue }
+                validJWS = result.jwsRepresentation
                 break
             }
-            return try? await syncPremium(hasEntitlement)
+            return try? await syncPremium(jws: validJWS)
         },
         restorePurchases: {
             try await AppStore.sync()
+            let session = try await supabase.auth.session
+            let userID = session.user.id
             for await result in Transaction.currentEntitlements {
                 guard case .verified(let transaction) = result,
                       LatergramProduct.all.contains(transaction.productID),
-                      transaction.revocationDate == nil
+                      transaction.revocationDate == nil,
+                      (transaction.expirationDate.map { $0 > Date() } ?? true)
                 else { continue }
-                return try await syncPremium(true)
+                if let token = transaction.appAccountToken, token != userID { continue }
+                return try await syncPremium(jws: result.jwsRepresentation)
             }
             return nil
         },
@@ -101,12 +117,28 @@ extension PurchaseClient: DependencyKey {
                             continue
                         }
                         // 未登入時不處理也不 finish，留給下次登入後的 verifyAndSyncEntitlement 撿
-                        guard (try? await supabase.auth.session) != nil else { continue }
+                        guard let session = try? await supabase.auth.session else { continue }
+                        let userID = session.user.id
+
+                        // C3: 若 transaction 帶 appAccountToken，必須等於當前 user
+                        if let token = transaction.appAccountToken, token != userID {
+                            // 不屬於這位用戶的 transaction，跳過也不 finish（留給對應用戶下次登入處理）
+                            continue
+                        }
+
+                        // 過期 transaction：finish() 後不打 server。server 會擋 400 expired 形成迴圈。
+                        // 正式版自然到期會走這條；sandbox 殭屍 transaction（殘留未 finish）也由此清除。
+                        // 真實 entitlement 狀態交給 verifyAndSyncEntitlement（foreground / 登入時呼叫）統一計算。
+                        if let exp = transaction.expirationDate, exp < Date() {
+                            await transaction.finish()
+                            continue
+                        }
 
                         let isActive = transaction.revocationDate == nil
+                        let jws: String? = isActive ? result.jwsRepresentation : nil
                         // 先 sync 成功再 finish；失敗時保留 transaction，下次 verifyAndSyncEntitlement 會撿回
                         do {
-                            let profile = try await syncPremium(isActive)
+                            let profile = try await syncPremium(jws: jws)
                             continuation.yield(profile)
                             await transaction.finish()
                         } catch {
@@ -138,20 +170,18 @@ extension DependencyValues {
 
 // MARK: - Private Supabase helper
 
-private func syncPremium(_ isPremium: Bool) async throws -> UserProfile {
-    let session = try await supabase.auth.session
-    let userID = session.user.id
-    try await supabase
-        .from("profiles")
-        .update(["is_premium": isPremium])
-        .eq("id", value: userID)
-        .execute()
-    let profile: ProfileRow = try await supabase
-        .from("profiles")
-        .select()
-        .eq("id", value: userID)
-        .single()
-        .execute()
-        .value
-    return profile.toUserProfile(id: userID)
+/// 呼叫 `sync-entitlement` Edge Function 同步 premium 狀態。
+/// - 帶 `jws`：升級路徑（server 端驗證 Apple 簽章後寫入）
+/// - 不帶 `jws`：降級路徑（client 已自驗證確認沒 entitlement）
+private struct SyncEntitlementBody: Encodable, Sendable {
+    let jws: String?
+}
+
+private func syncPremium(jws: String?) async throws -> UserProfile {
+    let body = SyncEntitlementBody(jws: jws)
+    let row: ProfileRow = try await supabase.functions.invoke(
+        "sync-entitlement",
+        options: FunctionInvokeOptions(body: body)
+    )
+    return row.toUserProfile()
 }

@@ -19,6 +19,9 @@ DerivedData/
 # Claude settings
 .claude/
 
+# Supabase CLI local cache (not for commit)
+supabase/.temp/
+
 # macOS
 .DS_Store
 .AppleDouble
