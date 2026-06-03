@@ -18,7 +18,7 @@ enum AcceptInviteFailure: Equatable {
 struct FriendsFeature {
     @ObservableState
     struct State: Equatable {
-        var me: UserProfile = UserProfile(displayName: "", username: "")
+        var me: UserProfile = UserProfile(displayName: "")
         var friends: IdentifiedArrayOf<Friend> = []
         var generatedInviteCode = ""
         var pastedInviteCode = ""

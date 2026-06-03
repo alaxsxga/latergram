@@ -25,12 +25,21 @@ alter table public.profiles
 
 -- =====================================================================
 -- 手動操作 SQL 範本（直接在 SQL Editor 用 service_role 跑）
+--
+-- 用 id 而非 username/display_name 等人類可讀欄位，避免誤動同名或未來
+-- 改名造成歧義。email 在 auth.users，不在 public.profiles。
 -- =====================================================================
+--
+-- ── Step 1：用 email 查 id ──
+-- select u.id, u.email, p.display_name
+-- from auth.users u
+-- join public.profiles p on p.id = u.id
+-- where u.email = 'xxx@xxx.com';
 --
 -- ── 永久白名單 ──
 -- update public.profiles
 -- set is_premium = true, premium_source = 'manual', premium_until = null
--- where username = 'xxx'
+-- where id = '11111111-2222-3333-4444-555555555555'
 --   and (
 --     premium_source is null
 --     or premium_source = 'manual'
@@ -42,7 +51,7 @@ alter table public.profiles
 -- update public.profiles
 -- set is_premium = true, premium_source = 'manual',
 --     premium_until = now() + interval '10 days'
--- where username = 'xxx'
+-- where id = '11111111-2222-3333-4444-555555555555'
 --   and (
 --     premium_source is null
 --     or premium_source = 'manual'
@@ -53,10 +62,12 @@ alter table public.profiles
 -- ── 撤回（只撤 manual，別誤撤 IAP）──
 -- update public.profiles
 -- set is_premium = false, premium_source = null, premium_until = null
--- where username = 'xxx' and premium_source = 'manual';
+-- where id = '11111111-2222-3333-4444-555555555555'
+--   and premium_source = 'manual';
 --
 -- ── 跑完一定要 select 確認真的有寫到 ──
--- select id, username, is_premium, premium_source, premium_until
--- from public.profiles where username = 'xxx';
+-- select id, display_name, is_premium, premium_source, premium_until
+-- from public.profiles
+-- where id = '11111111-2222-3333-4444-555555555555';
 --
 -- =====================================================================

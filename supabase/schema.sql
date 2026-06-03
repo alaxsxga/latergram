@@ -3,7 +3,6 @@
 -- =====================
 create table public.profiles (
     id uuid primary key references auth.users(id) on delete cascade,
-    username text unique not null,
     display_name text not null,
     message_limit int not null default 1,          -- 每位好友最多可同時 scheduled 的訊息數
     is_premium bool not null default false,
@@ -17,10 +16,9 @@ create table public.profiles (
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-    insert into public.profiles (id, username, display_name)
+    insert into public.profiles (id, display_name)
     values (
         new.id,
-        split_part(new.email, '@', 1),
         split_part(new.email, '@', 1)
     );
     return new;

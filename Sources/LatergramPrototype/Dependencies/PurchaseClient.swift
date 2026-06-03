@@ -154,7 +154,7 @@ extension PurchaseClient: DependencyKey {
 
     static let testValue = PurchaseClient(
         fetchProducts: { [] },
-        purchase: { _ in UserProfile(displayName: "Test", username: "test") },
+        purchase: { _ in UserProfile(displayName: "Test") },
         verifyAndSyncEntitlement: { nil },
         restorePurchases: { nil },
         observeTransactionUpdates: { .finished }

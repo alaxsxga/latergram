@@ -10,8 +10,7 @@ final class CurrentUserStore: @unchecked Sendable {
     private let lock = NSLock()
     private var _user: UserProfile = UserProfile(
         id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-        displayName: "",
-        username: ""
+        displayName: ""
     )
 
     var user: UserProfile {

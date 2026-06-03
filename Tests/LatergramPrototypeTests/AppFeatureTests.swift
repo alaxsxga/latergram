@@ -9,7 +9,7 @@ final class AppFeatureTests: XCTestCase {
     // MARK: - sessionChecked
 
     func test_sessionChecked_withUser_initializesChildStatesAndRoutesToMain() async {
-        let user = UserProfile(id: UUID(), displayName: "Alice", username: "alice")
+        let user = UserProfile(id: UUID(), displayName: "Alice")
         let now = Date(timeIntervalSince1970: 1_000_000)
         let store = TestStore(initialState: AppFeature.State()) {
             AppFeature()
@@ -39,7 +39,7 @@ final class AppFeatureTests: XCTestCase {
     }
 
     func test_sessionChecked_withPendingInviteCode_clearsCodeAndRoutesToFriends() async {
-        let user = UserProfile(id: UUID(), displayName: "Alice", username: "alice")
+        let user = UserProfile(id: UUID(), displayName: "Alice")
         let now = Date(timeIntervalSince1970: 1_000_000)
         let initialState = {
             var s = AppFeature.State()
@@ -68,7 +68,7 @@ final class AppFeatureTests: XCTestCase {
     // MARK: - logoutSucceeded
 
     func test_logoutSucceeded_clearsAllState() async {
-        let alice = UserProfile(id: UUID(), displayName: "Alice", username: "alice")
+        let alice = UserProfile(id: UUID(), displayName: "Alice")
         let initialState = {
             var s = AppFeature.State()
             s.currentUser = alice
@@ -128,7 +128,7 @@ final class AppFeatureTests: XCTestCase {
 
         let initialState = {
             var s = AppFeature.State()
-            s.currentUser = UserProfile(id: meID, displayName: "Me", username: "me")
+            s.currentUser = UserProfile(id: meID, displayName: "Me")
             s.countdown.currentUserID = meID
             return s
         }()
@@ -180,7 +180,7 @@ final class AppFeatureTests: XCTestCase {
 
         let initialState = {
             var s = AppFeature.State()
-            s.currentUser = UserProfile(id: meID, displayName: "Me", username: "me")
+            s.currentUser = UserProfile(id: meID, displayName: "Me")
             s.countdown.currentUserID = meID
             return s
         }()

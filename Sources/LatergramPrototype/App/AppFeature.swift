@@ -204,7 +204,7 @@ struct AppFeature {
 
             case .friends(.path(.element(_, .delegate(.logoutSucceeded)))):
                 state.currentUser = nil
-                currentUserClient.update(UserProfile(displayName: "", username: ""))
+                currentUserClient.update(UserProfile(displayName: ""))
                 state.countdown = CountdownInboxFeature.State()
                 state.selectedTab = .countdown
                 state.route = .auth(AuthFeature.State())

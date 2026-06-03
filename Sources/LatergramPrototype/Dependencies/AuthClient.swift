@@ -82,8 +82,7 @@ extension AuthClient: DependencyKey {
             else {
                 return UserProfile(
                     id: user.id,
-                    displayName: (user.email ?? "").components(separatedBy: "@").first ?? "",
-                    username: (user.email ?? "").components(separatedBy: "@").first ?? ""
+                    displayName: (user.email ?? "").components(separatedBy: "@").first ?? ""
                 )
             }
             return profile.toUserProfile(id: user.id)
@@ -95,10 +94,10 @@ extension AuthClient: DependencyKey {
     )
 
     static let testValue = AuthClient(
-        signIn: { _, _ in UserProfile(displayName: "TestUser", username: "testuser") },
-        signUp: { _, _, displayName in UserProfile(displayName: displayName, username: "testuser") },
+        signIn: { _, _ in UserProfile(displayName: "TestUser") },
+        signUp: { _, _, displayName in UserProfile(displayName: displayName) },
         createAccount: { _, _ in UUID() },
-        setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName, username: "testuser") },
+        setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName) },
         signOut: {},
         currentSession: { nil },
         handleDeepLink: { _ in UUID() }

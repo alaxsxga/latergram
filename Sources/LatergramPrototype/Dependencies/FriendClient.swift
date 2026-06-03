@@ -19,7 +19,7 @@ extension FriendClient: DependencyKey {
         fetchFriends: { userID in
             let rows: [FriendshipRow] = try await supabase
                 .from("friendships")
-                .select("id, requester_id, addressee_id, status, requester:profiles!requester_id(id, display_name, username), addressee:profiles!addressee_id(id, display_name, username)")
+                .select("id, requester_id, addressee_id, status, requester:profiles!requester_id(id, display_name), addressee:profiles!addressee_id(id, display_name)")
                 .or("requester_id.eq.\(userID),addressee_id.eq.\(userID)")
                 .eq("status", value: "accepted")
                 .execute()

@@ -268,11 +268,23 @@ for await result in Transaction.updates {
 
 `supabase/migrations/20260602120000_manual_premium_grant.sql` 結尾有完整 SQL 範本。摘要：
 
+**Step 1**：用 email 查到 `id`（email 在 `auth.users`，不在 `public.profiles`）
+
+```sql
+select u.id, u.email, p.display_name,
+       p.is_premium, p.premium_source, p.premium_until
+from auth.users u
+join public.profiles p on p.id = u.id
+where u.email = 'xxx@xxx.com';
+```
+
+**Step 2**：用 `id` 改 premium（用 uuid 而非任何人類可讀欄位，避免誤動同名/未來改名造成的歧義）
+
 ```sql
 -- 永久白名單
 update public.profiles
 set is_premium = true, premium_source = 'manual', premium_until = null
-where username = 'xxx'
+where id = '11111111-2222-3333-4444-555555555555'
   and (
     premium_source is null
     or premium_source = 'manual'
@@ -284,12 +296,24 @@ where username = 'xxx'
 update public.profiles
 set is_premium = true, premium_source = 'manual',
     premium_until = now() + interval '10 days'
-where username = 'xxx' and (...同上guard...);
+where id = '11111111-2222-3333-4444-555555555555'
+  and (
+    premium_source is null
+    or premium_source = 'manual'
+    or (premium_source = 'iap'
+        and (premium_until is null or premium_until < now()))
+  );
 
 -- 撤回（只撤 manual）
 update public.profiles
 set is_premium = false, premium_source = null, premium_until = null
-where username = 'xxx' and premium_source = 'manual';
+where id = '11111111-2222-3333-4444-555555555555'
+  and premium_source = 'manual';
+
+-- 跑完一定要 select 確認
+select id, display_name, is_premium, premium_source, premium_until
+from public.profiles
+where id = '11111111-2222-3333-4444-555555555555';
 ```
 
 Guard 的 `or (premium_source='iap' and premium_until<now())` 用意：允許對「IAP 已過期但 row 還沒 self-heal 清掉」的用戶下 manual。
@@ -713,15 +737,21 @@ UPDATE profiles
 ## 附：常用查詢 SQL
 
 ```sql
+-- 用 email 查 user id（email 在 auth.users，不在 public.profiles）
+select u.id, u.email, p.display_name
+from auth.users u
+join public.profiles p on p.id = u.id
+where u.email = 'xxx@xxx.com';
+
 -- 查某用戶當前 entitlement
-select id, username, is_premium, message_limit, premium_source, premium_until, updated_at
+select id, display_name, is_premium, message_limit, premium_source, premium_until
 from public.profiles
-where username = 'xxx';
+where id = '11111111-2222-3333-4444-555555555555';
 
 -- 查某用戶最近 transaction
 select transaction_id, original_transaction_id, product_id, expires_date, processed_at
 from public.processed_transactions
-where user_id = (select id from public.profiles where username = 'xxx')
+where user_id = '11111111-2222-3333-4444-555555555555'
 order by processed_at desc limit 10;
 
 -- 全站當前 active premium 統計
@@ -732,7 +762,7 @@ where is_premium = true
 group by premium_source;
 
 -- 找虛胖 manual（永遠不開 App）
-select id, username, premium_until
+select id, display_name, premium_until
 from public.profiles
 where premium_source = 'manual'
   and premium_until is not null
