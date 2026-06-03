@@ -41,9 +41,18 @@ struct PaywallView: View {
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Price + subscribe
+                    // Price + subscribe — verify 完成才顯示，避免引導已訂閱用戶重複購買
                     VStack(spacing: 12) {
-                        if store.isLoading {
+                        if store.alreadyPremiumProfile != nil {
+                            alreadyPremiumSection
+                        } else if store.isVerifyingEntitlement {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                L("paywall.verifying_entitlement")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(height: 50)
+                        } else if store.isLoading {
                             ProgressView()
                                 .frame(height: 50)
                         } else if let product = store.products.first {
@@ -69,18 +78,20 @@ struct PaywallView: View {
                                 .frame(height: 50)
                         }
 
-                        Button {
-                            store.send(.restoreTapped)
-                        } label: {
-                            if store.isRestoring {
-                                ProgressView()
-                            } else {
-                                L("paywall.restore")
+                        if store.alreadyPremiumProfile == nil {
+                            Button {
+                                store.send(.restoreTapped)
+                            } label: {
+                                if store.isRestoring {
+                                    ProgressView()
+                                } else {
+                                    L("paywall.restore")
+                                }
                             }
+                            .buttonStyle(.bordered)
+                            .tint(.secondary)
+                            .disabled(store.isPurchasing || store.isRestoring || store.isVerifyingEntitlement)
                         }
-                        .buttonStyle(.bordered)
-                        .tint(.secondary)
-                        .disabled(store.isPurchasing || store.isRestoring)
                     }
                     .padding(.horizontal)
 
@@ -132,6 +143,35 @@ struct PaywallView: View {
         } icon: {
             Image(systemName: icon)
                 .foregroundStyle(Color.accentColor)
+        }
+    }
+
+    @ViewBuilder
+    private var alreadyPremiumSection: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+                L("paywall.already_premium")
+                    .font(.headline)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+
+            Link(destination: URL(string: "itms-apps://apps.apple.com/account/subscriptions")!) {
+                L("paywall.manage_subscription")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(.secondary)
+
+            Button {
+                store.send(.alreadyPremiumDismissTapped)
+            } label: {
+                L("paywall.done")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
         }
     }
 }

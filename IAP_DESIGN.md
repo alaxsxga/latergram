@@ -598,6 +598,7 @@ UPDATE profiles
   - listener 不一定會收到（Apple 對「別處購買」**有時**會推到所有裝置）
   - 用戶切回 foreground → `verifyAndSyncEntitlement` → 找到 entitlement → 升級
   - 或用戶手動「還原購買」也行
+  - **若用戶在裝置 2 cache stale 期間打開 paywall**（例如 A、B 同時前景）：paywall onAppear 會跑 `verifyAndSyncEntitlement`，發現已是 premium 後切換成「您已是 Premium 會員」確認畫面（含管理訂閱連結），避免引導重複購買。用戶按「完成」後 paywall dismiss + 本地立刻拿到 premium 權限。
 - ✅ 設計上 cover
 
 #### D2. 用戶 A 同時開兩個 paywall

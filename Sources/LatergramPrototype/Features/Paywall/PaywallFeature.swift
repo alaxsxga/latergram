@@ -11,6 +11,10 @@ struct PaywallFeature {
         var isLoading = false
         var isPurchasing = false
         var isRestoring = false
+        var isVerifyingEntitlement = false
+        // 非 nil 表示開 paywall 時 verify 發現用戶已是 premium（另台裝置買了）
+        // UI 切換成「已是 Premium」確認畫面，避免引導重複購買
+        var alreadyPremiumProfile: UserProfile? = nil
         var errorMessage: String? = nil
     }
 
@@ -21,8 +25,10 @@ struct PaywallFeature {
         case productsLoaded([Product])
         case purchaseTapped(Product)
         case restoreTapped
+        case alreadyPremiumDismissTapped
         case _purchaseResult(Result<UserProfile, Error>)
         case _restoreResult(Result<UserProfile?, Error>)
+        case _verifyResult(UserProfile?)
         case delegate(Delegate)
 
         @CasePathable
@@ -40,12 +46,37 @@ struct PaywallFeature {
             switch action {
 
             case .onAppear:
-                guard state.products.isEmpty, !state.isLoading else { return .none }
-                state.isLoading = true
-                return .run { send in
-                    let products = (try? await purchaseClient.fetchProducts()) ?? []
-                    await send(.productsLoaded(products))
+                var effects: [Effect<Action>] = []
+                if state.products.isEmpty, !state.isLoading {
+                    state.isLoading = true
+                    effects.append(.run { send in
+                        let products = (try? await purchaseClient.fetchProducts()) ?? []
+                        await send(.productsLoaded(products))
+                    })
                 }
+                // B2: 開 paywall 先確認另台裝置是否已訂閱，避免引導重複購買
+                if !state.isVerifyingEntitlement, state.alreadyPremiumProfile == nil {
+                    state.isVerifyingEntitlement = true
+                    effects.append(.run { send in
+                        let profile = try? await purchaseClient.verifyAndSyncEntitlement()
+                        await send(._verifyResult(profile))
+                    })
+                }
+                return .merge(effects)
+
+            case ._verifyResult(let profile):
+                state.isVerifyingEntitlement = false
+                if let profile, profile.isPremium {
+                    currentUserClient.update(profile)
+                    state.alreadyPremiumProfile = profile
+                }
+                return .none
+
+            case .alreadyPremiumDismissTapped:
+                guard let profile = state.alreadyPremiumProfile else {
+                    return .run { _ in await dismiss() }
+                }
+                return .send(.delegate(.purchaseSucceeded(profile)))
 
             case .productsLoaded(let products):
                 state.isLoading = false
