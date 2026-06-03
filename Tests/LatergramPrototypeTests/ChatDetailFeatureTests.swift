@@ -22,7 +22,6 @@ final class ChatDetailFeatureTests: XCTestCase {
 
     func test_scheduledCountToFriend_onlyCountsCurrentUserScheduledAndFuture() {
         var state = makeState()
-        state.userMessageLimit = 3
 
         // Counts: my scheduled + unlockAt > now
         let myScheduled = makeMessage(senderID: meID, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
@@ -36,31 +35,41 @@ final class ChatDetailFeatureTests: XCTestCase {
         state.messages = [myScheduled, myReady, friendScheduled, myExpired]
 
         XCTAssertEqual(state.scheduledCountToFriend, 1)
-        XCTAssertFalse(state.isAtSendLimit)
     }
 
-    func test_isAtSendLimit_trueWhenScheduledCountMeetsLimit() {
-        var state = makeState()
-        state.userMessageLimit = 1
-
+    func test_isAtSendLimit_trueWhenScheduledCountMeetsLimit() async {
         let myScheduled = makeMessage(senderID: meID, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
-        state.messages = [myScheduled]
 
-        XCTAssertTrue(state.isAtSendLimit)
+        let store = TestStore(initialState: makeState()) {
+            ChatDetailFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+            $0.currentUserClient.messageLimit = { 1 }
+            $0.messagesCacheClient.save = { _, _, _ in }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.messagesLoaded([myScheduled]))
+
+        XCTAssertTrue(store.state.isAtSendLimit)
     }
 
     // MARK: - composeTapped
 
     func test_composeTapped_atLimit_setsShowLimitInfo() async {
         var initialState = makeState()
-        initialState.userMessageLimit = 1
         initialState.messages = [
             makeMessage(senderID: meID, unlockAt: now.addingTimeInterval(3600), status: .scheduled)
         ]
 
-        let store = TestStore(initialState: initialState) { ChatDetailFeature() }
+        let store = TestStore(initialState: initialState) {
+            ChatDetailFeature()
+        } withDependencies: {
+            $0.currentUserClient.messageLimit = { 1 }
+        }
 
         await store.send(.composeTapped) {
+            $0.isAtSendLimit = true
             $0.showLimitInfo = true
         }
         XCTAssertNil(store.state.compose)
@@ -223,6 +232,7 @@ final class ChatDetailFeatureTests: XCTestCase {
             ChatDetailFeature()
         } withDependencies: {
             $0.date = .constant(now)
+            $0.messagesCacheClient.save = { _, _, _ in }
         }
         store.exhaustivity = .off
 

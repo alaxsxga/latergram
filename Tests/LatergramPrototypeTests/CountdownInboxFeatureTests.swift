@@ -367,7 +367,11 @@ final class CountdownInboxFeatureTests: XCTestCase {
         initialState.currentUserID = meID
         initialState.friends = [alice]
 
-        let store = TestStore(initialState: initialState) { CountdownInboxFeature() }
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.friendsCacheClient.load = { _ in [alice] }
+        }
 
         await store.send(.plusTapped) {
             $0.showRecipientPicker = true
@@ -471,10 +475,14 @@ final class CountdownInboxFeatureTests: XCTestCase {
                                        unlockAt: now.addingTimeInterval(3600), now: now)
         let store = TestStore(initialState: CountdownInboxFeature.State()) {
             CountdownInboxFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
         }
 
         await store.send(.messageSent(msg)) {
             $0.messages = [msg]
+            $0.receivedPendingSortOrder = [msg.id]
+            $0.sentPendingSortOrder = [msg.id]
         }
     }
 }

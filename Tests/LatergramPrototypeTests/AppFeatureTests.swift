@@ -69,13 +69,28 @@ final class AppFeatureTests: XCTestCase {
 
     func test_logoutSucceeded_clearsAllState() async {
         let alice = UserProfile(id: UUID(), displayName: "Alice")
+        let bob = Friend(displayName: "Bob", status: .accepted)
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = DelayedMessage(
+            senderID: bob.id, receiverID: alice.id,
+            senderName: "Bob", receiverName: "Alice",
+            body: "hi",
+            style: .classic,
+            sentAt: now.addingTimeInterval(-60),
+            unlockAt: now.addingTimeInterval(3600),
+            delaySeconds: 3600,
+            status: .scheduled
+        )
         let initialState = {
             var s = AppFeature.State()
             s.currentUser = alice
             s.route = .main
             s.selectedTab = .chats
             s.friends.me = alice
+            s.friends.friends = [bob]
             s.friends.path.append(SettingsFeature.State(me: alice))
+            s.chats.friends = [bob]
+            s.chats.latestMessages = [bob.id: msg]
             return s
         }()
 
@@ -84,6 +99,9 @@ final class AppFeatureTests: XCTestCase {
 
         let stackID = store.state.friends.path.ids[0]
         await store.send(.friends(.path(.element(id: stackID, action: .delegate(.logoutSucceeded)))))
+        // logoutSucceeded dispatches .friends(.reset) / .chats(.reset) as Effects;
+        // drain them so the resets are actually applied before we assert.
+        await store.skipReceivedActions()
 
         XCTAssertNil(store.state.currentUser)
         XCTAssertEqual(store.state.selectedTab, .countdown)
