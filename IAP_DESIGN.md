@@ -498,9 +498,15 @@ UPDATE profiles
 - ✅ 已測
 
 #### A8. Billing retry / grace period
-- 信用卡刷不過 → Apple 進 retry。
-- 目前未判斷 `SubscriptionInfo.RenewalState.inBillingRetryPeriod`，視為「沒 entitlement」→ 降級。
-- 🔲 P3 待補（IAP_TODO E3）
+- **狀況**：用戶上期有付，這期續訂時信用卡刷不過（卡過期、額度不足等），Apple 不會立刻當取消，而是進入 **Billing Retry** 持續重試：monthly 最長 16 天、yearly 最長 60 天。期間 `expirationDate` 已過、`RenewalState = .inBillingRetryPeriod`。
+- **目前行為**：`verifyAndSyncEntitlement` 只看 `expirationDate > now` → retry 期間直接降級為 free。
+- **Apple 官方建議**：這段窗口繼續給 entitlement，理由是：
+  1. 用戶通常不知道卡刷不過（沒主動取消）。
+  2. 立刻降級會把可救回的用戶推向流失。
+  3. 大部分 retry 最終成功，給了等於沒中斷。
+  4. 可搭配 `StoreKit.Message` 提示用戶更新付款方式。
+- **為什麼這條暫時不動**：latergram 用戶量還不大，retry 比例對營收影響很小；且「沒付到錢卻給 premium 最長 60 天」的反向風險（誤判 / 永遠刷不過的用戶）也存在。等有真實案例或營收規模到才處理。
+- 🔲 P3 待補（IAP_TODO E3）— 決策待定：要不要在 retry 窗口仍算 premium。
 
 #### A9. Family Sharing（家庭共享訂閱）
 - 訂閱者買 → 家庭成員自動有 entitlement
@@ -721,7 +727,7 @@ UPDATE profiles
 | 14 | Ask-to-Buy 家長未核准 | result = `.pending` | UI 顯示「待審核」，核准後 listener 自動 promote | ✅ |
 | 15 | Family Sharing 家庭成員 | 該成員 token != 自己 | 被 C3 filter 過濾，**無法享 premium** | 🔲 未支援 |
 | 16 | Compose snapshot 不即時更新 | sheet 開著時付費 | 付費成功會 dismiss paywall，但 compose state 仍是舊的 | 🔲 影響低，P3 |
-| 17 | Billing retry / grace period | 卡刷不過 | `SubscriptionInfo.RenewalState.inBillingRetryPeriod` 未判斷，視為 free | 🔲 P3 |
+| 17 | Billing retry / grace period | 卡刷不過 Apple retry 中 | `RenewalState.inBillingRetryPeriod` 未判斷，目前一律降級為 free；Apple 建議 retry 期間繼續給，但反向風險（誤給 16/60 天）也在，等有案例再處理 | 🔲 P3 |
 | 18 | Paywall fetchProducts 失敗、hang、或回空陣列 | 網路斷 / Apple 慢回應 / 真機斷網 StoreKit 不 throw 直接回 [] | 10 秒 timeout race + 空陣列也視為失敗 → 顯示錯誤訊息 + 「重試」按鈕 | ✅ |
 | 19 | 購買中關閉 paywall sheet | `@Presents` dismiss | `isPurchasing` / `isRestoring` 時 X 鈕 disabled + `interactiveDismissDisabled(true)` + 顯示「交易處理中，請勿關閉」提示，直接擋住主動關閉；`observeTransactionUpdates` listener 為最後保險 | ✅ |
 | 20 | APPLE_ENVIRONMENT 設錯（送審前忘改）| Sandbox secret 配 Production 真實購買 | 所有 JWS 驗失敗 → 用戶付錢但沒 premium | ⚠️ 已記 pre-submission |
