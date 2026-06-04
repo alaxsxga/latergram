@@ -81,4 +81,20 @@ final class FriendsFeatureTests: XCTestCase {
             $0.banner = "邀請碼不可為空"
         }
     }
+
+    // MARK: - settingsButtonTapped — push SettingsFeature 到 path
+
+    func test_settingsButtonTapped_pushesSettingsToPath() async {
+        let me = UserProfile(id: UUID(), displayName: "Me")
+        var initialState = FriendsFeature.State()
+        initialState.me = me
+
+        let store = TestStore(initialState: initialState) {
+            FriendsFeature()
+        }
+
+        await store.send(.settingsButtonTapped) {
+            $0.path.append(SettingsFeature.State(me: me))
+        }
+    }
 }
