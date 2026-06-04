@@ -18,6 +18,7 @@ enum PurchaseError: LocalizedError, Equatable {
     case userCancelled
     case pending
     case notAuthenticated
+    case timeout
     case unknown
 
     var errorDescription: String? {
@@ -26,10 +27,17 @@ enum PurchaseError: LocalizedError, Equatable {
         case .userCancelled:     return nil
         case .pending:           return "購買待審核中"
         case .notAuthenticated:  return "請先登入"
+        case .timeout:           return "連線逾時，請稍後再試"
         case .unknown:           return "未知錯誤，請稍後再試"
         }
     }
 }
+
+// fetchProducts / verifyAndSyncEntitlement 都需要明確 client-side timeout：
+// - `Product.products(for:)` 在斷網真機可能等到 URLSession 預設 timeout（~60s）才放棄
+// - `syncPremium` 打 Edge Function，斷網時同樣可能 hang
+// 由 client 10 秒強制 race 失敗，讓 paywall 不會被任何一邊卡住而無法顯示 retry。
+private let purchaseNetworkTimeout: Duration = .seconds(10)
 
 // MARK: - Client
 
@@ -45,8 +53,22 @@ struct PurchaseClient: Sendable {
 extension PurchaseClient: DependencyKey {
     static let liveValue = PurchaseClient(
         fetchProducts: {
-            let products = try await Product.products(for: LatergramProduct.all)
-            return products.sorted { $0.price < $1.price }
+            try await withThrowingTaskGroup(of: [Product].self) { group in
+                group.addTask {
+                    try await Product.products(for: LatergramProduct.all)
+                }
+                group.addTask {
+                    try await Task.sleep(for: purchaseNetworkTimeout)
+                    throw PurchaseError.timeout
+                }
+                defer { group.cancelAll() }
+                guard let products = try await group.next() else {
+                    throw PurchaseError.timeout
+                }
+                // StoreKit 斷網真機可能不 throw 直接回 []，視為失敗讓 UI 顯示重試
+                guard !products.isEmpty else { throw PurchaseError.unknown }
+                return products.sorted { $0.price < $1.price }
+            }
         },
         purchase: { product in
             // C3: 帶 appAccountToken，讓 server 端 JWS 驗證能比對「交易確實屬於這位用戶」
@@ -74,23 +96,33 @@ extension PurchaseClient: DependencyKey {
         verifyAndSyncEntitlement: {
             // 掃完 currentEntitlements 後依結果決定 promote 或 demote
             // 訂閱自然過期不會觸發 Transaction.updates，必須靠這裡每次登入/foreground 比對
-            let session = try await supabase.auth.session
-            let userID = session.user.id
+            try await withThrowingTaskGroup(of: UserProfile?.self) { group in
+                group.addTask {
+                    let session = try await supabase.auth.session
+                    let userID = session.user.id
 
-            var validJWS: String? = nil
-            for await result in Transaction.currentEntitlements {
-                guard case .verified(let transaction) = result,
-                      LatergramProduct.all.contains(transaction.productID),
-                      transaction.revocationDate == nil,
-                      // 防禦：currentEntitlements 理論上只回有效訂閱，但 sandbox 可能殘留過期的
-                      (transaction.expirationDate.map { $0 > Date() } ?? true)
-                else { continue }
-                // C3: 若 transaction 帶 appAccountToken，必須等於當前 user；未帶（legacy）暫時通過
-                if let token = transaction.appAccountToken, token != userID { continue }
-                validJWS = result.jwsRepresentation
-                break
+                    var validJWS: String? = nil
+                    for await result in Transaction.currentEntitlements {
+                        guard case .verified(let transaction) = result,
+                              LatergramProduct.all.contains(transaction.productID),
+                              transaction.revocationDate == nil,
+                              // 防禦：currentEntitlements 理論上只回有效訂閱，但 sandbox 可能殘留過期的
+                              (transaction.expirationDate.map { $0 > Date() } ?? true)
+                        else { continue }
+                        // C3: 若 transaction 帶 appAccountToken，必須等於當前 user；未帶（legacy）暫時通過
+                        if let token = transaction.appAccountToken, token != userID { continue }
+                        validJWS = result.jwsRepresentation
+                        break
+                    }
+                    return try? await syncPremium(jws: validJWS)
+                }
+                group.addTask {
+                    try await Task.sleep(for: purchaseNetworkTimeout)
+                    throw PurchaseError.timeout
+                }
+                defer { group.cancelAll() }
+                return try await group.next() ?? nil
             }
-            return try? await syncPremium(jws: validJWS)
         },
         restorePurchases: {
             try await AppStore.sync()

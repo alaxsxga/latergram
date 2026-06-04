@@ -55,6 +55,22 @@ struct PaywallView: View {
                         } else if store.isLoading {
                             ProgressView()
                                 .frame(height: 50)
+                        } else if store.productsLoadFailed {
+                            VStack(spacing: 8) {
+                                L("paywall.load_failed")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                Button {
+                                    store.send(.retryLoadProductsTapped)
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "arrow.clockwise")
+                                        L("paywall.retry")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                            }
                         } else if let product = store.products.first {
                             Button {
                                 store.send(.purchaseTapped(product))

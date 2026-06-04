@@ -9,6 +9,7 @@ struct PaywallFeature {
     struct State: Equatable {
         var products: [Product] = []
         var isLoading = false
+        var productsLoadFailed = false
         var isPurchasing = false
         var isRestoring = false
         var isVerifyingEntitlement = false
@@ -22,10 +23,12 @@ struct PaywallFeature {
         case onAppear
         case dismissTapped
         case errorDismissed
+        case retryLoadProductsTapped
         case productsLoaded([Product])
         case purchaseTapped(Product)
         case restoreTapped
         case alreadyPremiumDismissTapped
+        case _productsLoadFailed
         case _purchaseResult(Result<UserProfile, Error>)
         case _restoreResult(Result<UserProfile?, Error>)
         case _verifyResult(UserProfile?)
@@ -49,10 +52,8 @@ struct PaywallFeature {
                 var effects: [Effect<Action>] = []
                 if state.products.isEmpty, !state.isLoading {
                     state.isLoading = true
-                    effects.append(.run { send in
-                        let products = (try? await purchaseClient.fetchProducts()) ?? []
-                        await send(.productsLoaded(products))
-                    })
+                    state.productsLoadFailed = false
+                    effects.append(loadProducts())
                 }
                 // B2: 開 paywall 先確認另台裝置是否已訂閱，避免引導重複購買
                 if !state.isVerifyingEntitlement, state.alreadyPremiumProfile == nil {
@@ -80,8 +81,20 @@ struct PaywallFeature {
 
             case .productsLoaded(let products):
                 state.isLoading = false
+                state.productsLoadFailed = false
                 state.products = products
                 return .none
+
+            case ._productsLoadFailed:
+                state.isLoading = false
+                state.productsLoadFailed = true
+                return .none
+
+            case .retryLoadProductsTapped:
+                guard !state.isLoading else { return .none }
+                state.isLoading = true
+                state.productsLoadFailed = false
+                return loadProducts()
 
             case .purchaseTapped(let product):
                 state.isPurchasing = true
@@ -132,6 +145,17 @@ struct PaywallFeature {
 
             case .delegate:
                 return .none
+            }
+        }
+    }
+
+    private func loadProducts() -> Effect<Action> {
+        .run { send in
+            do {
+                let products = try await purchaseClient.fetchProducts()
+                await send(.productsLoaded(products))
+            } catch {
+                await send(._productsLoadFailed)
             }
         }
     }

@@ -127,6 +127,7 @@
 | 降級寫 `profiles`（`is_premium=false`）`.eq('premium_source','iap')` | Edge Function 降級路徑 | 不誤撤 manual |
 | Self-heal：清理該 user 過期 manual | Edge Function 進入時跑 | 取代 pg_cron |
 | `message_limit` 推導 | trigger `profiles_sync_entitlements` | client 不必知道規則 |
+| `delay_seconds` 上限 enforce | trigger `enforce_delay_seconds_limit` | non-premium 送 `delay_seconds > max_delay_seconds` 直接 `delay_seconds_exceeds_free_limit` |
 | Manual premium 入帳 | 客服 SQL（service_role）| 三欄位（`is_premium / source / until`）一起改 |
 
 ### 3.3 Apple 端
@@ -350,6 +351,7 @@ UPDATE profiles
 | **expiresDate** server 端再驗一次 | Edge Function | client 帶過期 JWS 來 |
 | **降級 `.eq('premium_source','iap')`** | Edge Function | client 強推空 JWS 撤掉 manual 白名單 |
 | **Self-heal manual 過期** | Edge Function 進入時 | 過期 manual 殘留虛胖 |
+| **`delay_seconds` 上限 trigger** | migration 20260604 | client `state.isPremium` 快照誤判 / 離線 race / 被改 client 時，非 premium 仍能送出 >24h 訊息 |
 
 **未做**：OCSP 線上撤銷檢查。Deno 環境跑不動同類 Node API。Trade-off：上述多層防禦已足夠。
 
@@ -368,7 +370,10 @@ UPDATE profiles
 
 ### 6.2 Paywall 內
 
-- `onAppear`：fetchProducts
+- `onAppear`：同時跑 fetchProducts + verifyAndSyncEntitlement。兩者皆有 **10 秒 client-side timeout**（`purchaseNetworkTimeout`，race 用 `TaskGroup`），任一邊都不可 hang 住 UI。
+  - fetchProducts 失敗、timeout、**或回空陣列**（真機斷網 StoreKit 不 throw 直接回 []）→ `productsLoadFailed = true`，UI 顯示錯誤訊息與「重試」按鈕（`retryLoadProductsTapped` 重打）。空陣列在 client 內 throw `.unknown` 統一走失敗路徑。
+  - verifyAndSyncEntitlement timeout → 視為 nil entitlement（同既有「找不到有效訂閱」路徑），caller 用 `try? await` 自然消化。
+  - 為什麼需要 timeout：`Product.products(for:)` 與 Edge Function 在斷網真機都可能等到 URLSession 預設 ~60s 才 throw。verify 若 hang 還會擋住 retry UI 顯示（view 分支 isVerifyingEntitlement 在 productsLoadFailed 之前）。
 - `purchaseTapped`：呼叫 `purchaseClient.purchase` → 成功送 `delegate(.purchaseSucceeded(profile))` 給 parent
 - `restoreTapped`：呼叫 `restorePurchases` → 同上
 - Privacy Policy / Terms of Use / 訂閱條款揭露（App Review 要求）
@@ -717,7 +722,7 @@ UPDATE profiles
 | 15 | Family Sharing 家庭成員 | 該成員 token != 自己 | 被 C3 filter 過濾，**無法享 premium** | 🔲 未支援 |
 | 16 | Compose snapshot 不即時更新 | sheet 開著時付費 | 付費成功會 dismiss paywall，但 compose state 仍是舊的 | 🔲 影響低，P3 |
 | 17 | Billing retry / grace period | 卡刷不過 | `SubscriptionInfo.RenewalState.inBillingRetryPeriod` 未判斷，視為 free | 🔲 P3 |
-| 18 | Paywall fetchProducts 失敗 | 網路斷 | 卡載入中 | 🔲 P3 補 retry |
+| 18 | Paywall fetchProducts 失敗、hang、或回空陣列 | 網路斷 / Apple 慢回應 / 真機斷網 StoreKit 不 throw 直接回 [] | 10 秒 timeout race + 空陣列也視為失敗 → 顯示錯誤訊息 + 「重試」按鈕 | ✅ |
 | 19 | 購買中關閉 paywall sheet | `@Presents` dismiss | Effect cancelled；Apple transaction 仍跑 → listener 接收 | ✅ |
 | 20 | APPLE_ENVIRONMENT 設錯（送審前忘改）| Sandbox secret 配 Production 真實購買 | 所有 JWS 驗失敗 → 用戶付錢但沒 premium | ⚠️ 已記 pre-submission |
 | 21 | bundle / product ID 改名 | hardcode 在 Edge Function | 全部 400 mismatch | ⚠️ 改名需同步改 Edge Function 與 sandbox secret |
