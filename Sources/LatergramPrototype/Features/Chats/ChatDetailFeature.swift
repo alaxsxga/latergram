@@ -233,6 +233,8 @@ struct ChatDetailFeature {
                 state.compose = nil
                 if error.contains("friend_message_limit_exceeded") {
                     state.errorMessage = "已達上限，等訊息開啟後再傳"
+                } else if error.contains("delay_seconds_exceeds_free_limit") {
+                    state.errorMessage = "免費版倒數最長 24 小時，升級 Premium 可解鎖更長倒數"
                 } else {
                     state.errorMessage = error
                 }
