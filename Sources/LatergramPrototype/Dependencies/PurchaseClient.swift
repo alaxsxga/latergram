@@ -39,6 +39,105 @@ enum PurchaseError: LocalizedError, Equatable {
 // 由 client 10 秒強制 race 失敗，讓 paywall 不會被任何一邊卡住而無法顯示 retry。
 private let purchaseNetworkTimeout: Duration = .seconds(10)
 
+// MARK: - Decision models（pure，可 unit test）
+
+/// 從 StoreKit `Transaction` 抽出純資料的 snapshot，讓決策邏輯不需依賴無法 mock 的 StoreKit 型別。
+struct EntitlementSnapshot: Equatable, Sendable {
+    let productID: String
+    let revocationDate: Date?
+    let expirationDate: Date?
+    let appAccountToken: UUID?
+    let jws: String
+}
+
+enum ReconcileDecision: Equatable, Sendable {
+    case promote(jws: String)
+    case demote
+}
+
+enum TransactionUpdateDecision: Equatable, Sendable {
+    /// 不屬於當前 user 或未登入 — 不 sync 也不 finish（留給下次機會處理）
+    case skip
+    /// 過期或不認得的 productID — finish 清理但不打 server
+    case finishWithoutSync
+    /// 正常路徑 — 呼叫 sync(jws)，成功才 finish；jws=nil 代表 revoked 走降級
+    case sync(jws: String?)
+}
+
+// MARK: - Pure helpers
+
+/// 給定當前所有 entitlement 與 user，決定該 promote（帶 jws 升級）還是 demote。
+/// 過濾：非本 app product、已 revoke、已過期、appAccountToken 不屬於本 user。
+func reconcileEntitlement(
+    entitlements: [EntitlementSnapshot],
+    userID: UUID,
+    now: Date
+) -> ReconcileDecision {
+    for ent in entitlements {
+        guard LatergramProduct.all.contains(ent.productID),
+              ent.revocationDate == nil,
+              (ent.expirationDate.map { $0 > now } ?? true)
+        else { continue }
+        if let token = ent.appAccountToken, token != userID { continue }
+        return .promote(jws: ent.jws)
+    }
+    return .demote
+}
+
+/// 給定 `Transaction.updates` 收到的單筆 transaction 屬性，決定如何處理。
+/// - 不認得的 productID → finishWithoutSync（清掉）
+/// - 未登入 → skip（不 finish，等下次登入）
+/// - appAccountToken 不屬於本 user → skip（不 finish，留給對應用戶）
+/// - 過期 → finishWithoutSync（清掉，server 會擋 expired 400）
+/// - 否則 → sync(jws)；revoked 走 jws=nil 降級
+func transactionUpdateDecision(
+    productID: String,
+    revocationDate: Date?,
+    expirationDate: Date?,
+    appAccountToken: UUID?,
+    userID: UUID?,
+    now: Date,
+    jws: String
+) -> TransactionUpdateDecision {
+    guard LatergramProduct.all.contains(productID) else { return .finishWithoutSync }
+    guard let userID else { return .skip }
+    if let token = appAccountToken, token != userID { return .skip }
+    if let exp = expirationDate, exp < now { return .finishWithoutSync }
+    let isActive = revocationDate == nil
+    return .sync(jws: isActive ? jws : nil)
+}
+
+/// 先 sync 成功才 finish；sync 失敗會 throw 且不 finish — 讓 transaction 保留，下次 verify 再撿。
+/// 用於需要把 sync 錯誤往上拋的路徑（如 user 觸發的 purchase）。
+func syncThenFinish(
+    jws: String?,
+    sync: (_ jws: String?) async throws -> UserProfile,
+    finish: () async -> Void
+) async throws -> UserProfile {
+    let profile = try await sync(jws)
+    await finish()
+    return profile
+}
+
+/// 依 decision 執行 side effects，回傳「該 yield 到 stream 的 profile」。
+/// - `.skip` / `.finishWithoutSync` / sync 失敗：回 nil（不 yield）
+/// - 只有 sync 成功才 finish 然後 yield；sync throw 時不 finish（留給下次 verify 撿）
+func processTransactionUpdate(
+    decision: TransactionUpdateDecision,
+    sync: (_ jws: String?) async throws -> UserProfile,
+    finish: () async -> Void
+) async -> UserProfile? {
+    switch decision {
+    case .skip:
+        return nil
+    case .finishWithoutSync:
+        await finish()
+        return nil
+    case .sync(let jws):
+        return try? await syncThenFinish(jws: jws, sync: sync, finish: finish)
+    }
+}
+
 // MARK: - Client
 
 @DependencyClient
@@ -82,9 +181,11 @@ extension PurchaseClient: DependencyKey {
                     throw PurchaseError.verificationFailed
                 }
                 // 先 sync 成功再 finish；失敗時 transaction 留著，下次 verifyAndSyncEntitlement 會從 currentEntitlements 撿回重試
-                let profile = try await syncPremium(jws: verification.jwsRepresentation)
-                await transaction.finish()
-                return profile
+                return try await syncThenFinish(
+                    jws: verification.jwsRepresentation,
+                    sync: { try await syncPremium(jws: $0) },
+                    finish: { await transaction.finish() }
+                )
             case .userCancelled:
                 throw PurchaseError.userCancelled
             case .pending:
@@ -94,27 +195,31 @@ extension PurchaseClient: DependencyKey {
             }
         },
         verifyAndSyncEntitlement: {
-            // 掃完 currentEntitlements 後依結果決定 promote 或 demote
+            // 掃完 currentEntitlements 後交給 reconcileEntitlement 決定 promote 或 demote
             // 訂閱自然過期不會觸發 Transaction.updates，必須靠這裡每次登入/foreground 比對
             try await withThrowingTaskGroup(of: UserProfile?.self) { group in
                 group.addTask {
                     let session = try await supabase.auth.session
                     let userID = session.user.id
 
-                    var validJWS: String? = nil
+                    var snapshots: [EntitlementSnapshot] = []
                     for await result in Transaction.currentEntitlements {
-                        guard case .verified(let transaction) = result,
-                              LatergramProduct.all.contains(transaction.productID),
-                              transaction.revocationDate == nil,
-                              // 防禦：currentEntitlements 理論上只回有效訂閱，但 sandbox 可能殘留過期的
-                              (transaction.expirationDate.map { $0 > Date() } ?? true)
-                        else { continue }
-                        // C3: 若 transaction 帶 appAccountToken，必須等於當前 user；未帶（legacy）暫時通過
-                        if let token = transaction.appAccountToken, token != userID { continue }
-                        validJWS = result.jwsRepresentation
-                        break
+                        guard case .verified(let transaction) = result else { continue }
+                        snapshots.append(EntitlementSnapshot(
+                            productID: transaction.productID,
+                            revocationDate: transaction.revocationDate,
+                            expirationDate: transaction.expirationDate,
+                            appAccountToken: transaction.appAccountToken,
+                            jws: result.jwsRepresentation
+                        ))
                     }
-                    return try? await syncPremium(jws: validJWS)
+
+                    switch reconcileEntitlement(entitlements: snapshots, userID: userID, now: Date()) {
+                    case .promote(let jws):
+                        return try? await syncPremium(jws: jws)
+                    case .demote:
+                        return try? await syncPremium(jws: nil)
+                    }
                 }
                 group.addTask {
                     try await Task.sleep(for: purchaseNetworkTimeout)
@@ -128,54 +233,50 @@ extension PurchaseClient: DependencyKey {
             try await AppStore.sync()
             let session = try await supabase.auth.session
             let userID = session.user.id
+
+            var snapshots: [EntitlementSnapshot] = []
             for await result in Transaction.currentEntitlements {
-                guard case .verified(let transaction) = result,
-                      LatergramProduct.all.contains(transaction.productID),
-                      transaction.revocationDate == nil,
-                      (transaction.expirationDate.map { $0 > Date() } ?? true)
-                else { continue }
-                if let token = transaction.appAccountToken, token != userID { continue }
-                return try await syncPremium(jws: result.jwsRepresentation)
+                guard case .verified(let transaction) = result else { continue }
+                snapshots.append(EntitlementSnapshot(
+                    productID: transaction.productID,
+                    revocationDate: transaction.revocationDate,
+                    expirationDate: transaction.expirationDate,
+                    appAccountToken: transaction.appAccountToken,
+                    jws: result.jwsRepresentation
+                ))
             }
-            return nil
+
+            switch reconcileEntitlement(entitlements: snapshots, userID: userID, now: Date()) {
+            case .promote(let jws):
+                return try await syncPremium(jws: jws)
+            case .demote:
+                return nil
+            }
         },
         observeTransactionUpdates: {
             AsyncStream { continuation in
                 let task = Task {
                     for await result in Transaction.updates {
                         guard case .verified(let transaction) = result else { continue }
-                        guard LatergramProduct.all.contains(transaction.productID) else {
-                            await transaction.finish()
-                            continue
-                        }
-                        // 未登入時不處理也不 finish，留給下次登入後的 verifyAndSyncEntitlement 撿
-                        guard let session = try? await supabase.auth.session else { continue }
-                        let userID = session.user.id
-
-                        // C3: 若 transaction 帶 appAccountToken，必須等於當前 user
-                        if let token = transaction.appAccountToken, token != userID {
-                            // 不屬於這位用戶的 transaction，跳過也不 finish（留給對應用戶下次登入處理）
-                            continue
-                        }
-
-                        // 過期 transaction：finish() 後不打 server。server 會擋 400 expired 形成迴圈。
-                        // 正式版自然到期會走這條；sandbox 殭屍 transaction（殘留未 finish）也由此清除。
+                        let userID = (try? await supabase.auth.session)?.user.id
+                        let decision = transactionUpdateDecision(
+                            productID: transaction.productID,
+                            revocationDate: transaction.revocationDate,
+                            expirationDate: transaction.expirationDate,
+                            appAccountToken: transaction.appAccountToken,
+                            userID: userID,
+                            now: Date(),
+                            jws: result.jwsRepresentation
+                        )
                         // 真實 entitlement 狀態交給 verifyAndSyncEntitlement（foreground / 登入時呼叫）統一計算。
-                        if let exp = transaction.expirationDate, exp < Date() {
-                            await transaction.finish()
-                            continue
-                        }
-
-                        let isActive = transaction.revocationDate == nil
-                        let jws: String? = isActive ? result.jwsRepresentation : nil
-                        // 先 sync 成功再 finish；失敗時保留 transaction，下次 verifyAndSyncEntitlement 會撿回
-                        do {
-                            let profile = try await syncPremium(jws: jws)
-                            continuation.yield(profile)
-                            await transaction.finish()
-                        } catch {
-                            // 留待下次 verify 重試
-                        }
+                        // 過期 transaction 走 finishWithoutSync — server 會擋 400 expired 形成迴圈；
+                        // sandbox 殭屍 transaction（殘留未 finish）也由此清除。
+                        let profile = await processTransactionUpdate(
+                            decision: decision,
+                            sync: { try await syncPremium(jws: $0) },
+                            finish: { await transaction.finish() }
+                        )
+                        if let profile { continuation.yield(profile) }
                     }
                     continuation.finish()
                 }

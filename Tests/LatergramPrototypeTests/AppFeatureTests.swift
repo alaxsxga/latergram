@@ -1,6 +1,7 @@
 import XCTest
 import ComposableArchitecture
 import LatergramCore
+import SwiftUI
 @testable import LatergramPrototype
 
 @MainActor
@@ -217,6 +218,54 @@ final class AppFeatureTests: XCTestCase {
         }
 
         XCTAssertEqual(store.state.chats.latestMessages[friendID], received)
+    }
+
+    // MARK: - scenePhaseChanged
+
+    func test_scenePhaseActive_inMain_callsVerifyAndSyncEntitlement() async {
+        let meID = UUID()
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let refreshed = UserProfile(id: meID, displayName: "Me", isPremium: true)
+
+        let initialState = {
+            var s = AppFeature.State()
+            s.currentUser = UserProfile(id: meID, displayName: "Me", isPremium: false)
+            s.route = .main
+            return s
+        }()
+
+        let store = TestStore(initialState: initialState) {
+            AppFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+            $0.purchaseClient.verifyAndSyncEntitlement = { refreshed }
+            // scenePhase=.active 也會觸發 countdown / chats / friends 的 foregroundRefresh
+            $0.messageClient.fetchCountdownFeed = { _ in [] }
+            $0.friendClient.fetchFriends = { _ in [] }
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendsCacheClient.save = { _, _ in }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.scenePhaseChanged(.active))
+        await store.receive(\.profileRefreshed) {
+            $0.currentUser = refreshed
+        }
+    }
+
+    func test_scenePhaseActive_notInMain_doesNotVerify() async {
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        } withDependencies: {
+            $0.purchaseClient.verifyAndSyncEntitlement = {
+                XCTFail("不該在 route != .main 時呼叫 verify")
+                return nil
+            }
+        }
+        store.exhaustivity = .off
+
+        // 預設 route = .splash，不該觸發 verify
+        await store.send(.scenePhaseChanged(.active))
     }
 
     func test_messagesLoaded_nilCurrentUser_doesNotUpdateChats() async {
