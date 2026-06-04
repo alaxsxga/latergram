@@ -723,7 +723,7 @@ UPDATE profiles
 | 16 | Compose snapshot 不即時更新 | sheet 開著時付費 | 付費成功會 dismiss paywall，但 compose state 仍是舊的 | 🔲 影響低，P3 |
 | 17 | Billing retry / grace period | 卡刷不過 | `SubscriptionInfo.RenewalState.inBillingRetryPeriod` 未判斷，視為 free | 🔲 P3 |
 | 18 | Paywall fetchProducts 失敗、hang、或回空陣列 | 網路斷 / Apple 慢回應 / 真機斷網 StoreKit 不 throw 直接回 [] | 10 秒 timeout race + 空陣列也視為失敗 → 顯示錯誤訊息 + 「重試」按鈕 | ✅ |
-| 19 | 購買中關閉 paywall sheet | `@Presents` dismiss | Effect cancelled；Apple transaction 仍跑 → listener 接收 | ✅ |
+| 19 | 購買中關閉 paywall sheet | `@Presents` dismiss | `isPurchasing` / `isRestoring` 時 X 鈕 disabled + `interactiveDismissDisabled(true)` + 顯示「交易處理中，請勿關閉」提示，直接擋住主動關閉；`observeTransactionUpdates` listener 為最後保險 | ✅ |
 | 20 | APPLE_ENVIRONMENT 設錯（送審前忘改）| Sandbox secret 配 Production 真實購買 | 所有 JWS 驗失敗 → 用戶付錢但沒 premium | ⚠️ 已記 pre-submission |
 | 21 | bundle / product ID 改名 | hardcode 在 Edge Function | 全部 400 mismatch | ⚠️ 改名需同步改 Edge Function 與 sandbox secret |
 | 22 | `processed_transactions` 同 originalTransactionId 連續續訂 | 自動續訂多次 | 每筆 transactionId 不同，去重不命中 → 正常插入 | ✅ |
