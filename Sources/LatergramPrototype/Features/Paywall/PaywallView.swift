@@ -6,6 +6,13 @@ import SwiftUI
 struct PaywallView: View {
     @Bindable var store: StoreOf<PaywallFeature>
 
+    // 購買/還原進行中時鎖住 sheet，避免 user 在 Apple sheet 結束→backend verify 完成
+    // 之間的窗口關掉 paywall（@Presents dismiss 會 cancel effect，雖然 listener 仍會
+    // 補上 entitlement，但 user 體感是「失敗了」會重複點購買）
+    private var isProcessing: Bool {
+        store.isPurchasing || store.isRestoring
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Close button
@@ -16,8 +23,9 @@ struct PaywallView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(isProcessing ? Color.secondary.opacity(0.4) : .secondary)
                 }
+                .disabled(isProcessing)
                 .padding([.top, .trailing])
             }
 
@@ -108,6 +116,15 @@ struct PaywallView: View {
                             .tint(.secondary)
                             .disabled(store.isPurchasing || store.isRestoring || store.isVerifyingEntitlement)
                         }
+
+                        if isProcessing {
+                            L("paywall.processing")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 4)
+                        }
                     }
                     .padding(.horizontal)
 
@@ -139,6 +156,7 @@ struct PaywallView: View {
             }
         }
         .onAppear { store.send(.onAppear) }
+        .interactiveDismissDisabled(isProcessing)
         .alert(
             LS("common.error_title"),
             isPresented: Binding(

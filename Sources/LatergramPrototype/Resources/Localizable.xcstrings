@@ -2144,6 +2144,22 @@
           }
         }
       }
+    },
+    "paywall.processing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing — please keep this open until done."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交易處理中，請勿關閉此畫面。"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
