@@ -66,6 +66,14 @@ struct ComposeView: View {
                 .padding(.bottom, 40)
             }
             .scrollDismissesKeyboard(.interactively)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil, from: nil, for: nil
+                    )
+                }
+            )
             .pageBackground()
             .navigationTitle(LS("compose.nav_title"))
             .navigationBarTitleDisplayMode(.inline)
@@ -101,7 +109,7 @@ struct ComposeView: View {
                 onDismiss: { store.send(.paywallHintDismissed) },
                 onUpgrade: { store.send(.paywallHintUpgradeTapped) }
             )
-            .presentationDetents([.height(280)])
+            .presentationDetents([.height(310)])
             .presentationDragIndicator(.visible)
         }
         .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
@@ -618,7 +626,7 @@ private struct PaywallHintSheet: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 22) {
                 Button {
                     onUpgrade()
                 } label: {
