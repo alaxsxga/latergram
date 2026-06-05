@@ -364,8 +364,8 @@ UPDATE profiles
 | 位置 | 條件 | 程式 |
 |---|---|---|
 | Compose（拉延遲超過 1 天）| `delaySeconds > maxDelaySeconds`（free=86400）| `ComposeFeature` → `showPaywallHint` → `paywallHintUpgradeTapped` |
-| Countdown inbox（達 message 上限再寄）| `messageLimit` 已滿 | `CountdownInboxFeature` 內 `paywall` `@Presents` |
-| ChatDetail（同上）| 同上 | `ChatDetailFeature` 內 `paywall` `@Presents` |
+| Countdown inbox（達 message 上限再寄）| `messageLimit` 已滿 | 先彈 `LimitInfoSheet`；**free 用戶**點「升級以解鎖」進 `CountdownInboxFeature` 的 `paywall` `@Presents`；**premium 用戶**該按鈕隱藏，只顯示說明 |
+| ChatDetail（同上）| 同上 | 同上，走 `ChatDetailFeature` 的 `paywall` `@Presents` |
 | Settings | 已是 premium 顯示「管理訂閱」連結 | `SettingsView`（用 `Link` 不是 `.manageSubscriptionsSheet`，避免 NavigationStack crash） |
 
 ### 6.2 Paywall 內
