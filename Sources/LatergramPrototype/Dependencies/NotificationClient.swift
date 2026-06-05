@@ -85,8 +85,8 @@ extension NotificationClient: DependencyKey {
                 // Schedule fresh ones
                 for message in messages {
                     let content = UNMutableNotificationContent()
-                    content.title = "來自 \(message.senderName) 的訊息可以開啟了"
-                    content.body = "點擊查看"          // 不含未 reveal 的內文
+                    content.title = "\(message.senderName) 的訊息解鎖了，去看看吧"
+                    content.body = ""                  // 不含未 reveal 的內文
                     content.sound = .default
                     content.userInfo = [
                         "messageID": message.id.uuidString,
