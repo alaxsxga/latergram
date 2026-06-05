@@ -51,6 +51,7 @@ struct SettingsView: View {
         }
         .navigationTitle(LS("settings.title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .alert(L("friends.logout_confirm_title"), isPresented: Binding(
             get: { store.isConfirmingLogout },
             set: { if !$0 { store.send(.logoutCancelled) } }
