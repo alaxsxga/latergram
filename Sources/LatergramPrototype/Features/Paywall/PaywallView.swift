@@ -29,11 +29,12 @@ struct PaywallView: View {
                 .padding([.top, .trailing])
             }
 
+            GeometryReader { proxy in
             ScrollView {
                 VStack(spacing: 24) {
                     // Icon + title
                     VStack(spacing: 12) {
-                        Image(systemName: "hourglass.badge.plus")
+                        Image(systemName: "crown.fill")
                             .font(.system(size: 52))
                             .foregroundStyle(.primary)
 
@@ -45,6 +46,7 @@ struct PaywallView: View {
                     // Feature list
                     VStack(alignment: .leading, spacing: 10) {
                         featureRow(icon: "clock.badge.checkmark", text: LS("paywall.feature_extended_delay"))
+                        featureRow(icon: "bubble.left.and.bubble.right.fill", text: LS("paywall.feature_per_friend_limit"))
                     }
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -102,6 +104,21 @@ struct PaywallView: View {
                                 .frame(height: 50)
                         }
 
+                        if isProcessing {
+                            L("paywall.processing")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 4)
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    Spacer(minLength: 40)
+
+                    // Restore + auto-renewal disclosure + legal links (required by App Review)
+                    VStack(spacing: 12) {
                         if store.alreadyPremiumProfile == nil {
                             Button {
                                 store.send(.restoreTapped)
@@ -117,19 +134,6 @@ struct PaywallView: View {
                             .disabled(store.isPurchasing || store.isRestoring || store.isVerifyingEntitlement)
                         }
 
-                        if isProcessing {
-                            L("paywall.processing")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 4)
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // Auto-renewal disclosure + legal links (required by App Review)
-                    VStack(spacing: 8) {
                         L("paywall.terms_disclosure")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -150,9 +154,10 @@ struct PaywallView: View {
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.top, 8)
                 }
-                .padding(.bottom, 32)
+                .padding(.bottom, 24)
+                .frame(minHeight: proxy.size.height, alignment: .top)
+            }
             }
         }
         .onAppear { store.send(.onAppear) }

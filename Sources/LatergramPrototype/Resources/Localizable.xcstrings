@@ -1857,6 +1857,22 @@
         }
       }
     },
+    "paywall.feature_per_friend_limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule up to 3 pending messages per friend"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "對同一位好友最多同時排程 3 則延遲訊息"
+          }
+        }
+      }
+    },
     "paywall.subscribe": {
       "localizations": {
         "en": {
