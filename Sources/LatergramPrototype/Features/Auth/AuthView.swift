@@ -92,8 +92,11 @@ struct AuthView: View {
             Button {
                 store.send(.modeSwitchTapped)
             } label: {
-                L(store.mode == .login ? "auth.switch_to_signup" : "auth.switch_to_login")
+                L(switchPrefixKey)
                     .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.6))
+                + L(switchActionKey)
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.brand)
             }
 
@@ -104,6 +107,14 @@ struct AuthView: View {
             #endif
         }
         .padding(.horizontal, 32)
+    }
+
+    private var switchPrefixKey: LocalizedStringKey {
+        store.mode == .login ? "auth.switch_to_signup.prefix" : "auth.switch_to_login.prefix"
+    }
+
+    private var switchActionKey: LocalizedStringKey {
+        store.mode == .login ? "auth.switch_to_signup.action" : "auth.switch_to_login.action"
     }
 
     // MARK: - Awaiting Confirmation
