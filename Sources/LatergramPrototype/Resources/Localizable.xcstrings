@@ -310,13 +310,29 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The previous message must be opened before sending another to this friend"
+            "value": "You can send another to this friend once the countdown ends"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "前一則訊息開啟後才能再傳給同一位好友"
+            "value": "倒數結束後才能再傳給同一位好友"
+          }
+        }
+      }
+    },
+    "chat_detail.limit_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit Reached"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已達上限"
           }
         }
       }

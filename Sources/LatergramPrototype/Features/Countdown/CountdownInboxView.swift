@@ -175,6 +175,7 @@ struct CountdownInboxView: View {
                 LimitInfoSheet(
                     unlockAt: store.limitInfoUnlockAt,
                     now: store.now,
+                    isPremium: store.isPremium,
                     onDismiss: { store.send(.limitInfoDismissed) },
                     onUpgrade: { store.send(.upgradeTapped) }
                 )

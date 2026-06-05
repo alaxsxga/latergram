@@ -5,6 +5,7 @@ import SwiftUI
 struct LimitInfoSheet: View {
     let unlockAt: Date?
     let now: Date
+    let isPremium: Bool
     let onDismiss: () -> Void
     let onUpgrade: () -> Void
 
@@ -16,6 +17,8 @@ struct LimitInfoSheet: View {
                 .padding(.top, 8)
 
             VStack(spacing: 6) {
+                L("chat_detail.limit_title")
+                    .font(.headline)
                 if let unlockAt {
                     Text(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(now)))
                         .font(.title.monospacedDigit().bold())
@@ -27,13 +30,15 @@ struct LimitInfoSheet: View {
             }
 
             VStack(spacing: 12) {
-                Button {
-                    onUpgrade()
-                } label: {
-                    Label(LS("chat_detail.unlock_more"), systemImage: "star.fill")
-                        .frame(maxWidth: .infinity)
+                if !isPremium {
+                    Button {
+                        onUpgrade()
+                    } label: {
+                        Label(LS("chat_detail.unlock_more"), systemImage: "star.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
 
                 Button(LS("chat_detail.got_it"), action: onDismiss)
                     .buttonStyle(.bordered)

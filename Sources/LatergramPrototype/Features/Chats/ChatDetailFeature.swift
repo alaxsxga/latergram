@@ -19,6 +19,7 @@ struct ChatDetailFeature {
         var currentUserID: UUID = UUID()
         var senderName: String = ""
         var showLimitInfo: Bool = false
+        var isPremium: Bool = false
 
         var scheduledCountToFriend: Int {
             messages.filter {
@@ -260,6 +261,7 @@ struct ChatDetailFeature {
     }
 
     private func refreshIsAtSendLimit(_ state: inout State) {
+        state.isPremium = currentUserClient.isPremium()
         state.isAtSendLimit = state.scheduledCountToFriend >= currentUserClient.messageLimit()
     }
 

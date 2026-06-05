@@ -23,6 +23,7 @@ struct CountdownInboxFeature {
         var showRecipientPicker: Bool = false
         var showLimitInfo: Bool = false
         var limitInfoUnlockAt: Date? = nil
+        var isPremium: Bool = false
         @Presents var compose: ComposeFeature.State?
         @Presents var paywall: PaywallFeature.State?
     }
@@ -247,6 +248,7 @@ struct CountdownInboxFeature {
                 }
                 if scheduled.count >= currentUserClient.messageLimit() {
                     state.limitInfoUnlockAt = scheduled.map(\.unlockAt).min()
+                    state.isPremium = currentUserClient.isPremium()
                     state.showLimitInfo = true
                     return .none
                 }
