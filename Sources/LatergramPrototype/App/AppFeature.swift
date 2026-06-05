@@ -223,6 +223,9 @@ struct AppFeature {
             case .chats(.path(.element(_, .delegate(.purchaseSucceeded(let profile))))):
                 return .send(.profileRefreshed(profile))
 
+            case .friends(.path(.element(_, .delegate(.purchaseSucceeded(let profile))))):
+                return .send(.profileRefreshed(profile))
+
             case .countdown(.delegate(.purchaseSucceeded(let profile))):
                 return .send(.profileRefreshed(profile))
 

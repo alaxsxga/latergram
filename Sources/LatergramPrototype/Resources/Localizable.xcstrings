@@ -2145,6 +2145,22 @@
         }
       }
     },
+    "settings.upgrade_to_premium": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to Premium"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級 Premium"
+          }
+        }
+      }
+    },
     "settings.premium_status": {
       "localizations": {
         "en": {

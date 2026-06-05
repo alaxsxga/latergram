@@ -3,7 +3,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct SettingsView: View {
-    let store: StoreOf<SettingsFeature>
+    @Bindable var store: StoreOf<SettingsFeature>
 
     private let manageSubscriptionsURL = URL(string: "https://apps.apple.com/account/subscriptions")!
 
@@ -24,10 +24,16 @@ struct SettingsView: View {
                 .padding(.vertical, 4)
             }
 
-            if store.me.isPremium {
-                Section(LS("settings.section_subscription")) {
+            Section(LS("settings.section_subscription")) {
+                if store.me.isPremium {
                     Link(destination: manageSubscriptionsURL) {
                         Label(LS("settings.manage_subscription"), systemImage: "creditcard")
+                    }
+                } else {
+                    Button {
+                        store.send(.upgradeButtonTapped)
+                    } label: {
+                        Label(LS("settings.upgrade_to_premium"), systemImage: "crown.fill")
                     }
                 }
             }
@@ -58,6 +64,9 @@ struct SettingsView: View {
         )) {
             Button(LS("friends.logout_button"), role: .destructive) { store.send(.logoutTapped) }
             Button(LS("common.cancel"), role: .cancel) {}
+        }
+        .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
+            PaywallView(store: $0)
         }
     }
 }

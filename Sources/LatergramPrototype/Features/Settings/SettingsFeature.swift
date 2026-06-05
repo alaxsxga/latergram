@@ -8,6 +8,7 @@ struct SettingsFeature {
     struct State: Equatable {
         var me: UserProfile
         var isConfirmingLogout = false
+        @Presents var paywall: PaywallFeature.State?
     }
 
     enum Action {
@@ -15,11 +16,14 @@ struct SettingsFeature {
         case logoutCancelled
         case logoutTapped
         case logoutSucceeded
+        case upgradeButtonTapped
+        case paywall(PresentationAction<PaywallFeature.Action>)
         case delegate(Delegate)
 
         @CasePathable
         enum Delegate: Equatable {
             case logoutSucceeded
+            case purchaseSucceeded(UserProfile)
         }
     }
 
@@ -52,9 +56,24 @@ struct SettingsFeature {
             case .logoutSucceeded:
                 return .send(.delegate(.logoutSucceeded))
 
+            case .upgradeButtonTapped:
+                state.paywall = PaywallFeature.State()
+                return .none
+
+            case .paywall(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                state.me = profile
+                state.paywall = nil
+                return .send(.delegate(.purchaseSucceeded(profile)))
+
+            case .paywall:
+                return .none
+
             case .delegate:
                 return .none
             }
+        }
+        .ifLet(\.$paywall, action: \.paywall) {
+            PaywallFeature()
         }
     }
 }
