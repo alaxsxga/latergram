@@ -109,7 +109,8 @@ struct CountdownInboxFeature {
                         state.messages[id: id]?.status = .readyToReveal
                     }
                 }
-                let toSchedule = policy.selectMessagesForScheduling(Array(state.messages), now: now)
+                let incoming = state.messages.filter { $0.receiverID == state.currentUserID }
+                let toSchedule = policy.selectMessagesForScheduling(Array(incoming), now: now)
                 return .merge(
                     loadMessages(userID: state.currentUserID),
                     .run { [toSchedule] _ in
@@ -185,8 +186,15 @@ struct CountdownInboxFeature {
                 }
                 state.messages = IdentifiedArray(uniqueElements: transitioned)
                 state.lastFetchedAt = now
+                state.lastNotificationRebuildAt = now
                 applySort(to: &state, now: now)
-                return .none
+                let policy = NotificationRebuildPolicy()
+                let currentUserID = state.currentUserID
+                let incoming = transitioned.filter { $0.receiverID == currentUserID }
+                let toSchedule = policy.selectMessagesForScheduling(incoming, now: now)
+                return .run { [toSchedule] _ in
+                    await notificationClient.scheduleMessages(toSchedule)
+                }
 
             case .loadFailed(let error):
                 state.isLoading = false
