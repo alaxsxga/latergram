@@ -120,7 +120,12 @@ struct ComposeView: View {
     // MARK: - Helpers
 
     private var isTimingValid: Bool {
-        store.unlockAt > now.addingTimeInterval(59)
+        switch store.timingMode {
+        case .countdown:
+            return store.delaySeconds >= 60
+        case .unlockDate:
+            return store.unlockAt > now.addingTimeInterval(59)
+        }
     }
 
     private var canSend: Bool {
