@@ -28,7 +28,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請確認 Email"
+            "value": "請確認電子郵件"
           }
         }
       }
@@ -60,7 +60,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Email"
+            "value": "電子郵件"
           }
         }
       }
@@ -268,7 +268,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "建立訊息"
+            "value": "新訊息"
           }
         }
       }
@@ -748,7 +748,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "時"
+            "value": "小時"
           }
         }
       }
@@ -1020,7 +1020,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "選擇傳送對象"
+            "value": "選擇收件人"
           }
         }
       }
@@ -1356,7 +1356,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "讓失效"
+            "value": "撤銷"
           }
         }
       }
@@ -1452,7 +1452,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d NEW"
+            "value": "%d 則新訊息"
           }
         }
       }
@@ -1564,7 +1564,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "FROM"
+            "value": "來自"
           }
         }
       }
@@ -1590,13 +1590,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ask a friend to send you a delayed message"
+            "value": "No new messages"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請請好友傳送一則倒數訊息給你"
+            "value": "目前沒有新訊息"
           }
         }
       }
@@ -1660,7 +1660,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已讀"
+            "value": "已開啟"
           }
         }
       }
@@ -1804,7 +1804,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "送出"
+            "value": "已送出"
           }
         }
       }
@@ -1814,13 +1814,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chats"
+            "value": "History"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "往來"
+            "value": "訊息紀錄"
           }
         }
       }
@@ -1980,7 +1980,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "您已是 Premium 會員"
+            "value": "你已是 Premium 會員"
           }
         }
       }
@@ -2113,6 +2113,54 @@
         }
       }
     },
+    "settings.section_general": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
+        }
+      }
+    },
+    "settings.language": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "語言"
+          }
+        }
+      }
+    },
+    "settings.language_footer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to open system Settings, where you can choose the app's display language."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點此前往系統「設定」變更顯示語言。"
+          }
+        }
+      }
+    },
     "settings.title": {
       "localizations": {
         "en": {
@@ -2140,7 +2188,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "帳號"
+            "value": "帳戶"
           }
         }
       }

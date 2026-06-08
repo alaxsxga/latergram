@@ -38,6 +38,16 @@ struct SettingsView: View {
                 }
             }
 
+            Section {
+                Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
+                    Label(LS("settings.language"), systemImage: "globe")
+                }
+            } header: {
+                Text(LS("settings.section_general"))
+            } footer: {
+                Text(LS("settings.language_footer"))
+            }
+
             Section(LS("settings.section_about")) {
                 Link(destination: LegalURLs.privacyPolicy) {
                     Label(LS("legal.privacy_policy"), systemImage: "hand.raised")
