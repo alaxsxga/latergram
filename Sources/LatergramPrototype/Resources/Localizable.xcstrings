@@ -9,6 +9,12 @@
             "value": "A verification email has been sent to %@\nClick the link to return to this page"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認メールを %@ に送信しました\nメール内のリンクをタップするとこの画面に戻ります"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -23,6 +29,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Verify Your Email"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレスを確認"
           }
         },
         "zh-Hant": {
@@ -41,6 +53,12 @@
             "value": "Display Name"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示名"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -55,6 +73,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Email"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレス"
           }
         },
         "zh-Hant": {
@@ -73,6 +97,12 @@
             "value": "Sign In"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -87,6 +117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Next"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次へ"
           }
         },
         "zh-Hant": {
@@ -105,6 +141,12 @@
             "value": "Confirm Password"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード（確認）"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -119,6 +161,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Password"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード"
           }
         },
         "zh-Hant": {
@@ -137,6 +185,12 @@
             "value": "← Back"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "← 戻る"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -151,6 +205,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Set Your Name"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前を設定"
           }
         },
         "zh-Hant": {
@@ -169,6 +229,12 @@
             "value": "Already have an account? "
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すでにアカウントをお持ちの方は "
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -183,6 +249,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sign In"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン"
           }
         },
         "zh-Hant": {
@@ -201,6 +273,12 @@
             "value": "Don't have an account? "
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントをお持ちでない方は "
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -215,6 +293,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sign Up"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新規登録"
           }
         },
         "zh-Hant": {
@@ -233,6 +317,12 @@
             "value": "Not Yet Opened"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未開封"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -247,6 +337,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unread"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未読"
           }
         },
         "zh-Hant": {
@@ -265,6 +361,12 @@
             "value": "New Message"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいメッセージ"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -279,6 +381,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete Message"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このメッセージを削除"
           }
         },
         "zh-Hant": {
@@ -297,6 +405,12 @@
             "value": "Send your first delayed message"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初のタイマーメッセージを送ってみましょう"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -311,6 +425,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Messages Yet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージはまだありません"
           }
         },
         "zh-Hant": {
@@ -329,6 +449,12 @@
             "value": "Got it"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -343,6 +469,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "You can send another to this friend once the countdown ends"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カウントダウンが終わると、同じ友だちにもう一通送れます"
           }
         },
         "zh-Hant": {
@@ -361,6 +493,12 @@
             "value": "Limit Reached"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上限に達しました"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -375,6 +513,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Upgrade to Unlock"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップグレードして解除"
           }
         },
         "zh-Hant": {
@@ -393,6 +537,12 @@
             "value": "Send or receive a message from the Inbox tab to get started"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受信箱からメッセージを送受信すると、ここに表示されます"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -407,6 +557,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Conversations"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トーク履歴はありません"
           }
         },
         "zh-Hant": {
@@ -425,6 +581,12 @@
             "value": "New message counting down"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいメッセージをカウントダウン中"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -439,6 +601,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "New message ready to open"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開封できる新着メッセージ"
           }
         },
         "zh-Hant": {
@@ -457,6 +625,12 @@
             "value": "Back"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "戻る"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -471,6 +645,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cancel"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
           }
         },
         "zh-Hant": {
@@ -489,6 +669,12 @@
             "value": "Delete"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -503,6 +689,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Done"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
           }
         },
         "zh-Hant": {
@@ -521,6 +713,12 @@
             "value": "Error"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エラー"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -532,6 +730,12 @@
     "common.ok": {
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "OK"
@@ -553,6 +757,12 @@
             "value": "Days"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日数"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -567,6 +777,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "H"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時"
           }
         },
         "zh-Hant": {
@@ -585,6 +801,12 @@
             "value": "H · M"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時・分"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -599,6 +821,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Message"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージ"
           }
         },
         "zh-Hant": {
@@ -617,6 +845,12 @@
             "value": "Preview"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレビュー"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -631,6 +865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recipient"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宛先"
           }
         },
         "zh-Hant": {
@@ -649,6 +889,12 @@
             "value": "Style"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スタイル"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -663,6 +909,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Free plan supports delays up to 24 hours. Upgrade to set up to 7 days."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料プランの上限は24時間です。アップグレードすると最長7日まで設定できます。"
           }
         },
         "zh-Hant": {
@@ -681,6 +933,12 @@
             "value": "Up to 7 days"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最長7日"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -695,6 +953,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "M"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
           }
         },
         "zh-Hant": {
@@ -713,6 +977,12 @@
             "value": "New Message"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいメッセージ"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -727,6 +997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hour"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
           }
         },
         "zh-Hant": {
@@ -745,6 +1021,12 @@
             "value": "Hours"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -759,6 +1041,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Minute"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
           }
         },
         "zh-Hant": {
@@ -777,6 +1065,12 @@
             "value": "Minutes"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -791,6 +1085,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "to %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ さんへ"
           }
         },
         "zh-Hant": {
@@ -809,6 +1109,12 @@
             "value": "Send"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -823,6 +1129,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "⏳ Opens in %@ · %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ %@ 後に開封 ・ %@"
           }
         },
         "zh-Hant": {
@@ -841,6 +1153,12 @@
             "value": "🔓 Unlocks on %@ · in %d days"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔓 %@ に解除 ・ あと %d 日"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -855,6 +1173,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "⏳ Countdown"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏳ カウントダウン"
           }
         },
         "zh-Hant": {
@@ -873,6 +1197,12 @@
             "value": "📅 Specific Date"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📅 日時を指定"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -887,6 +1217,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Upgrade to Unlock"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップグレードして解除"
           }
         },
         "zh-Hant": {
@@ -905,6 +1241,12 @@
             "value": "UNLOCK COUNTDOWN"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解除までのカウントダウン"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -919,6 +1261,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unlock Time"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解除日時"
           }
         },
         "zh-Hant": {
@@ -937,6 +1285,12 @@
             "value": "%d days"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 日"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -951,6 +1305,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d hr"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 時間"
           }
         },
         "zh-Hant": {
@@ -969,6 +1329,12 @@
             "value": "%d min"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 分"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -983,6 +1349,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "0 min"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 分"
           }
         },
         "zh-Hant": {
@@ -1001,6 +1373,12 @@
             "value": "Select Recipient"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宛先を選択"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1015,6 +1393,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Friends Yet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちがいません"
           }
         },
         "zh-Hant": {
@@ -1033,6 +1417,12 @@
             "value": "Add friends first to send a message."
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージを送るには、まず友だちを追加してください。"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1047,6 +1437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Could Not Add Friend"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを追加できませんでした"
           }
         },
         "zh-Hant": {
@@ -1065,6 +1461,12 @@
             "value": "Already Friends"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すでに友だちです"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1079,6 +1481,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d friends"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だち %d 人"
           }
         },
         "zh-Hant": {
@@ -1097,6 +1505,12 @@
             "value": "Delete %@"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ を削除"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1111,6 +1525,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete %@? This action cannot be undone."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ を削除しますか？この操作は取り消せません。"
           }
         },
         "zh-Hant": {
@@ -1129,6 +1549,12 @@
             "value": "Delete Friend"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを削除"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1143,6 +1569,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete Friend"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを削除"
           }
         },
         "zh-Hant": {
@@ -1161,6 +1593,12 @@
             "value": "Tap the top-right button to invite friends"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右上のボタンから友だちを招待しましょう"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1175,6 +1613,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Friends Yet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちがいません"
           }
         },
         "zh-Hant": {
@@ -1193,6 +1637,12 @@
             "value": "Invite code %@ has been entered. Add this person as a friend now?"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待コード %@ を入力しました。今すぐ友だちに追加しますか？"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1207,6 +1657,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Later"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで"
           }
         },
         "zh-Hant": {
@@ -1225,6 +1681,12 @@
             "value": "Invite Code Pasted"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待コードを貼り付けました"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1239,6 +1701,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send Invite"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待を送信"
           }
         },
         "zh-Hant": {
@@ -1257,6 +1725,12 @@
             "value": "Add"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1271,6 +1745,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add Friend"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを追加"
           }
         },
         "zh-Hant": {
@@ -1289,6 +1769,12 @@
             "value": "Generate Invite Code"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待コードを発行"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1303,6 +1789,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "My Invite Code"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたの招待コード"
           }
         },
         "zh-Hant": {
@@ -1321,6 +1813,12 @@
             "value": "Paste a friend's invite code"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちの招待コードを貼り付け"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1335,6 +1833,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Revoke"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取り消す"
           }
         },
         "zh-Hant": {
@@ -1353,6 +1857,12 @@
             "value": "Share Invite Code"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待コードを共有"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1367,6 +1877,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Invite Friends"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを招待"
           }
         },
         "zh-Hant": {
@@ -1385,6 +1901,12 @@
             "value": "Sign Out"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログアウト"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1399,6 +1921,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sign Out?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログアウトしますか？"
           }
         },
         "zh-Hant": {
@@ -1417,6 +1945,12 @@
             "value": "Friends"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だち"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1431,6 +1965,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d NEW"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新着 %d 件"
           }
         },
         "zh-Hant": {
@@ -1449,6 +1989,12 @@
             "value": "Hide"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隠す"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1463,6 +2009,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opened on %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ に開封"
           }
         },
         "zh-Hant": {
@@ -1481,6 +2033,12 @@
             "value": "Sent on %@"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ に送信"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1495,6 +2053,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示"
           }
         },
         "zh-Hant": {
@@ -1513,6 +2077,12 @@
             "value": "Total %@"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計 %@"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1527,6 +2097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "UNLOCK COUNTDOWN"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解除までのカウントダウン"
           }
         },
         "zh-Hant": {
@@ -1545,6 +2121,12 @@
             "value": "FROM"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "差出人"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1559,6 +2141,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unlocked on %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ に解除"
           }
         },
         "zh-Hant": {
@@ -1577,6 +2165,12 @@
             "value": "No new messages"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新着メッセージはありません"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1591,6 +2185,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "No Received Messages"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受信メッセージはありません"
           }
         },
         "zh-Hant": {
@@ -1609,6 +2209,12 @@
             "value": "Counting Down"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カウントダウン中"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1623,6 +2229,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ready to Open"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開封できる"
           }
         },
         "zh-Hant": {
@@ -1641,6 +2253,12 @@
             "value": "Opened"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開封済み"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1655,6 +2273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opened"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開封済み"
           }
         },
         "zh-Hant": {
@@ -1673,6 +2297,12 @@
             "value": "Unopened"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未開封"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1687,6 +2317,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send a delayed message to a friend"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちにタイマー付きメッセージを送ってみましょう"
           }
         },
         "zh-Hant": {
@@ -1705,6 +2341,12 @@
             "value": "No Sent Messages"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信メッセージはありません"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1719,6 +2361,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "They opened it on %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相手が %@ に開封"
           }
         },
         "zh-Hant": {
@@ -1737,6 +2385,12 @@
             "value": "to %@"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ さんへ"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1751,6 +2405,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Countdown ended, waiting for them to open"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カウントダウンは終わり、開封を待っています"
           }
         },
         "zh-Hant": {
@@ -1769,6 +2429,12 @@
             "value": "Received"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受信"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1783,6 +2449,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信"
           }
         },
         "zh-Hant": {
@@ -1801,6 +2473,12 @@
             "value": "History"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "履歴"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1815,6 +2493,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Friends"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だち"
           }
         },
         "zh-Hant": {
@@ -1833,6 +2517,12 @@
             "value": "Inbox"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受信箱"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1844,6 +2534,12 @@
     "paywall.title": {
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latergram Premium"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "Latergram Premium"
@@ -1865,6 +2561,12 @@
             "value": "Send delayed messages up to 7 days"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最長7日後に届くタイマーメッセージを送信"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1879,6 +2581,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schedule up to 3 pending messages per friend"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同じ友だちに最大3件まで同時に予約"
           }
         },
         "zh-Hant": {
@@ -1897,6 +2605,12 @@
             "value": "Subscribe"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登録する"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1911,6 +2625,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restore Purchases"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を復元"
           }
         },
         "zh-Hant": {
@@ -1929,6 +2649,12 @@
             "value": "Loading…"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込み中…"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1943,6 +2669,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Checking subscription status…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプションを確認しています…"
           }
         },
         "zh-Hant": {
@@ -1961,6 +2693,12 @@
             "value": "You're already a Premium member"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すでにPremium会員です"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -1975,6 +2713,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Manage Subscription"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプションを管理"
           }
         },
         "zh-Hant": {
@@ -1993,6 +2737,12 @@
             "value": "Done"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2007,6 +2757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Subscription auto-renews monthly unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple ID. Manage or cancel anytime in your App Store account settings."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプションは月単位で自動更新されます。期間終了の24時間前までにキャンセルしない場合、自動で更新され、Apple IDに請求されます。App Storeのアカウント設定からいつでも管理・解約できます。"
           }
         },
         "zh-Hant": {
@@ -2025,6 +2781,12 @@
             "value": "Couldn't load subscription details. Check your connection and try again."
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプション情報を読み込めませんでした。通信状況をご確認のうえ、もう一度お試しください。"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2039,6 +2801,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retry"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試行"
           }
         },
         "zh-Hant": {
@@ -2057,6 +2825,12 @@
             "value": "Privacy Policy"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーポリシー"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2071,6 +2845,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terms of Use"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用規約"
           }
         },
         "zh-Hant": {
@@ -2089,6 +2869,12 @@
             "value": "About"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "情報"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2103,6 +2889,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "General"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
           }
         },
         "zh-Hant": {
@@ -2121,6 +2913,12 @@
             "value": "Language"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2135,6 +2933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tap to open system Settings, where you can choose the app's display language."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップして「設定」アプリを開き、表示言語を変更できます。"
           }
         },
         "zh-Hant": {
@@ -2153,6 +2957,12 @@
             "value": "Settings"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2167,6 +2977,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Account"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウント"
           }
         },
         "zh-Hant": {
@@ -2185,6 +3001,12 @@
             "value": "Subscription"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプション"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2199,6 +3021,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Manage Subscription"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サブスクリプションを管理"
           }
         },
         "zh-Hant": {
@@ -2217,6 +3045,12 @@
             "value": "Upgrade to Premium"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premiumにアップグレード"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2228,6 +3062,12 @@
     "settings.premium_status": {
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "Premium"
@@ -2249,6 +3089,12 @@
             "value": "Free"
           }
         },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料"
+          }
+        },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
@@ -2263,6 +3109,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Processing — please keep this open until done."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "処理中です。完了までこの画面を閉じないでください。"
           }
         },
         "zh-Hant": {
