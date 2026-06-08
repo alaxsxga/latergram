@@ -137,7 +137,14 @@ struct CountdownInboxView: View {
                         .pickerStyle(.segmented)
                         .frame(maxWidth: 300)
                         .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .padding(.top, 8)
+                        .padding(.bottom, 0)
+                        .overlay(alignment: .bottomTrailing) {
+                            ComposeHeaderButton(onTap: { store.send(.plusTapped) })
+                                .padding(.trailing, -12)
+                                .offset(y: 60)
+                        }
+                        .zIndex(1)
 
                         TabView(selection: $selectedTab) {
                             ReceivedPage(store: store).tag(0)
@@ -218,20 +225,22 @@ private struct ReceivedPage: View {
 
     var body: some View {
         List {
-            Section {
-                ForEach(readyToOpen) { message in
-                    ReadyToOpenCard(
-                        message: message,
-                        now: store.now,
-                        onOpenTapped: {
-                            focusedMessage = message
-                            store.send(.revealTapped(message.id))
-                        }
-                    )
-                    .cardRow()
+            if !readyToOpen.isEmpty {
+                Section {
+                    ForEach(readyToOpen) { message in
+                        ReadyToOpenCard(
+                            message: message,
+                            now: store.now,
+                            onOpenTapped: {
+                                focusedMessage = message
+                                store.send(.revealTapped(message.id))
+                            }
+                        )
+                        .cardRow()
+                    }
+                } header: {
+                    ReadyToOpenHeader(count: readyToOpen.count)
                 }
-            } header: {
-                ReadyToOpenHeader(count: readyToOpen.count, onComposeTapped: { store.send(.plusTapped) })
             }
 
             if countingDown.isEmpty && revealed.isEmpty && readyToOpen.isEmpty {
@@ -590,7 +599,6 @@ private struct ExpandableMessageBody: View {
 
 private struct ReadyToOpenHeader: View {
     let count: Int
-    let onComposeTapped: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
@@ -607,20 +615,28 @@ private struct ReadyToOpenHeader: View {
                     .clipShape(Capsule())
             }
             Spacer()
-            Button(action: onComposeTapped) {
-                Image(systemName: "square.and.pencil")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.pageBg)
-                    .padding(6)
-                    .background(Color.brand)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            .buttonStyle(.plain)
         }
         .textCase(nil)
         .padding(.vertical, 4)
     }
 }
+
+private struct ComposeHeaderButton: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.pageBg)
+                .padding(6)
+                .background(Color.brand)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 
 private struct CountingDownHeader: View {
     var body: some View {
