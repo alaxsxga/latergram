@@ -30,7 +30,7 @@ struct ComposeView: View {
                     messageBox
                         .padding(.bottom, 20)
 
-                    composeLabel("compose.label.time")
+                    composeLabel("compose.unlock_time_label")
                     timingToggle
                         .padding(.bottom, 8)
                     if store.timingMode == .countdown {

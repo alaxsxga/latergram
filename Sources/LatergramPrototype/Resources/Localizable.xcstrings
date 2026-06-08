@@ -70,7 +70,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log In"
+            "value": "Sign In"
           }
         },
         "zh-Hant": {
@@ -134,13 +134,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Re-enter"
+            "value": "← Back"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新輸入"
+            "value": "← 返回修改"
           }
         }
       }
@@ -156,7 +156,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定你的名稱"
+            "value": "設定名稱"
           }
         }
       }
@@ -182,7 +182,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log In"
+            "value": "Sign In"
           }
         },
         "zh-Hant": {
@@ -230,7 +230,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "not yet opened"
+            "value": "Not Yet Opened"
           }
         },
         "zh-Hant": {
@@ -246,7 +246,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "unread"
+            "value": "Unread"
           }
         },
         "zh-Hant": {
@@ -326,7 +326,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Got It"
+            "value": "Got it"
           }
         },
         "zh-Hant": {
@@ -380,7 +380,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "升級以解鎖"
+            "value": "升級解鎖"
           }
         }
       }
@@ -406,7 +406,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Messages"
+            "value": "No Conversations"
           }
         },
         "zh-Hant": {
@@ -657,22 +657,6 @@
         }
       }
     },
-    "compose.label.time": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Time"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "時間"
-          }
-        }
-      }
-    },
     "compose.paywall_hint_message": {
       "localizations": {
         "en": {
@@ -780,7 +764,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "分"
+            "value": "分鐘"
           }
         }
       }
@@ -828,7 +812,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "送出"
+            "value": "傳送"
           }
         }
       }
@@ -908,7 +892,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "升級以解鎖"
+            "value": "升級解鎖"
           }
         }
       }
@@ -966,7 +950,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d hrs"
+            "value": "%d hr"
           }
         },
         "zh-Hant": {
@@ -1100,7 +1084,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d 人"
+            "value": "%d 位好友"
           }
         }
       }
@@ -1180,7 +1164,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "點右上角邀請朋友加入"
+            "value": "點右上角邀請好友加入"
           }
         }
       }
@@ -1228,7 +1212,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "稍後再說"
+            "value": "稍後"
           }
         }
       }
@@ -1340,7 +1324,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "貼上朋友的邀請碼"
+            "value": "貼上好友的邀請碼"
           }
         }
       }
@@ -1398,7 +1382,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log Out"
+            "value": "Sign Out"
           }
         },
         "zh-Hant": {
@@ -1414,7 +1398,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log Out?"
+            "value": "Sign Out?"
           }
         },
         "zh-Hant": {
@@ -1612,7 +1596,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有收到的訊息"
+            "value": "還沒有收到訊息"
           }
         }
       }
@@ -1644,7 +1628,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "可以開啟了"
+            "value": "可開啟"
           }
         }
       }
@@ -1724,7 +1708,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有發送的訊息"
+            "value": "還沒有送出訊息"
           }
         }
       }
@@ -2236,7 +2220,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "升級 Premium"
+            "value": "升級為 Premium"
           }
         }
       }
@@ -2268,7 +2252,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "免費版"
+            "value": "免費"
           }
         }
       }
