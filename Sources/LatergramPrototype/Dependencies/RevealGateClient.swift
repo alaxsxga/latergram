@@ -21,6 +21,9 @@ extension RevealGateClient: DependencyKey {
                     .value
                 return allowed             // true = allowed, false = server denied (time not reached)
             } catch {
+                #if os(iOS)
+                SentryBootstrap.captureBackend(error, op: "reveal_gate.can_reveal")
+                #endif
                 return nil                 // network failure → nil (fail-safe)
             }
         }

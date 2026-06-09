@@ -40,6 +40,12 @@ public enum SentryBootstrap {
         }
     }
 
+    public static func captureBackend(_ error: Error, op: String) {
+        SentrySDK.capture(error: error) { scope in
+            scope.setTag(value: op, key: "supabase.op")
+        }
+    }
+
     private static func currentEnvironment() -> String {
         #if DEBUG
         return "dev"

@@ -17,27 +17,31 @@ extension MessageClient: DependencyKey {
     static let liveValue = MessageClient(
         fetchCountdownFeed: { userID in
             // Fetch newest 300 messages, then reverse to ascending order for display
-            let rows: [MessageRow] = try await supabase
-                .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name), receiver:profiles!receiver_id(id, display_name)")
-                .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
-                .order("unlock_at", ascending: false)
-                .limit(300)
-                .execute()
-                .value
-            return rows.reversed().map { $0.toDomain() }
+            try await tracedSupabase("messages.fetch_feed") {
+                let rows: [MessageRow] = try await supabase
+                    .from("messages")
+                    .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name), receiver:profiles!receiver_id(id, display_name)")
+                    .or("sender_id.eq.\(userID),receiver_id.eq.\(userID)")
+                    .order("unlock_at", ascending: false)
+                    .limit(300)
+                    .execute()
+                    .value
+                return rows.reversed().map { $0.toDomain() }
+            }
         },
         fetchThread: { userID, friendID in
             // Fetch newest 300 messages, then reverse to ascending order for display
-            let rows: [MessageRow] = try await supabase
-                .from("messages")
-                .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name), receiver:profiles!receiver_id(id, display_name)")
-                .or("and(sender_id.eq.\(userID),receiver_id.eq.\(friendID)),and(sender_id.eq.\(friendID),receiver_id.eq.\(userID))")
-                .order("created_at", ascending: false)
-                .limit(300)
-                .execute()
-                .value
-            return rows.reversed().map { $0.toDomain() }
+            try await tracedSupabase("messages.fetch_thread") {
+                let rows: [MessageRow] = try await supabase
+                    .from("messages")
+                    .select("id, sender_id, receiver_id, body, style_key, unlock_at, delay_seconds, status, revealed_at, created_at, sender:profiles!sender_id(id, display_name), receiver:profiles!receiver_id(id, display_name)")
+                    .or("and(sender_id.eq.\(userID),receiver_id.eq.\(friendID)),and(sender_id.eq.\(friendID),receiver_id.eq.\(userID))")
+                    .order("created_at", ascending: false)
+                    .limit(300)
+                    .execute()
+                    .value
+                return rows.reversed().map { $0.toDomain() }
+            }
         },
         send: { message in
             let row = InsertMessageRow(
@@ -50,10 +54,12 @@ extension MessageClient: DependencyKey {
                 delay_seconds: message.delaySeconds,
                 status: message.status.rawValue
             )
-            try await supabase
-                .from("messages")
-                .insert(row)
-                .execute()
+            try await tracedSupabase("messages.send") {
+                _ = try await supabase
+                    .from("messages")
+                    .insert(row)
+                    .execute()
+            }
         },
         reveal: { messageID, now in
             struct UpdateStatus: Encodable {
@@ -61,13 +67,16 @@ extension MessageClient: DependencyKey {
                 let revealed_at: Date
             }
             struct RowID: Decodable { let id: UUID }
-            let updated: [RowID] = try await supabase
-                .from("messages")
-                .update(UpdateStatus(status: "revealed", revealed_at: now))
-                .eq("id", value: messageID)
-                .select("id")
-                .execute()
-                .value
+            // 只包 server call;RevealBlockedError 是 client side 對 [] 結果的判讀,不該入 Sentry
+            let updated: [RowID] = try await tracedSupabase("messages.reveal") {
+                try await supabase
+                    .from("messages")
+                    .update(UpdateStatus(status: "revealed", revealed_at: now))
+                    .eq("id", value: messageID)
+                    .select("id")
+                    .execute()
+                    .value
+            }
             guard !updated.isEmpty else {
                 struct RevealBlockedError: Error {}
                 throw RevealBlockedError()
@@ -75,10 +84,12 @@ extension MessageClient: DependencyKey {
             return true
         },
         delete: { messageID, userID in
-            try await supabase
-                .from("message_deletions")
-                .insert(InsertDeletionRow(user_id: userID, message_id: messageID))
-                .execute()
+            try await tracedSupabase("messages.delete") {
+                _ = try await supabase
+                    .from("message_deletions")
+                    .insert(InsertDeletionRow(user_id: userID, message_id: messageID))
+                    .execute()
+            }
         },
         messageStream: { userID in
             AsyncStream { continuation in

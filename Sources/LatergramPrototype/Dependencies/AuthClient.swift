@@ -52,19 +52,21 @@ extension AuthClient: DependencyKey {
             return response.user.id
         },
         setDisplayName: { userID, displayName in
-            try await supabase
-                .from("profiles")
-                .update(["display_name": displayName])
-                .eq("id", value: userID)
-                .execute()
-            let profile: ProfileRow = try await supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: userID)
-                .single()
-                .execute()
-                .value
-            return profile.toUserProfile(id: userID)
+            try await tracedSupabase("profiles.set_display_name") {
+                try await supabase
+                    .from("profiles")
+                    .update(["display_name": displayName])
+                    .eq("id", value: userID)
+                    .execute()
+                let profile: ProfileRow = try await supabase
+                    .from("profiles")
+                    .select()
+                    .eq("id", value: userID)
+                    .single()
+                    .execute()
+                    .value
+                return profile.toUserProfile(id: userID)
+            }
         },
         signOut: {
             try await supabase.auth.signOut()
@@ -72,20 +74,23 @@ extension AuthClient: DependencyKey {
         currentSession: {
             guard let session = try? await supabase.auth.session else { return nil }
             let user = session.user
-            guard let profile = try? await supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: user.id)
-                .single()
-                .execute()
-                .value as ProfileRow
-            else {
+            do {
+                let profile: ProfileRow = try await tracedSupabase("profiles.fetch_self") {
+                    try await supabase
+                        .from("profiles")
+                        .select()
+                        .eq("id", value: user.id)
+                        .single()
+                        .execute()
+                        .value
+                }
+                return profile.toUserProfile(id: user.id)
+            } catch {
                 return UserProfile(
                     id: user.id,
                     displayName: (user.email ?? "").components(separatedBy: "@").first ?? ""
                 )
             }
-            return profile.toUserProfile(id: user.id)
         },
         handleDeepLink: { url in
             let session = try await supabase.auth.session(from: url)

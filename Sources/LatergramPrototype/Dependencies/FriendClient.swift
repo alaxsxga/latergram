@@ -17,32 +17,36 @@ struct FriendClient: Sendable {
 extension FriendClient: DependencyKey {
     static let liveValue = FriendClient(
         fetchFriends: { userID in
-            let rows: [FriendshipRow] = try await supabase
-                .from("friendships")
-                .select("id, requester_id, addressee_id, status, requester:profiles!requester_id(id, display_name), addressee:profiles!addressee_id(id, display_name)")
-                .or("requester_id.eq.\(userID),addressee_id.eq.\(userID)")
-                .eq("status", value: "accepted")
-                .execute()
-                .value
-            return rows.map { $0.toFriend(currentUserID: userID) }
+            try await tracedSupabase("friends.fetch") {
+                let rows: [FriendshipRow] = try await supabase
+                    .from("friendships")
+                    .select("id, requester_id, addressee_id, status, requester:profiles!requester_id(id, display_name), addressee:profiles!addressee_id(id, display_name)")
+                    .or("requester_id.eq.\(userID),addressee_id.eq.\(userID)")
+                    .eq("status", value: "accepted")
+                    .execute()
+                    .value
+                return rows.map { $0.toFriend(currentUserID: userID) }
+            }
         },
         generateInviteToken: { userID in
-            // 先刪除舊的 token
-            try await supabase
-                .from("invite_tokens")
-                .delete()
-                .eq("inviter_id", value: userID)
-                .execute()
+            try await tracedSupabase("friends.invite_token.generate") {
+                // 先刪除舊的 token
+                try await supabase
+                    .from("invite_tokens")
+                    .delete()
+                    .eq("inviter_id", value: userID)
+                    .execute()
 
-            // 建新 token
-            let row: InviteTokenRow = try await supabase
-                .from("invite_tokens")
-                .insert(NewInviteTokenRow(inviter_id: userID))
-                .select()
-                .single()
-                .execute()
-                .value
-            return row.token
+                // 建新 token
+                let row: InviteTokenRow = try await supabase
+                    .from("invite_tokens")
+                    .insert(NewInviteTokenRow(inviter_id: userID))
+                    .select()
+                    .single()
+                    .execute()
+                    .value
+                return row.token
+            }
         },
         acceptInvite: { code, userID in
             do {
@@ -56,26 +60,33 @@ extension FriendClient: DependencyKey {
                 if msg.contains("already_friends") { throw InviteError.alreadyFriends }
                 if msg.contains("invalid_or_revoked") { throw InviteError.invalidOrRevoked }
                 if msg.contains("self_invite") { throw InviteError.selfInvite }
+                #if os(iOS)
+                SentryBootstrap.captureBackend(error, op: "friends.invite.accept")
+                #endif
                 throw error
             }
         },
         revokeInviteToken: { userID in
-            try await supabase
-                .from("invite_tokens")
-                .delete()
-                .eq("inviter_id", value: userID)
-                .execute()
+            try await tracedSupabase("friends.invite_token.revoke") {
+                _ = try await supabase
+                    .from("invite_tokens")
+                    .delete()
+                    .eq("inviter_id", value: userID)
+                    .execute()
+            }
         },
         fetchCurrentInviteToken: { userID in
-            let rows: [InviteTokenRow] = try await supabase
-                .from("invite_tokens")
-                .select()
-                .eq("inviter_id", value: userID)
-                .order("created_at", ascending: false)
-                .limit(1)
-                .execute()
-                .value
-            return rows.first?.token
+            try await tracedSupabase("friends.invite_token.current") {
+                let rows: [InviteTokenRow] = try await supabase
+                    .from("invite_tokens")
+                    .select()
+                    .eq("inviter_id", value: userID)
+                    .order("created_at", ascending: false)
+                    .limit(1)
+                    .execute()
+                    .value
+                return rows.first?.token
+            }
         },
         friendshipStream: { userID in
             AsyncStream { continuation in
@@ -107,18 +118,20 @@ extension FriendClient: DependencyKey {
             }
         },
         removeFriend: { userID, friendID in
-            try await supabase
-                .from("friendships")
-                .delete()
-                .eq("requester_id", value: userID)
-                .eq("addressee_id", value: friendID)
-                .execute()
-            try await supabase
-                .from("friendships")
-                .delete()
-                .eq("requester_id", value: friendID)
-                .eq("addressee_id", value: userID)
-                .execute()
+            try await tracedSupabase("friends.remove") {
+                _ = try await supabase
+                    .from("friendships")
+                    .delete()
+                    .eq("requester_id", value: userID)
+                    .eq("addressee_id", value: friendID)
+                    .execute()
+                _ = try await supabase
+                    .from("friendships")
+                    .delete()
+                    .eq("requester_id", value: friendID)
+                    .eq("addressee_id", value: userID)
+                    .execute()
+            }
         }
     )
 
