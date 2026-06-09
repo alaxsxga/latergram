@@ -81,7 +81,9 @@ extension AuthClient: DependencyKey {
             }
         },
         signOut: {
-            try await supabase.auth.signOut()
+            try await tracedSupabase("auth.sign_out") {
+                try await supabase.auth.signOut()
+            }
         },
         currentSession: {
             guard let session = try? await supabase.auth.session else { return nil }
@@ -105,8 +107,10 @@ extension AuthClient: DependencyKey {
             }
         },
         handleDeepLink: { url in
-            let session = try await supabase.auth.session(from: url)
-            return session.user.id
+            try await tracedSupabase("auth.handle_deep_link") {
+                let session = try await supabase.auth.session(from: url)
+                return session.user.id
+            }
         }
     )
 

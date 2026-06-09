@@ -152,21 +152,23 @@ struct PurchaseClient: Sendable {
 extension PurchaseClient: DependencyKey {
     static let liveValue = PurchaseClient(
         fetchProducts: {
-            try await withThrowingTaskGroup(of: [Product].self) { group in
-                group.addTask {
-                    try await Product.products(for: LatergramProduct.all)
+            try await tracedSupabase("iap.fetch_products") {
+                try await withThrowingTaskGroup(of: [Product].self) { group in
+                    group.addTask {
+                        try await Product.products(for: LatergramProduct.all)
+                    }
+                    group.addTask {
+                        try await Task.sleep(for: purchaseNetworkTimeout)
+                        throw PurchaseError.timeout
+                    }
+                    defer { group.cancelAll() }
+                    guard let products = try await group.next() else {
+                        throw PurchaseError.timeout
+                    }
+                    // StoreKit 斷網真機可能不 throw 直接回 []，視為失敗讓 UI 顯示重試
+                    guard !products.isEmpty else { throw PurchaseError.unknown }
+                    return products.sorted { $0.price < $1.price }
                 }
-                group.addTask {
-                    try await Task.sleep(for: purchaseNetworkTimeout)
-                    throw PurchaseError.timeout
-                }
-                defer { group.cancelAll() }
-                guard let products = try await group.next() else {
-                    throw PurchaseError.timeout
-                }
-                // StoreKit 斷網真機可能不 throw 直接回 []，視為失敗讓 UI 顯示重試
-                guard !products.isEmpty else { throw PurchaseError.unknown }
-                return products.sorted { $0.price < $1.price }
             }
         },
         purchase: { product in
@@ -234,7 +236,10 @@ extension PurchaseClient: DependencyKey {
             }
         },
         restorePurchases: {
-            try await AppStore.sync()
+            // syncPremium 自身已包 iap.sync_entitlement，這層只包 StoreKit AppStore.sync()，避免雙重 capture
+            try await tracedSupabase("iap.restore_purchases") {
+                try await AppStore.sync()
+            }
             let session = try await supabase.auth.session
             let userID = session.user.id
 

@@ -41,7 +41,8 @@ private func shouldCaptureForSentry(_ error: Error) -> Bool {
 
     if let purchaseError = error as? PurchaseError {
         switch purchaseError {
-        case .userCancelled, .pending:
+        // timeout 跟 URLError.timedOut 同類別網路訊號，一致 SKIP
+        case .userCancelled, .pending, .timeout:
             return false
         default:
             return true

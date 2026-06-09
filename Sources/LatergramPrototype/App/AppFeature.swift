@@ -155,6 +155,11 @@ struct AppFeature {
                             await send(.auth(.emailConfirmed(userID)))
                         } catch {
                             print("[DeepLink] handleDeepLink 失敗: \(error)")
+                            sentryClient.addBreadcrumb(
+                                category: "nav",
+                                message: "deeplink.auth_failed",
+                                level: .warning
+                            )
                         }
                     }
                 }
