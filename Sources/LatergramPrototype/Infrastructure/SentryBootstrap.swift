@@ -46,6 +46,22 @@ public enum SentryBootstrap {
         }
     }
 
+    public static func addBreadcrumb(
+        category: String,
+        message: String,
+        level: SentryLevel = .info,
+        data: [String: String]? = nil
+    ) {
+        let crumb = Breadcrumb()
+        crumb.category = category
+        crumb.message = message
+        crumb.level = level
+        if let data {
+            crumb.data = data
+        }
+        SentrySDK.addBreadcrumb(crumb)
+    }
+
     private static func currentEnvironment() -> String {
         #if DEBUG
         return "dev"
