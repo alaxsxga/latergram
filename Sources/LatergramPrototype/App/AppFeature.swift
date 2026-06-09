@@ -47,6 +47,7 @@ struct AppFeature {
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.currentUserClient) var currentUserClient
     @Dependency(\.purchaseClient) var purchaseClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.countdown, action: \.countdown) { CountdownInboxFeature() }
@@ -82,6 +83,7 @@ struct AppFeature {
                 if let user {
                     state.currentUser = user
                     currentUserClient.update(user)
+                    sentryClient.identify(userID: user.id, displayName: user.displayName)
                     state.friends.me = user
                     state.countdown.currentUserID = user.id
                     state.countdown.currentUserName = user.displayName
@@ -111,6 +113,7 @@ struct AppFeature {
             case .auth(.succeeded(let user)):
                 state.currentUser = user
                 currentUserClient.update(user)
+                sentryClient.identify(userID: user.id, displayName: user.displayName)
                 state.friends.me = user
                 state.countdown.currentUserID = user.id
                 state.countdown.currentUserName = user.displayName
@@ -205,6 +208,7 @@ struct AppFeature {
             case .friends(.path(.element(_, .delegate(.logoutSucceeded)))):
                 state.currentUser = nil
                 currentUserClient.update(UserProfile(displayName: ""))
+                sentryClient.clearUser()
                 state.countdown = CountdownInboxFeature.State()
                 state.selectedTab = .countdown
                 state.route = .auth(AuthFeature.State())

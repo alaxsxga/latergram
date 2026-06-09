@@ -19,6 +19,10 @@ let package = Package(
         .package(
             url: "https://github.com/supabase/supabase-swift",
             from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/getsentry/sentry-cocoa",
+            from: "8.40.0"
         )
     ],
     targets: [
@@ -31,7 +35,8 @@ let package = Package(
             dependencies: [
                 "LatergramCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "Supabase", package: "supabase-swift")
+                .product(name: "Supabase", package: "supabase-swift"),
+                .product(name: "Sentry", package: "sentry-cocoa")
             ],
             path: "Sources/LatergramPrototype",
             resources: [.process("Resources")]
