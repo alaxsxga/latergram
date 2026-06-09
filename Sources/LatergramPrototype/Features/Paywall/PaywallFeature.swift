@@ -43,12 +43,14 @@ struct PaywallFeature {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.purchaseClient) var purchaseClient
     @Dependency(\.currentUserClient) var currentUserClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
 
             case .onAppear:
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.opened")
                 var effects: [Effect<Action>] = []
                 if state.products.isEmpty, !state.isLoading {
                     state.isLoading = true
@@ -68,6 +70,10 @@ struct PaywallFeature {
             case ._verifyResult(let profile):
                 state.isVerifyingEntitlement = false
                 if let profile, profile.isPremium {
+                    sentryClient.addBreadcrumb(
+                        category: "paywall",
+                        message: "paywall.already_premium_detected"
+                    )
                     currentUserClient.update(profile)
                     state.alreadyPremiumProfile = profile
                 }
@@ -86,17 +92,28 @@ struct PaywallFeature {
                 return .none
 
             case ._productsLoadFailed:
+                sentryClient.addBreadcrumb(
+                    category: "paywall",
+                    message: "paywall.products_load_failed",
+                    level: .warning
+                )
                 state.isLoading = false
                 state.productsLoadFailed = true
                 return .none
 
             case .retryLoadProductsTapped:
                 guard !state.isLoading else { return .none }
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.products_retry_tapped")
                 state.isLoading = true
                 state.productsLoadFailed = false
                 return loadProducts()
 
             case .purchaseTapped(let product):
+                sentryClient.addBreadcrumb(
+                    category: "paywall",
+                    message: "paywall.subscribe_tapped",
+                    data: ["productID": product.id]
+                )
                 state.isPurchasing = true
                 state.errorMessage = nil
                 return .run { send in
@@ -104,17 +121,26 @@ struct PaywallFeature {
                 }
 
             case ._purchaseResult(.success(let profile)):
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.purchase_succeeded")
                 state.isPurchasing = false
                 currentUserClient.update(profile)
                 return .send(.delegate(.purchaseSucceeded(profile)))
 
             case ._purchaseResult(.failure(let error)):
+                let reason = purchaseFailureReason(error)
+                sentryClient.addBreadcrumb(
+                    category: "paywall",
+                    message: "paywall.purchase_failed",
+                    level: reason == "user_cancelled" ? .info : .warning,
+                    data: ["reason": reason]
+                )
                 state.isPurchasing = false
                 if let pe = error as? PurchaseError, pe == .userCancelled { return .none }
                 state.errorMessage = error.localizedDescription
                 return .none
 
             case .restoreTapped:
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.restore_tapped")
                 state.isRestoring = true
                 state.errorMessage = nil
                 return .run { send in
@@ -122,16 +148,27 @@ struct PaywallFeature {
                 }
 
             case ._restoreResult(.success(.some(let profile))):
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.restore_succeeded")
                 state.isRestoring = false
                 currentUserClient.update(profile)
                 return .send(.delegate(.purchaseSucceeded(profile)))
 
             case ._restoreResult(.success(.none)):
+                sentryClient.addBreadcrumb(
+                    category: "paywall",
+                    message: "paywall.restore_empty",
+                    level: .warning
+                )
                 state.isRestoring = false
                 state.errorMessage = "找不到可還原的購買紀錄"
                 return .none
 
             case ._restoreResult(.failure(let error)):
+                sentryClient.addBreadcrumb(
+                    category: "paywall",
+                    message: "paywall.restore_failed",
+                    level: .warning
+                )
                 state.isRestoring = false
                 state.errorMessage = error.localizedDescription
                 return .none
@@ -141,6 +178,7 @@ struct PaywallFeature {
                 return .none
 
             case .dismissTapped:
+                sentryClient.addBreadcrumb(category: "paywall", message: "paywall.dismissed")
                 return .run { _ in await dismiss() }
 
             case .delegate:
@@ -157,6 +195,18 @@ struct PaywallFeature {
             } catch {
                 await send(._productsLoadFailed)
             }
+        }
+    }
+
+    private func purchaseFailureReason(_ error: Error) -> String {
+        guard let pe = error as? PurchaseError else { return "other" }
+        switch pe {
+        case .userCancelled:      return "user_cancelled"
+        case .pending:            return "pending"
+        case .verificationFailed: return "verification_failed"
+        case .notAuthenticated:   return "not_authenticated"
+        case .timeout:            return "timeout"
+        case .unknown:            return "unknown"
         }
     }
 }
