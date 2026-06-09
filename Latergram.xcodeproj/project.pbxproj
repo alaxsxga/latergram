@@ -119,7 +119,13 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				es,
+				id,
 				ja,
+				ko,
+				"pt-BR",
+				th,
 				"zh-Hant",
 			);
 			mainGroup = A00100012026030300000030;
