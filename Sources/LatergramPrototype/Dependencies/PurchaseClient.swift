@@ -174,25 +174,29 @@ extension PurchaseClient: DependencyKey {
             let session = try await supabase.auth.session
             let userID = session.user.id
             let options: Set<Product.PurchaseOption> = [.appAccountToken(userID)]
-            let result = try await product.purchase(options: options)
-            switch result {
-            case .success(let verification):
-                guard case .verified(let transaction) = verification else {
-                    throw PurchaseError.verificationFailed
+            // syncPremium 自身已包 iap.sync_entitlement，這層只包 StoreKit purchase + verification，避免雙重 capture
+            let (transaction, jws): (Transaction, String) = try await tracedSupabase("iap.purchase") {
+                let result = try await product.purchase(options: options)
+                switch result {
+                case .success(let verification):
+                    guard case .verified(let transaction) = verification else {
+                        throw PurchaseError.verificationFailed
+                    }
+                    return (transaction, verification.jwsRepresentation)
+                case .userCancelled:
+                    throw PurchaseError.userCancelled
+                case .pending:
+                    throw PurchaseError.pending
+                @unknown default:
+                    throw PurchaseError.unknown
                 }
-                // 先 sync 成功再 finish；失敗時 transaction 留著，下次 verifyAndSyncEntitlement 會從 currentEntitlements 撿回重試
-                return try await syncThenFinish(
-                    jws: verification.jwsRepresentation,
-                    sync: { try await syncPremium(jws: $0) },
-                    finish: { await transaction.finish() }
-                )
-            case .userCancelled:
-                throw PurchaseError.userCancelled
-            case .pending:
-                throw PurchaseError.pending
-            @unknown default:
-                throw PurchaseError.unknown
             }
+            // 先 sync 成功再 finish；失敗時 transaction 留著，下次 verifyAndSyncEntitlement 會從 currentEntitlements 撿回重試
+            return try await syncThenFinish(
+                jws: jws,
+                sync: { try await syncPremium(jws: $0) },
+                finish: { await transaction.finish() }
+            )
         },
         verifyAndSyncEntitlement: {
             // 掃完 currentEntitlements 後交給 reconcileEntitlement 決定 promote 或 demote
@@ -311,10 +315,12 @@ private struct SyncEntitlementBody: Encodable, Sendable {
 }
 
 private func syncPremium(jws: String?) async throws -> UserProfile {
-    let body = SyncEntitlementBody(jws: jws)
-    let row: ProfileRow = try await supabase.functions.invoke(
-        "sync-entitlement",
-        options: FunctionInvokeOptions(body: body)
-    )
-    return row.toUserProfile()
+    try await tracedSupabase("iap.sync_entitlement") {
+        let body = SyncEntitlementBody(jws: jws)
+        let row: ProfileRow = try await supabase.functions.invoke(
+            "sync-entitlement",
+            options: FunctionInvokeOptions(body: body)
+        )
+        return row.toUserProfile()
+    }
 }
