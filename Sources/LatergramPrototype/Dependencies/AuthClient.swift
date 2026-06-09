@@ -17,34 +17,46 @@ struct AuthClient: Sendable {
 extension AuthClient: DependencyKey {
     static let liveValue = AuthClient(
         signIn: { email, password in
-            let session = try await supabase.auth.signIn(email: email, password: password)
-            let profile: ProfileRow = try await supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: session.user.id)
-                .single()
-                .execute()
-                .value
+            let session = try await tracedSupabase("auth.sign_in") {
+                try await supabase.auth.signIn(email: email, password: password)
+            }
+            let profile: ProfileRow = try await tracedSupabase("profiles.fetch_self") {
+                try await supabase
+                    .from("profiles")
+                    .select()
+                    .eq("id", value: session.user.id)
+                    .single()
+                    .execute()
+                    .value
+            }
             return profile.toUserProfile(id: session.user.id)
         },
         signUp: { email, password, displayName in
-            let response = try await supabase.auth.signUp(email: email, password: password)
-            try await supabase
-                .from("profiles")
-                .update(["display_name": displayName])
-                .eq("id", value: response.user.id)
-                .execute()
-            let profile: ProfileRow = try await supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: response.user.id)
-                .single()
-                .execute()
-                .value
+            let response = try await tracedSupabase("auth.sign_up") {
+                try await supabase.auth.signUp(email: email, password: password)
+            }
+            try await tracedSupabase("profiles.set_display_name") {
+                _ = try await supabase
+                    .from("profiles")
+                    .update(["display_name": displayName])
+                    .eq("id", value: response.user.id)
+                    .execute()
+            }
+            let profile: ProfileRow = try await tracedSupabase("profiles.fetch_self") {
+                try await supabase
+                    .from("profiles")
+                    .select()
+                    .eq("id", value: response.user.id)
+                    .single()
+                    .execute()
+                    .value
+            }
             return profile.toUserProfile(id: response.user.id)
         },
         createAccount: { email, password in
-            let response = try await supabase.auth.signUp(email: email, password: password)
+            let response = try await tracedSupabase("auth.sign_up") {
+                try await supabase.auth.signUp(email: email, password: password)
+            }
             guard !(response.user.identities?.isEmpty ?? true) else {
                 throw NSError(domain: "AuthClient", code: 409,
                               userInfo: [NSLocalizedDescriptionKey: "此 Email 已被註冊"])
