@@ -28,6 +28,7 @@ struct ChatsFeature {
     enum CancelID { case load }
 
     @Dependency(\.friendClient) var friendClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -46,6 +47,11 @@ struct ChatsFeature {
                 return loadFriends(userID: state.currentUserID)
 
             case .friendTapped(let friend):
+                sentryClient.addBreadcrumb(
+                    category: "nav",
+                    message: "chat.detail.opened",
+                    data: ["friendID": friend.id.uuidString]
+                )
                 state.path.append(ChatDetailFeature.State(
                     friend: friend,
                     currentUserID: state.currentUserID,

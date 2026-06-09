@@ -84,6 +84,7 @@ struct AppFeature {
                     state.currentUser = user
                     currentUserClient.update(user)
                     sentryClient.identify(userID: user.id, displayName: user.displayName)
+                    sentryClient.addBreadcrumb(category: "nav", message: "route.main.cold_start")
                     state.friends.me = user
                     state.countdown.currentUserID = user.id
                     state.countdown.currentUserName = user.displayName
@@ -106,6 +107,7 @@ struct AppFeature {
                         }
                     )
                 } else {
+                    sentryClient.addBreadcrumb(category: "nav", message: "route.auth")
                     state.route = .auth(AuthFeature.State())
                 }
                 return .none
@@ -114,6 +116,7 @@ struct AppFeature {
                 state.currentUser = user
                 currentUserClient.update(user)
                 sentryClient.identify(userID: user.id, displayName: user.displayName)
+                sentryClient.addBreadcrumb(category: "nav", message: "route.main.signin")
                 state.friends.me = user
                 state.countdown.currentUserID = user.id
                 state.countdown.currentUserName = user.displayName
@@ -145,6 +148,7 @@ struct AppFeature {
                 // Auth callback (email confirmation)
                 if url.scheme == "latergram", url.host == "auth" {
                     guard case .auth = state.route else { return .none }
+                    sentryClient.addBreadcrumb(category: "nav", message: "deeplink.auth")
                     return .run { send in
                         do {
                             let userID = try await authClient.handleDeepLink(url)
@@ -162,9 +166,15 @@ struct AppFeature {
                           .queryItems?.first(where: { $0.name == "code" })?.value
                 else {
                     print("[DeepLink] URL 格式不符，略過")
+                    sentryClient.addBreadcrumb(
+                        category: "nav",
+                        message: "deeplink.unknown",
+                        level: .warning
+                    )
                     return .none
                 }
                 print("[DeepLink] code=\(code), route=\(state.route)")
+                sentryClient.addBreadcrumb(category: "nav", message: "deeplink.invite")
 
                 if state.route == .main {
                     print("[DeepLink] App 已登入，直接處理")
@@ -182,10 +192,12 @@ struct AppFeature {
                 return .none
 
             case .notificationTapped:
+                sentryClient.addBreadcrumb(category: "nav", message: "tab.inbox.via_push")
                 state.selectedTab = .countdown
                 return .none
 
             case .tabSelected(let tab):
+                sentryClient.addBreadcrumb(category: "nav", message: "tab.\(tab.breadcrumbName)")
                 state.selectedTab = tab
                 return .none
 
@@ -206,6 +218,7 @@ struct AppFeature {
                 return .none
 
             case .friends(.path(.element(_, .delegate(.logoutSucceeded)))):
+                sentryClient.addBreadcrumb(category: "nav", message: "route.auth.logout")
                 state.currentUser = nil
                 currentUserClient.update(UserProfile(displayName: ""))
                 sentryClient.clearUser()
@@ -262,6 +275,18 @@ struct AppFeature {
         }
         .ifLet(\.route.authState, action: \.auth) {
             AuthFeature()
+        }
+    }
+}
+
+// MARK: - Breadcrumb helper
+
+extension AppFeature.Tab {
+    var breadcrumbName: String {
+        switch self {
+        case .friends: return "friends"
+        case .countdown: return "inbox"
+        case .chats: return "chats"
         }
     }
 }

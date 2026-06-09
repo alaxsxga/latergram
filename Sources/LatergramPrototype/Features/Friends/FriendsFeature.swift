@@ -66,6 +66,7 @@ struct FriendsFeature {
 
     @Dependency(\.friendClient) var friendClient
     @Dependency(\.friendsCacheClient) var friendsCacheClient
+    @Dependency(\.sentryClient) var sentryClient
 
     enum CancelID { case realtimeSubscription }
 
@@ -129,6 +130,7 @@ struct FriendsFeature {
 
             case .acceptInviteFromDeepLink(let code):
                 print("[DeepLink] acceptInviteFromDeepLink code=\(code)")
+                sentryClient.addBreadcrumb(category: "nav", message: "deeplink.invite_alert")
                 state.pastedInviteCode = code
                 state.showDeepLinkInviteAlert = true
                 return .none
@@ -236,6 +238,7 @@ struct FriendsFeature {
                 return .cancel(id: CancelID.realtimeSubscription)
 
             case .settingsButtonTapped:
+                sentryClient.addBreadcrumb(category: "nav", message: "settings.opened")
                 state.path.append(SettingsFeature.State(me: state.me))
                 return .none
 
