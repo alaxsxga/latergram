@@ -68,6 +68,7 @@ struct ChatDetailFeature {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
     @Dependency(\.currentUserClient) var currentUserClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -118,6 +119,11 @@ struct ChatDetailFeature {
             case .revealTapped(let id):
                 guard let message = state.messages[id: id],
                       message.status == .readyToReveal else { return .none }
+                sentryClient.addBreadcrumb(
+                    category: "reveal",
+                    message: "reveal.tapped",
+                    data: ["messageID": id.uuidString]
+                )
                 let now = date()
                 return .run { send in
                     let result = await revealGateClient.canReveal(message, now)
@@ -127,6 +133,11 @@ struct ChatDetailFeature {
             case .revealResponse(let id, let result):
                 switch result {
                 case true:
+                    sentryClient.addBreadcrumb(
+                        category: "reveal",
+                        message: "reveal.succeeded",
+                        data: ["messageID": id.uuidString]
+                    )
                     let now = date()
                     state.messages[id: id]?.status = .revealed
                     state.messages[id: id]?.revealedAt = now
@@ -138,13 +149,31 @@ struct ChatDetailFeature {
                         }
                     }
                 case false:
+                    sentryClient.addBreadcrumb(
+                        category: "reveal",
+                        message: "reveal.gate_blocked",
+                        level: .warning,
+                        data: ["reason": "time_invalid"]
+                    )
                     state.errorMessage = "訊息尚未到達解鎖時間，請確認手機時間是否正確"
                 case nil:
+                    sentryClient.addBreadcrumb(
+                        category: "reveal",
+                        message: "reveal.gate_unavailable",
+                        level: .warning,
+                        data: ["reason": "network"]
+                    )
                     state.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
                 }
                 return .none
 
             case .revealCommitFailed(let id):
+                sentryClient.addBreadcrumb(
+                    category: "reveal",
+                    message: "reveal.commit_failed",
+                    level: .warning,
+                    data: ["messageID": id.uuidString]
+                )
                 state.messages[id: id]?.status = .readyToReveal
                 state.messages[id: id]?.revealedAt = nil
                 state.errorMessage = "開啟失敗，請確認網路後再試"

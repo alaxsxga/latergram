@@ -99,7 +99,10 @@ struct ComposeView: View {
         .onChange(of: unlockMinute) { _ in updateUnlockAt() }
         .onChange(of: unlockIsAM) { _ in updateUnlockAt() }
         .onChange(of: store.timingMode) { _ in updateUnlockAt() }
-        .onAppear { updateUnlockAt() }
+        .onAppear {
+            updateUnlockAt()
+            store.send(.onAppear)
+        }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now = $0 }
         .sheet(isPresented: Binding(
             get: { store.showPaywallHint },

@@ -31,6 +31,7 @@ struct AuthFeature {
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -58,6 +59,7 @@ struct AuthFeature {
                     state.errorMessage = "兩次密碼不一致"
                     return .none
                 }
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_up_tapped")
                 state.errorMessage = nil
                 state.isSubmitting = true
                 return .run { send in
@@ -79,12 +81,14 @@ struct AuthFeature {
                 return .none
 
             case .accountCreated(let userID):
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.account_created")
                 state.isSubmitting = false
                 state.pendingUserID = userID
                 state.mode = .awaitingConfirmation
                 return .none
 
             case .emailConfirmed(let userID):
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.email_confirmed")
                 state.pendingUserID = userID
                 state.mode = .setName
                 return .none
@@ -106,6 +110,7 @@ struct AuthFeature {
                         state.errorMessage = "發生錯誤，請重新嘗試"
                         return .none
                     }
+                    sentryClient.addBreadcrumb(category: "auth", message: "auth.set_name_tapped")
                     return .run { send in
                         do {
                             let user = try await authClient.setDisplayName(userID, displayName)
@@ -115,6 +120,7 @@ struct AuthFeature {
                         }
                     }
                 }
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_in_tapped")
                 return .run { send in
                     do {
                         let user = try await authClient.signIn(email, password)
@@ -125,14 +131,32 @@ struct AuthFeature {
                 }
 
             case .succeeded:
+                sentryClient.addBreadcrumb(
+                    category: "auth",
+                    message: "auth.succeeded",
+                    data: ["flow": state.mode == .setName ? "sign_up" : "sign_in"]
+                )
                 state.isSubmitting = false
                 return .none
 
             case .failed(let message):
+                sentryClient.addBreadcrumb(
+                    category: "auth",
+                    message: "auth.failed",
+                    level: .warning,
+                    data: ["flow": authFailureFlow(for: state.mode)]
+                )
                 state.isSubmitting = false
                 state.errorMessage = message
                 return .none
             }
+        }
+    }
+
+    private func authFailureFlow(for mode: Mode) -> String {
+        switch mode {
+        case .login: return "sign_in"
+        case .signUp, .setName, .awaitingConfirmation: return "sign_up"
         }
     }
 }

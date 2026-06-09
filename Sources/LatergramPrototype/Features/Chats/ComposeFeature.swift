@@ -26,6 +26,7 @@ struct ComposeFeature {
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onAppear
         case submitTapped
         case cancelTapped
         case sendSucceeded(DelayedMessage)
@@ -42,6 +43,7 @@ struct ComposeFeature {
 
     @Dependency(\.messageClient) var messageClient
     @Dependency(\.date) var date
+    @Dependency(\.sentryClient) var sentryClient
 
     private let rules = MessageComposerRules()
 
@@ -50,8 +52,26 @@ struct ComposeFeature {
         Reduce { state, action in
             switch action {
 
+            case .onAppear:
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.opened",
+                    data: ["friendID": state.friend.id.uuidString]
+                )
+                return .none
+
             case .binding(\.unlockAt):
                 if !state.isPremium && Int(state.unlockAt.timeIntervalSince(date())) > state.maxDelaySeconds {
+                    if !state.showPaywallHint {
+                        sentryClient.addBreadcrumb(
+                            category: "compose",
+                            message: "compose.paywall_hint_shown",
+                            data: [
+                                "delaySeconds": String(Int(state.unlockAt.timeIntervalSince(date()))),
+                                "maxDelaySeconds": String(state.maxDelaySeconds)
+                            ]
+                        )
+                    }
                     state.showPaywallHint = true
                 }
                 return .none
@@ -78,14 +98,39 @@ struct ComposeFeature {
                 }
 
                 if !state.isPremium && finalDelaySeconds > state.maxDelaySeconds {
+                    if !state.showPaywallHint {
+                        sentryClient.addBreadcrumb(
+                            category: "compose",
+                            message: "compose.paywall_hint_shown",
+                            data: [
+                                "delaySeconds": String(finalDelaySeconds),
+                                "maxDelaySeconds": String(state.maxDelaySeconds)
+                            ]
+                        )
+                    }
                     state.showPaywallHint = true
                     return .none
                 }
 
                 if let error = rules.validate(body: state.body, unlockAt: finalUnlockAt, now: now) {
+                    sentryClient.addBreadcrumb(
+                        category: "compose",
+                        message: "compose.validation_failed",
+                        level: .warning,
+                        data: ["reason": validationReason(error)]
+                    )
                     state.errorMessage = errorText(for: error)
                     return .none
                 }
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.send_tapped",
+                    data: [
+                        "delaySeconds": String(finalDelaySeconds),
+                        "timingMode": state.timingMode == .countdown ? "countdown" : "unlock_date",
+                        "friendID": state.friend.id.uuidString
+                    ]
+                )
                 state.isSending = true
                 state.errorMessage = nil
                 let message = DelayedMessage(
@@ -114,6 +159,10 @@ struct ComposeFeature {
                 return .none
 
             case .paywallHintUpgradeTapped:
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.paywall_hint_upgrade_tapped"
+                )
                 state.showPaywallHint = false
                 state.paywall = PaywallFeature.State()
                 return .none
@@ -131,13 +180,30 @@ struct ComposeFeature {
                 return .none
 
             case .cancelTapped:
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.dismissed"
+                )
                 return .none
 
-            case .sendSucceeded:
+            case .sendSucceeded(let message):
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.send_succeeded",
+                    data: [
+                        "delaySeconds": String(message.delaySeconds),
+                        "messageID": message.id.uuidString
+                    ]
+                )
                 state.isSending = false
                 return .none
 
             case .sendFailed(let error):
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.send_failed",
+                    level: .warning
+                )
                 state.isSending = false
                 state.errorMessage = error
                 return .none
@@ -153,6 +219,14 @@ struct ComposeFeature {
         case .emptyBody: "訊息不可為空"
         case .tooLong(let max): "訊息不可超過 \(max) 字"
         case .unlockTooSoon: "解鎖時間至少 1 分鐘後"
+        }
+    }
+
+    private func validationReason(_ error: ComposeValidationError) -> String {
+        switch error {
+        case .emptyBody:     return "empty_body"
+        case .tooLong:       return "too_long"
+        case .unlockTooSoon: return "unlock_too_soon"
         }
     }
 }

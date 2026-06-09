@@ -119,6 +119,7 @@ struct FriendsFeature {
                 return .merge(fetchEffect, realtimeEffect, inviteEffect)
 
             case .generateInviteCodeTapped:
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_generate_tapped")
                 return .run { [id = state.me.id] send in
                     do {
                         let token = try await friendClient.generateInviteToken(id)
@@ -140,6 +141,7 @@ struct FriendsFeature {
                 return .none
 
             case .shareInviteCodeTapped:
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_share_tapped")
                 state.inviteShareMessage = "加我的 Latergram！\nlatergram://invite?code=\(state.generatedInviteCode)"
                 state.isSharingInvite = true
                 return .none
@@ -149,6 +151,7 @@ struct FriendsFeature {
                 return .none
 
             case .revokeInviteCodeTapped:
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_revoke_tapped")
                 state.generatedInviteCode = ""
                 return .run { [id = state.me.id] _ in
                     try? await friendClient.revokeInviteToken(id)
@@ -158,9 +161,16 @@ struct FriendsFeature {
                 let code = state.pastedInviteCode.trimmingCharacters(in: .whitespacesAndNewlines)
                 print("[DeepLink] acceptInviteCodeTapped code='\(code)'")
                 guard !code.isEmpty else {
+                    sentryClient.addBreadcrumb(
+                        category: "friends",
+                        message: "friends.invite_accept_blocked",
+                        level: .warning,
+                        data: ["reason": "empty_code"]
+                    )
                     state.banner = "邀請碼不可為空"
                     return .none
                 }
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_accept_started")
                 return .run { [id = state.me.id] send in
                     do {
                         let friend = try await friendClient.acceptInvite(code, id)
@@ -174,6 +184,7 @@ struct FriendsFeature {
                 }
 
             case .inviteCodeGenerated(let code):
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_generate_succeeded")
                 state.generatedInviteCode = code
                 return .none
 
@@ -219,6 +230,11 @@ struct FriendsFeature {
                 return .none
 
             case .inviteAccepted(let friend):
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.invite_accept_succeeded",
+                    data: ["friendID": friend.id.uuidString]
+                )
                 state.friends.append(friend)
                 state.friends.sort { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
                 state.pastedInviteCode = ""
@@ -226,6 +242,12 @@ struct FriendsFeature {
                 return .none
 
             case .inviteAcceptFailed(let failure):
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.invite_accept_failed",
+                    level: .warning,
+                    data: ["reason": failure == .alreadyFriends ? "already_friends" : "other"]
+                )
                 state.inviteAcceptError = failure
                 return .none
 
@@ -278,6 +300,11 @@ struct FriendsFeature {
                 guard let friend = state.friendPendingDeletion else { return .none }
                 state.friendPendingDeletion = nil
                 let friendID = friend.id
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.remove_tapped",
+                    data: ["friendID": friendID.uuidString]
+                )
                 return .run { [userID = state.me.id] send in
                     do {
                         try await friendClient.removeFriend(userID, friendID)
@@ -288,6 +315,11 @@ struct FriendsFeature {
                 }
 
             case .removeFriendSucceeded(let friendID):
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.remove_succeeded",
+                    data: ["friendID": friendID.uuidString]
+                )
                 state.friends.remove(id: friendID)
                 let updated = Array(state.friends)
                 let userID = state.me.id
@@ -296,6 +328,11 @@ struct FriendsFeature {
                 }
 
             case .removeFriendFailed(let error):
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.remove_failed",
+                    level: .warning
+                )
                 state.banner = "刪除失敗：\(error)"
                 return .none
             }
