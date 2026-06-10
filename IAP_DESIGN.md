@@ -256,12 +256,20 @@ for await result in Transaction.updates {
 |---|---|---|
 | App 起動找回 session | `AppFeature.sessionChecked` | 開 App 第一件事就要對齊 |
 | 剛登入成功 | `AppFeature.auth(.succeeded)` | 新登入用戶可能在別處有訂閱 |
-| 回到 foreground | `AppFeature.scenePhaseChanged(.active)` | 在背景時可能：訂閱到期、別台手動取消、訂閱續訂失敗 |
+| 回到 foreground | `AppFeature.scenePhaseChanged(.active)` | 在背景時可能：訂閱到期、別台手動取消、訂閱續訂失敗（1 小時 throttle，見下） |
 
 **為什麼三條都要**：
 - listener 只能接 Apple 主動推的 event，**不接「過期」**。
 - 純靠 listener 會漏掉「用戶開 App 時剛好過期」這 case。
 - 反過來只靠 verify 不夠：用戶長時間留在 foreground 跨過續訂時刻，listener 才能即時 promote。
+
+**Foreground throttle（`AppFeature.entitlementThrottle = 3600`）**：
+- `scenePhaseChanged(.active)` 守衛 `lastEntitlementVerifiedAt`，**1 小時內不重跑** verify。
+- 動機：訂閱不會在分鐘級別變動；反覆切前後景時每次都打 sync-entitlement Edge Function 浪費電與額度，也增加 background→foreground inbox timeout 風險。
+- 語意：**「最後一次成功 verify 的時間」**。失敗（profile == nil）不寫 timestamp，下次 scene active 會自然 retry，不會被 throttle 鎖死。
+- 三條 verify 路徑（sessionChecked / auth.succeeded / scenePhase active）成功後都更新同一個 timestamp，保持語意一致。
+- logout 清掉 `lastEntitlementVerifiedAt`，換帳號不繼承前一個 user 的 throttle。
+- 重啟 app 後 timestamp 失效（State 不持久化），但 sessionChecked 路徑本來就會跑一次，不影響正確性。
 
 ### 4.6 Manual Premium 發放（人工）
 
