@@ -46,12 +46,6 @@ public enum SentryBootstrap {
         }
     }
 
-    #if DEBUG
-    public static func crash() {
-        SentrySDK.crash()
-    }
-    #endif
-
     public static func addBreadcrumb(
         category: String,
         message: String,
