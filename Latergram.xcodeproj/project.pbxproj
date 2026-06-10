@@ -87,6 +87,7 @@
 			buildPhases = (
 				A00100012026030300000021 /* Sources */,
 				A00100012026030300000020 /* Frameworks */,
+				A00100012026030300000022 /* Upload Symbols to Sentry */,
 			);
 			buildRules = (
 			);
@@ -141,6 +142,28 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A00100012026030300000022 /* Upload Symbols to Sentry */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Upload Symbols to Sentry";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/sentry-upload-dsym.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A00100012026030300000021 /* Sources */ = {
