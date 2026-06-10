@@ -19,6 +19,19 @@
 3. 在 Supabase SQL Editor 執行 `supabase/schema.sql`
 4. 用 Xcode 開啟 `Latergram.xcodeproj`，選擇 Simulator，Build & Run
 
+## 設定（Release / TestFlight Archive）
+
+Archive 時會自動上傳 dSYM 到 Sentry（讓 crash report 能 symbolicate），需先在本機設 auth token：
+
+1. 到 <https://sentry.io/settings/account/api/auth-tokens/> 建 Personal Token，Project 勾 **Write**
+2. 存進 Keychain（互動式輸入，貼 token 兩次）：
+   ```bash
+   security add-generic-password -s sentry-cli-latergram -a "$USER" -w
+   ```
+3. 需要 `sentry-cli`：`brew install getsentry/tools/sentry-cli`
+
+未設 token 不會擋 build，只會印 warning。Debug build 一律 skip 上傳。
+
 ## 專案結構
 
 ```
