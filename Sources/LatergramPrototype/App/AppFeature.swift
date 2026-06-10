@@ -25,6 +25,7 @@ struct AppFeature {
         var friends = FriendsFeature.State()
         var chats = ChatsFeature.State()
         var pendingInviteCode: String? = nil
+        var lastEntitlementVerifiedAt: Date? = nil
     }
 
     enum Action {
@@ -34,6 +35,7 @@ struct AppFeature {
         case scenePhaseChanged(ScenePhase)
         case notificationTapped(messageID: UUID)
         case profileRefreshed(UserProfile)
+        case entitlementVerified(UserProfile?, at: Date)
         case urlOpened(URL)
         case auth(AuthFeature.Action)
         case countdown(CountdownInboxFeature.Action)
@@ -43,11 +45,16 @@ struct AppFeature {
 
     private enum CancelID { case notificationTap, transactionUpdates }
 
+    // 訂閱不會在分鐘級別變動，foreground 進入 1 小時內不重複 verifyAndSyncEntitlement。
+    // 避免反覆切前後景時打 Edge Function 浪費電與額度。
+    private static let entitlementThrottle: TimeInterval = 3600
+
     @Dependency(\.authClient) var authClient
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.currentUserClient) var currentUserClient
     @Dependency(\.purchaseClient) var purchaseClient
     @Dependency(\.sentryClient) var sentryClient
+    @Dependency(\.date) var date
 
     var body: some ReducerOf<Self> {
         Scope(state: \.countdown, action: \.countdown) { CountdownInboxFeature() }
@@ -100,10 +107,9 @@ struct AppFeature {
                     return .merge(
                         .send(.countdown(.refreshRequested)),
                         .send(.chats(.foregroundRefresh)),
-                        .run { [purchaseClient] send in
-                            if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
-                                await send(.profileRefreshed(profile))
-                            }
+                        .run { [purchaseClient, date] send in
+                            let profile = try? await purchaseClient.verifyAndSyncEntitlement()
+                            await send(.entitlementVerified(profile, at: date()))
                         }
                     )
                 } else {
@@ -131,10 +137,9 @@ struct AppFeature {
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),
-                    .run { [purchaseClient] send in
-                        if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
-                            await send(.profileRefreshed(profile))
-                        }
+                    .run { [purchaseClient, date] send in
+                        let profile = try? await purchaseClient.verifyAndSyncEntitlement()
+                        await send(.entitlementVerified(profile, at: date()))
                     }
                 )
 
@@ -196,6 +201,15 @@ struct AppFeature {
                 currentUserClient.update(user)
                 return .none
 
+            case .entitlementVerified(let profile, let at):
+                // 失敗（profile == nil）也記 timestamp 太激進——保持 throttle 是「成功過 1 小時內不重跑」語意，
+                // 失敗就讓下次 scene active 自然 retry。
+                if let profile {
+                    state.lastEntitlementVerifiedAt = at
+                    return .send(.profileRefreshed(profile))
+                }
+                return .none
+
             case .notificationTapped:
                 sentryClient.addBreadcrumb(category: "nav", message: "tab.inbox.via_push")
                 state.selectedTab = .countdown
@@ -208,15 +222,21 @@ struct AppFeature {
 
             case .scenePhaseChanged(.active):
                 guard state.route == .main else { return .none }
+                let now = date()
+                let shouldVerifyEntitlement = state.lastEntitlementVerifiedAt
+                    .map { now.timeIntervalSince($0) >= Self.entitlementThrottle }
+                    ?? true
+                let verifyEffect: Effect<Action> = shouldVerifyEntitlement
+                    ? .run { [purchaseClient, date] send in
+                        let profile = try? await purchaseClient.verifyAndSyncEntitlement()
+                        await send(.entitlementVerified(profile, at: date()))
+                    }
+                    : .none
                 return .merge(
                     .send(.countdown(.foregroundRefresh)),
                     .send(.chats(.foregroundRefresh)),
                     .send(.friends(.foregroundRefresh)),
-                    .run { [purchaseClient] send in
-                        if let profile = try? await purchaseClient.verifyAndSyncEntitlement() {
-                            await send(.profileRefreshed(profile))
-                        }
-                    }
+                    verifyEffect
                 )
 
             case .scenePhaseChanged:
@@ -230,6 +250,7 @@ struct AppFeature {
                 state.countdown = CountdownInboxFeature.State()
                 state.selectedTab = .countdown
                 state.route = .auth(AuthFeature.State())
+                state.lastEntitlementVerifiedAt = nil
                 // Send .reset to features with StackState so forEach(\.path) can
                 // detect path elements being removed and cancel child effects
                 // before state is wiped.

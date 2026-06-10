@@ -268,7 +268,10 @@ struct FriendsFeature {
                 return .none
 
             case .foregroundRefresh:
-                state.lastFetchedAt = nil
+                let now = Date()
+                let shouldFetch = state.lastFetchedAt
+                    .map { now.timeIntervalSince($0) >= 30 } ?? true
+                guard shouldFetch else { return .none }
                 return .run { [id = state.me.id] send in
                     do {
                         let friends = try await friendClient.fetchFriends(id)
