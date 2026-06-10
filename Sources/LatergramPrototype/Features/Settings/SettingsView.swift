@@ -64,6 +64,29 @@ struct SettingsView: View {
                     Label(LS("friends.logout_button"), systemImage: "rectangle.portrait.and.arrow.right")
                 }
             }
+
+            #if DEBUG
+            Section {
+                Button(role: .destructive) {
+                    SentryBootstrap.crash()
+                } label: {
+                    Label("Sentry: Force Crash", systemImage: "ladybug.fill")
+                }
+                Button {
+                    Task {
+                        try? await tracedSupabase("debug.force_error") {
+                            throw URLError(.cannotFindHost)
+                        }
+                    }
+                } label: {
+                    Label("Sentry: Force Supabase Error", systemImage: "exclamationmark.triangle.fill")
+                }
+            } header: {
+                Text("Debug")
+            } footer: {
+                Text("DEBUG only. Crashes the app to verify Sentry dSYM symbolication, or forces a Supabase error to verify the supabase.op tag.")
+            }
+            #endif
         }
         .navigationTitle(LS("settings.title"))
         .navigationBarTitleDisplayMode(.inline)

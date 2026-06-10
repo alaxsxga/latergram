@@ -2,9 +2,9 @@ import Auth
 import Foundation
 
 @discardableResult
-func tracedSupabase<T>(
+func tracedSupabase<T: Sendable>(
     _ op: String,
-    _ work: () async throws -> T
+    _ work: @Sendable () async throws -> T
 ) async throws -> T {
     do {
         return try await work()
