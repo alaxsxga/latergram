@@ -86,7 +86,7 @@ struct ChatDetailView: View {
                             now: store.now,
                             isMine: message.senderID == store.state.friend.id ? false : true,
                             onRevealTap: { store.send(.revealTapped(message.id)) },
-                            onDelete: message.unlockAt <= store.now
+                            onDelete: message.status == .revealed
                                 ? { store.send(.deleteTapped(message.id)) }
                                 : nil
                         )

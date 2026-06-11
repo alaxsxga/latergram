@@ -331,7 +331,7 @@ private struct SentPage: View {
                             SentCard(
                                 message: message,
                                 now: store.now,
-                                onDelete: { store.send(.deleteTapped(message.id)) }
+                                onDelete: nil
                             )
                             .cardRow()
                         }

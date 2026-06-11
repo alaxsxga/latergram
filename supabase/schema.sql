@@ -136,19 +136,20 @@ create policy "messages: 只能由 sender 建立"
     on public.messages for insert
     with check (auth.uid() = sender_id);
 
--- message_deletions: 只能看/新增自己的，新增限時間已到
+-- message_deletions: 只能看/新增自己的
 create policy "message_deletions: 只能看自己的"
     on public.message_deletions for select
     using (auth.uid() = user_id);
 
-create policy "message_deletions: 只能新增自己的（時間已到）"
+create policy "message_deletions: 只能新增自己的"
     on public.message_deletions for insert
     with check (
         auth.uid() = user_id
         and exists (
             select 1 from public.messages m
             where m.id = message_id
-              and m.unlock_at <= now()
+              and (m.sender_id = auth.uid() or m.receiver_id = auth.uid())
+              and m.status = 'revealed'
         )
     );
 
