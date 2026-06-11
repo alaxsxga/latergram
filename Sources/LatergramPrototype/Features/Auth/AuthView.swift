@@ -18,6 +18,10 @@ struct AuthView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
     }
 
     // MARK: - Credentials (登入 / 註冊)

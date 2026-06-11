@@ -64,16 +64,11 @@ struct ComposeView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil, from: nil, for: nil
-                    )
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
-            )
+            }
+            .scrollDismissesKeyboard(.immediately)
             .pageBackground()
             .navigationTitle(LS("compose.nav_title"))
             .navigationBarTitleDisplayMode(.inline)
@@ -181,6 +176,7 @@ struct ComposeView: View {
         }
         .padding(14)
         .cardBackground(radius: 16)
+        .onTapGesture {}
     }
 
     private var timingToggle: some View {
