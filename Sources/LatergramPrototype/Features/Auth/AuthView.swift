@@ -135,6 +135,13 @@ struct AuthView: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white.opacity(0.5))
 
+            if let error = store.errorMessage {
+                Text(error)
+                    .foregroundStyle(Color.errorRed)
+                    .font(.footnote)
+                    .multilineTextAlignment(.center)
+            }
+
             Spacer()
 
             Button {

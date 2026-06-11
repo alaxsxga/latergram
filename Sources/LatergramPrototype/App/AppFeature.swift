@@ -152,19 +152,29 @@ struct AppFeature {
 
                 // Auth callback (email confirmation)
                 if url.scheme == "latergram", url.host == "auth" {
-                    guard case .auth = state.route else { return .none }
+                    guard case .auth = state.route else {
+                        print("[DeepLink] auth callback 進來但 route=\(state.route.debugLabel) 非 .auth，丟棄")
+                        sentryClient.addBreadcrumb(
+                            category: "nav",
+                            message: "deeplink.auth_dropped_wrong_route",
+                            level: .warning,
+                            data: ["route": state.route.debugLabel]
+                        )
+                        return .none
+                    }
                     sentryClient.addBreadcrumb(category: "nav", message: "deeplink.auth")
                     return .run { send in
                         do {
                             let userID = try await authClient.handleDeepLink(url)
                             await send(.auth(.emailConfirmed(userID)))
                         } catch {
-                            print("[DeepLink] handleDeepLink 失敗: \(error)")
                             sentryClient.addBreadcrumb(
                                 category: "nav",
                                 message: "deeplink.auth_failed",
-                                level: .warning
+                                level: .warning,
+                                data: ["error": error.localizedDescription]
                             )
+                            await send(.auth(.failed(error.localizedDescription)))
                         }
                     }
                 }
@@ -175,11 +185,16 @@ struct AppFeature {
                       let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                           .queryItems?.first(where: { $0.name == "code" })?.value
                 else {
-                    print("[DeepLink] URL 格式不符，略過")
+                    print("[DeepLink] URL 格式不符，略過: \(url.absoluteString)")
                     sentryClient.addBreadcrumb(
                         category: "nav",
                         message: "deeplink.unknown",
-                        level: .warning
+                        level: .warning,
+                        data: [
+                            "scheme": url.scheme ?? "nil",
+                            "host": url.host ?? "nil",
+                            "url": url.absoluteString
+                        ]
                     )
                     return .none
                 }
@@ -328,6 +343,14 @@ extension AppFeature.Route {
         set {
             guard let newValue else { return }
             self = .auth(newValue)
+        }
+    }
+
+    var debugLabel: String {
+        switch self {
+        case .splash: return "splash"
+        case .auth: return "auth"
+        case .main: return "main"
         }
     }
 }

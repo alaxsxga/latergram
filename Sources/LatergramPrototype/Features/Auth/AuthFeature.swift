@@ -62,11 +62,12 @@ struct AuthFeature {
                 sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_up_tapped")
                 state.errorMessage = nil
                 state.isSubmitting = true
-                return .run { send in
+                return .run { [sentryClient] send in
                     do {
                         let userID = try await authClient.createAccount(email, password)
                         await send(.accountCreated(userID))
                     } catch {
+                        sentryClient.captureBackend(error, op: "auth.create_account")
                         await send(.failed(error.localizedDescription))
                     }
                 }
@@ -111,21 +112,23 @@ struct AuthFeature {
                         return .none
                     }
                     sentryClient.addBreadcrumb(category: "auth", message: "auth.set_name_tapped")
-                    return .run { send in
+                    return .run { [sentryClient] send in
                         do {
                             let user = try await authClient.setDisplayName(userID, displayName)
                             await send(.succeeded(user))
                         } catch {
+                            sentryClient.captureBackend(error, op: "auth.set_display_name")
                             await send(.failed(error.localizedDescription))
                         }
                     }
                 }
                 sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_in_tapped")
-                return .run { send in
+                return .run { [sentryClient] send in
                     do {
                         let user = try await authClient.signIn(email, password)
                         await send(.succeeded(user))
                     } catch {
+                        sentryClient.captureBackend(error, op: "auth.sign_in")
                         await send(.failed(error.localizedDescription))
                     }
                 }
