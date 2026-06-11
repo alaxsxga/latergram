@@ -67,7 +67,7 @@ struct AuthFeature {
                         let userID = try await authClient.createAccount(email, password)
                         await send(.accountCreated(userID))
                     } catch {
-                        sentryClient.captureBackend(error, op: "auth.create_account")
+                        SentryBootstrap.captureBackend(error, op: "auth.create_account")
                         await send(.failed(error.localizedDescription))
                     }
                 }
@@ -117,7 +117,7 @@ struct AuthFeature {
                             let user = try await authClient.setDisplayName(userID, displayName)
                             await send(.succeeded(user))
                         } catch {
-                            sentryClient.captureBackend(error, op: "auth.set_display_name")
+                            SentryBootstrap.captureBackend(error, op: "auth.set_display_name")
                             await send(.failed(error.localizedDescription))
                         }
                     }
@@ -128,7 +128,7 @@ struct AuthFeature {
                         let user = try await authClient.signIn(email, password)
                         await send(.succeeded(user))
                     } catch {
-                        sentryClient.captureBackend(error, op: "auth.sign_in")
+                        SentryBootstrap.captureBackend(error, op: "auth.sign_in")
                         await send(.failed(error.localizedDescription))
                     }
                 }
