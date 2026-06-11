@@ -77,7 +77,7 @@ struct CountdownInboxFeature {
                 let now = date()
                 applySort(to: &state, now: now)
                 let shouldFetch = state.lastFetchedAt.map { now.timeIntervalSince($0) > 30 } ?? true
-                if state.messages.isEmpty { state.isLoading = true }
+                if state.messages.isEmpty && shouldFetch { state.isLoading = true }
                 var effects: [Effect<Action>] = [
                     startTimer(),
                     startMessageStream(userID: state.currentUserID),
@@ -394,6 +394,22 @@ struct CountdownInboxFeature {
                 let messages = try await messageClient.fetchCountdownFeed(userID)
                 await send(.messagesLoaded(messages))
             } catch {
+                // TODO(2026-06-10): 暫時埋點調查 background→foreground inbox timeout。
+                // 查到根因後評估：拿掉這段、改不跳 alert、或調整 loadFailed 邏輯。
+                #if os(iOS)
+                let nsError = error as NSError
+                SentryBootstrap.addBreadcrumb(
+                    category: "inbox",
+                    message: "inbox.load_failed_alert_shown",
+                    level: .warning,
+                    data: [
+                        "domain": nsError.domain,
+                        "code": String(nsError.code),
+                        "url_code": (error as? URLError).map { String($0.code.rawValue) } ?? "n/a"
+                    ]
+                )
+                SentryBootstrap.captureBackend(error, op: "inbox.alert_shown")
+                #endif
                 await send(.loadFailed(error.localizedDescription))
             }
         }

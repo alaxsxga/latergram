@@ -85,7 +85,7 @@ struct FriendsFeature {
                     state.friends = IdentifiedArray(uniqueElements: cached)
                     state.isLoading = false
                 } else {
-                    state.isLoading = true
+                    state.isLoading = state.lastFetchedAt == nil
                 }
 
                 let fetchEffect: Effect<Action> = state.lastFetchedAt == nil

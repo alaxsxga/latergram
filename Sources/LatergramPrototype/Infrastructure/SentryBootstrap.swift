@@ -16,6 +16,7 @@ public enum SentryBootstrap {
             options.beforeBreadcrumb = sanitize(breadcrumb:)
             #if DEBUG
             options.debug = true
+            options.diagnosticLevel = .warning
             #endif
         }
     }
