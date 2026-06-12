@@ -4414,55 +4414,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einladungscode eingefügt"
+            "value": "Einladung erhalten"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invite Code Pasted"
+            "value": "Invite Received"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Código de invitación pegado"
+            "value": "Invitación recibida"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kode undangan ditempel"
+            "value": "Undangan diterima"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "招待コードを貼り付けました"
+            "value": "招待を受け取りました"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "초대 코드를 붙여넣었어요"
+            "value": "초대를 받았어요"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Código de convite colado"
+            "value": "Convite recebido"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "วางรหัสเชิญแล้ว"
+            "value": "ได้รับคำเชิญ"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "邀請碼已貼上"
+            "value": "收到邀請"
           }
         }
       }
@@ -4472,55 +4472,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einladung senden"
+            "value": "Als Freund hinzufügen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Send Invite"
+            "value": "Add Friend"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enviar invitación"
+            "value": "Agregar amigo"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kirim undangan"
+            "value": "Tambah teman"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "招待を送信"
+            "value": "友だちに追加"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "초대 보내기"
+            "value": "친구 추가"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enviar convite"
+            "value": "Adicionar amigo"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ส่งคำเชิญ"
+            "value": "เพิ่มเป็นเพื่อน"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "送出邀請"
+            "value": "加為好友"
           }
         }
       }

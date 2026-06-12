@@ -28,6 +28,7 @@ struct ChatsFeature {
     enum CancelID { case load }
 
     @Dependency(\.friendClient) var friendClient
+    @Dependency(\.friendsCacheClient) var friendsCacheClient
     @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
@@ -44,7 +45,13 @@ struct ChatsFeature {
                 return .cancel(id: CancelID.load)
 
             case .foregroundRefresh:
-                return loadFriends(userID: state.currentUserID)
+                let cached = friendsCacheClient.load(state.currentUserID)
+                if !cached.isEmpty {
+                    state.friends = IdentifiedArray(
+                        uniqueElements: cached.filter { $0.status == .accepted }
+                    )
+                }
+                return .none
 
             case .friendTapped(let friend):
                 sentryClient.addBreadcrumb(
