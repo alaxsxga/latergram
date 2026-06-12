@@ -394,22 +394,10 @@ struct CountdownInboxFeature {
                 let messages = try await messageClient.fetchCountdownFeed(userID)
                 await send(.messagesLoaded(messages))
             } catch {
-                // TODO(2026-06-10): 暫時埋點調查 background→foreground inbox timeout。
-                // 查到根因後評估：拿掉這段、改不跳 alert、或調整 loadFailed 邏輯。
-                #if os(iOS)
                 let nsError = error as NSError
-                SentryBootstrap.addBreadcrumb(
-                    category: "inbox",
-                    message: "inbox.load_failed_alert_shown",
-                    level: .warning,
-                    data: [
-                        "domain": nsError.domain,
-                        "code": String(nsError.code),
-                        "url_code": (error as? URLError).map { String($0.code.rawValue) } ?? "n/a"
-                    ]
-                )
-                SentryBootstrap.captureBackend(error, op: "inbox.alert_shown")
-                #endif
+                // -999 = NSURLErrorCancelled: expected when a newer load cancels this one
+                // (cancelInFlight: true) or when the app goes to background.  No alert needed.
+                guard nsError.code != NSURLErrorCancelled else { return }
                 await send(.loadFailed(error.localizedDescription))
             }
         }

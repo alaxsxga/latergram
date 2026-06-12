@@ -254,6 +254,12 @@ struct AppFeature {
                     verifyEffect
                 )
 
+            case .scenePhaseChanged(.background):
+                return .merge(
+                    .cancel(id: CountdownInboxFeature.CancelID.load),
+                    .cancel(id: ChatsFeature.CancelID.load)
+                )
+
             case .scenePhaseChanged:
                 return .none
 
