@@ -481,7 +481,7 @@ private struct RevealedReceivedCard: View {
             .padding(.bottom, isExpanded ? 4 : 12)
             .transaction { $0.animation = nil }
 
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, style: message.style)
         }
         .padding(16)
         .messageCard(style: message.style, tier: .opened)
@@ -535,7 +535,7 @@ private struct SentCard: View {
     @ViewBuilder
     private var sentBody: some View {
         if message.status == .revealed {
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, style: message.style)
         } else if message.unlockAt > now {
             VStack(spacing: 6) {
                 L("inbox.card.unlock_countdown")
@@ -552,7 +552,7 @@ private struct SentCard: View {
                 .foregroundStyle(Color.fgMuted)
             }
             .frame(maxWidth: .infinity)
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, style: message.style)
         } else {
             VStack(spacing: 6) {
                 Image(systemName: "clock.badge.checkmark")
@@ -567,7 +567,7 @@ private struct SentCard: View {
                 .foregroundStyle(Color.fgMuted)
             }
             .frame(maxWidth: .infinity)
-            ExpandableMessageBody(text: message.body, isExpanded: isExpanded)
+            ExpandableMessageBody(text: message.body, isExpanded: isExpanded, style: message.style)
         }
     }
 }
@@ -577,20 +577,22 @@ private struct SentCard: View {
 private struct ExpandableMessageBody: View {
     let text: String
     let isExpanded: Bool
-    var includesDivider = true
+    let style: MessageStyle
 
     var body: some View {
         if isExpanded {
-            VStack(alignment: .leading, spacing: 0) {
-                if includesDivider {
-                    Divider().opacity(0.15)
-                }
-                Text(text)
-                    .font(.body)
-                    .foregroundStyle(.white.opacity(0.88))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, includesDivider ? 8 : 0)
-            }
+            Text(text)
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.88))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(style.styleColor.opacity(0.07))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(style.styleColor.opacity(0.22), lineWidth: 0.5)
+                )
+                .padding(.top, 10)
         }
     }
 }
