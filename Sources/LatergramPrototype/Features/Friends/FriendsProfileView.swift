@@ -8,6 +8,8 @@ struct FriendsProfileView: View {
     @Bindable var store: StoreOf<FriendsFeature>
     @State private var showInviteSheet = false
 
+    @State private var selectedFriend: Friend? = nil
+
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
@@ -82,7 +84,7 @@ struct FriendsProfileView: View {
                 ),
                 presenting: store.friendPendingDeletion
             ) { friend in
-                Button(String(format: LS("friends.delete_confirm_button"), friend.displayName), role: .destructive) {
+                Button(LS("friends.delete_confirm_button"), role: .destructive) {
                     store.send(.removeFriendConfirmed)
                 }
                 Button(LS("common.cancel"), role: .cancel) {}
@@ -124,6 +126,25 @@ struct FriendsProfileView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
+            .sheet(item: $selectedFriend) { friend in
+                FriendActionSheet(
+                    friend: friend,
+                    onSendMessage: {
+                        selectedFriend = nil
+                        store.send(.friendTapped(friend))
+                    },
+                    onDelete: {
+                        selectedFriend = nil
+                        store.send(.removeFriendSwiped(friend))
+                    }
+                )
+                .presentationDetents([.height(340)])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Color.pageBg.opacity(0.35))
+            }
+            .sheet(item: $store.scope(state: \.compose, action: \.compose)) { composeStore in
+                ComposeView(store: composeStore)
+            }
         } destination: { settingsStore in
             SettingsView(store: settingsStore)
         }
@@ -154,7 +175,7 @@ struct FriendsProfileView: View {
                         Divider().padding(.leading, 72)
                     }
                     FriendRow(friend: friend) {
-                        store.send(.removeFriendSwiped(friend))
+                        selectedFriend = friend
                     }
                 }
                 .padding(.bottom, 8)
@@ -183,29 +204,27 @@ struct FriendsProfileView: View {
 
 private struct FriendRow: View {
     let friend: Friend
-    let onDelete: () -> Void
+    let onTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 14) {
-            InitialsAvatar(name: friend.displayName, size: 44)
+        Button(action: onTap) {
+            HStack(spacing: 14) {
+                InitialsAvatar(name: friend.displayName, size: 44)
 
-            Text(friend.displayName)
-                .font(.body)
+                Text(friend.displayName)
+                    .font(.body)
+                    .foregroundStyle(.primary)
 
-            Spacer()
+                Spacer()
 
-            Menu {
-                Button(role: .destructive, action: onDelete) {
-                    Label(LS("friends.delete_friend_menu"), systemImage: "person.fill.xmark")
-                }
-            } label: {
                 Image(systemName: "ellipsis.circle")
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .contentShape(Rectangle())
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .buttonStyle(.plain)
     }
 }
 
@@ -350,6 +369,74 @@ private struct InviteSheet: View {
                 .disabled(!canJoin)
             }
         }
+    }
+}
+
+// MARK: - Friend Action Sheet
+
+private struct FriendActionSheet: View {
+    let friend: Friend
+    let onSendMessage: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 6) {
+                InitialsAvatar(name: friend.displayName, size: 52)
+                Text(friend.displayName)
+                    .font(.headline)
+            }
+            .padding(.top, 28)
+            .padding(.bottom, 24)
+
+            Divider()
+
+            VStack(spacing: 0) {
+                actionButton(
+                    icon: "paperplane.fill",
+                    label: LS("friends.send_message"),
+                    color: .brand,
+                    action: onSendMessage
+                )
+
+                Divider().padding(.leading, 56)
+
+                actionButton(
+                    icon: "person.crop.circle",
+                    label: LS("friends.edit_avatar"),
+                    color: .secondary,
+                    action: {}
+                )
+                .disabled(true)
+                .opacity(0.4)
+
+                Divider().padding(.leading, 56)
+
+                actionButton(
+                    icon: "person.fill.xmark",
+                    label: LS("friends.delete_friend_menu"),
+                    color: .red,
+                    action: onDelete
+                )
+            }
+        }
+    }
+
+    private func actionButton(icon: String, label: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                    .frame(width: 28)
+                Text(label)
+                    .foregroundStyle(color == .secondary ? Color.primary : color)
+                Spacer()
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

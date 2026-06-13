@@ -3950,55 +3950,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ löschen"
+            "value": "Löschen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete %@"
+            "value": "Delete"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar a %@"
+            "value": "Eliminar"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hapus %@"
+            "value": "Hapus"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ を削除"
+            "value": "削除"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 삭제"
+            "value": "삭제"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Excluir %@"
+            "value": "Excluir"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ลบ %@"
+            "value": "ลบ"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "刪除 %@"
+            "value": "刪除"
           }
         }
       }
@@ -4008,55 +4008,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+            "value": "%@ wirklich entfernen?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete %@? This action cannot be undone."
+            "value": "Remove %@?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Eliminar a %@? Esta acción no se puede deshacer."
+            "value": "¿Quitar a %@?"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hapus %@? Tindakan ini tidak bisa dibatalkan."
+            "value": "Hapus %@?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ を削除しますか？この操作は取り消せません。"
+            "value": "%@ を外しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@을(를) 삭제할까요? 이 작업은 되돌릴 수 없어요."
+            "value": "%@을(를) 제거할까요?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Excluir %@? Esta ação não pode ser desfeita."
+            "value": "Remover %@?"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ลบ %@? การกระทำนี้ย้อนกลับไม่ได้"
+            "value": "นำ %@ ออกใช่ไหม?"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "確定要刪除 %@？此操作無法復原。"
+            "value": "確定要移除 %@？"
           }
         }
       }
@@ -4289,6 +4289,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "還沒有好友"
+          }
+        }
+      }
+    },
+    "friends.edit_avatar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatar bearbeiten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Avatar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar avatar"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit avatar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アバターを編集"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아바타 편집"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar avatar"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แก้ไขรูปโปรไฟล์"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯頭像"
           }
         }
       }
@@ -5101,6 +5159,122 @@
           "stringUnit": {
             "state": "translated",
             "value": "確定要登出嗎？"
+          }
+        }
+      }
+    },
+    "friends.message_sent_banner": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachricht geplant"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message scheduled"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensaje programado"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesan dijadwalkan"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージをスケジュールしました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메시지가 예약되었습니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensagem agendada"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำหนดเวลาส่งข้อความแล้ว"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訊息已排程送出"
+          }
+        }
+      }
+    },
+    "friends.send_message": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachricht senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Message"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar mensaje"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirim pesan"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージを送る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메시지 보내기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar mensagem"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งข้อความ"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送訊息"
           }
         }
       }

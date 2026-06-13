@@ -174,6 +174,7 @@ struct CountdownInboxView: View {
                     isLoading: store.isLoadingFriends,
                     onSelect: { store.send(.recipientSelected($0)) }
                 )
+                .presentationBackground(Color.pageBg.opacity(0.35))
             }
             .sheet(isPresented: Binding(
                 get: { store.showLimitInfo },
@@ -775,54 +776,62 @@ private struct RecipientPickerSheet: View {
     var isLoading: Bool = false
     let onSelect: (Friend) -> Void
 
-    private func initials(for name: String) -> String {
-        let w = name.split(separator: " ")
-        return w.count >= 2
-            ? "\(w[0].prefix(1))\(w[1].prefix(1))".uppercased()
-            : String(name.prefix(2)).uppercased()
-    }
-
     var body: some View {
-        NavigationStack {
-            Group {
-                if isLoading && friends.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if friends.isEmpty {
-                    ContentUnavailableView {
-                        Label(LS("compose.pick_recipient.empty_title"), systemImage: "person.2")
-                    } description: {
-                        L("compose.pick_recipient.empty_description")
-                    }
-                } else {
-                    List(friends) { friend in
-                        Button {
-                            onSelect(friend)
-                        } label: {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle().fill(Color.surfaceMid)
-                                    Text(initials(for: friend.displayName))
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundStyle(.white.opacity(0.85))
-                                }
-                                .frame(width: 40, height: 40)
-                                Text(friend.displayName)
-                                    .foregroundStyle(.white)
+        VStack(spacing: 0) {
+            L("compose.pick_recipient")
+                .font(.headline)
+                .padding(.top, 24)
+                .padding(.bottom, 20)
+
+            Divider()
+
+            if isLoading && friends.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if friends.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "person.2")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.secondary)
+                    L("compose.pick_recipient.empty_title")
+                        .font(.subheadline.bold())
+                    L("compose.pick_recipient.empty_description")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(friends.enumerated()), id: \.element.id) { index, friend in
+                            if index > 0 {
+                                Divider().padding(.leading, 72)
                             }
+                            Button {
+                                onSelect(friend)
+                            } label: {
+                                HStack(spacing: 14) {
+                                    InitialsAvatar(name: friend.displayName, size: 44)
+                                    Text(friend.displayName)
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .listRowBackground(Color.cardBg)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
+                    .cardStyle()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
                 }
             }
-            .background(Color.pageBg)
-            .navigationTitle(LS("compose.pick_recipient"))
-            .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.medium, .large])
-        .preferredColorScheme(.dark)
+        .presentationDragIndicator(.visible)
     }
 }
 

@@ -31,6 +31,7 @@ struct FriendsFeature {
         var showDeepLinkInviteAlert = false
         var inviteAcceptError: AcceptInviteFailure? = nil
         var path = StackState<SettingsFeature.State>()
+        @Presents var compose: ComposeFeature.State?
     }
 
     enum Action: BindableAction {
@@ -61,6 +62,8 @@ struct FriendsFeature {
         case acceptInviteFromDeepLink(String)
         case deepLinkAlertDismissed
         case inviteAcceptErrorDismissed
+        case friendTapped(Friend)
+        case compose(PresentationAction<ComposeFeature.Action>)
         case path(StackActionOf<SettingsFeature>)
     }
 
@@ -259,6 +262,40 @@ struct FriendsFeature {
                 state = State()
                 return .cancel(id: CancelID.realtimeSubscription)
 
+            case .friendTapped(let friend):
+                sentryClient.addBreadcrumb(
+                    category: "friends",
+                    message: "friends.compose_opened",
+                    data: ["friendID": friend.id.uuidString]
+                )
+                state.compose = ComposeFeature.State(
+                    friend: friend,
+                    senderID: state.me.id,
+                    senderName: state.me.displayName
+                )
+                return .none
+
+            case .compose(.presented(.sendSucceeded)):
+                state.compose = nil
+                state.banner = LS("friends.message_sent_banner")
+                return .none
+
+            case .compose(.presented(.cancelTapped)):
+                state.compose = nil
+                return .none
+
+            case .compose(.presented(.sendFailed(let error))):
+                state.compose = nil
+                state.banner = error
+                return .none
+
+            case .compose(.presented(.delegate(.purchaseSucceeded(let profile)))):
+                state.me = profile
+                return .none
+
+            case .compose:
+                return .none
+
             case .settingsButtonTapped:
                 sentryClient.addBreadcrumb(category: "nav", message: "settings.opened")
                 state.path.append(SettingsFeature.State(me: state.me))
@@ -342,6 +379,9 @@ struct FriendsFeature {
         }
         .forEach(\.path, action: \.path) {
             SettingsFeature()
+        }
+        .ifLet(\.$compose, action: \.compose) {
+            ComposeFeature()
         }
     }
 }
