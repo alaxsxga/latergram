@@ -25,7 +25,6 @@ struct FriendsFeature {
         var isLoading = false
         var isSharingInvite = false
         var inviteShareMessage = ""
-        var banner: String?
         var lastFetchedAt: Date? = nil
         var friendPendingDeletion: Friend? = nil
         var showDeepLinkInviteAlert = false
@@ -170,7 +169,6 @@ struct FriendsFeature {
                         level: .warning,
                         data: ["reason": "empty_code"]
                     )
-                    state.banner = "邀請碼不可為空"
                     return .none
                 }
                 sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_accept_started")
@@ -219,17 +217,12 @@ struct FriendsFeature {
 
             case .remoteFetchFailed(let error):
                 state.isLoading = false
-                if !state.friends.isEmpty {
-                    print("[FriendsFeature] remote fetch failed (cached): \(error)")
-                } else {
-                    state.banner = error
-                    print("[FriendsFeature] remote fetch failed (no cache): \(error)")
-                }
+                print("[FriendsFeature] remote fetch failed: \(error)")
                 return .none
 
             case .loadFailed(let error):
                 state.isLoading = false
-                state.banner = error
+                print("[FriendsFeature] load failed: \(error)")
                 return .none
 
             case .inviteAccepted(let friend):
@@ -241,7 +234,6 @@ struct FriendsFeature {
                 state.friends.append(friend)
                 state.friends.sort { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
                 state.pastedInviteCode = ""
-                state.banner = "好友已確認，可開始傳送訊息"
                 return .none
 
             case .inviteAcceptFailed(let failure):
@@ -277,16 +269,14 @@ struct FriendsFeature {
 
             case .compose(.presented(.sendSucceeded)):
                 state.compose = nil
-                state.banner = LS("friends.message_sent_banner")
                 return .none
 
             case .compose(.presented(.cancelTapped)):
                 state.compose = nil
                 return .none
 
-            case .compose(.presented(.sendFailed(let error))):
+            case .compose(.presented(.sendFailed)):
                 state.compose = nil
-                state.banner = error
                 return .none
 
             case .compose(.presented(.delegate(.purchaseSucceeded(let profile)))):
@@ -367,13 +357,12 @@ struct FriendsFeature {
                     friendsCacheClient.save(updated, userID)
                 }
 
-            case .removeFriendFailed(let error):
+            case .removeFriendFailed:
                 sentryClient.addBreadcrumb(
                     category: "friends",
                     message: "friends.remove_failed",
                     level: .warning
                 )
-                state.banner = "刪除失敗：\(error)"
                 return .none
             }
         }

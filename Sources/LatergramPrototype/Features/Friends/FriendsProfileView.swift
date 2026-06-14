@@ -67,15 +67,6 @@ struct FriendsProfileView: View {
                     ProgressView()
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                if let banner = store.banner {
-                    Text(banner)
-                        .font(.footnote)
-                        .padding(10)
-                        .frame(maxWidth: .infinity)
-                        .background(.thinMaterial)
-                }
-            }
             .alert(
                 L("friends.delete_friend_title"),
                 isPresented: Binding(
