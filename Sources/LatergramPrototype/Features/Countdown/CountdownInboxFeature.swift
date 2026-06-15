@@ -395,9 +395,10 @@ struct CountdownInboxFeature {
                 await send(.messagesLoaded(messages))
             } catch {
                 let nsError = error as NSError
-                // -999 = NSURLErrorCancelled: expected when a newer load cancels this one
-                // (cancelInFlight: true) or when the app goes to background.  No alert needed.
-                guard nsError.code != NSURLErrorCancelled else { return }
+                // -999 = cancelled (newer load or background); -1001 = timeout after bg/fg cycling.
+                // Both are expected transient network conditions; cache is still visible, no alert needed.
+                guard nsError.code != NSURLErrorCancelled,
+                      nsError.code != NSURLErrorTimedOut else { return }
                 await send(.loadFailed(error.localizedDescription))
             }
         }
