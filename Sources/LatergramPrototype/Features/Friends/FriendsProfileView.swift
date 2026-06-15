@@ -438,7 +438,9 @@ struct InitialsAvatar: View {
     let size: CGFloat
 
     private var avatarColor: Color {
-        Color.avatarPalette[abs(name.hashValue) % Color.avatarPalette.count]
+        // String.hashValue is randomized per launch; use stable scalar sum instead
+        let stableHash = name.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
+        return Color.avatarPalette[abs(stableHash) % Color.avatarPalette.count]
     }
 
     private var initials: String {

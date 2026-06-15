@@ -150,7 +150,7 @@ struct AppFeature {
                 print("[DeepLink] urlOpened: \(url.absoluteString)")
                 print("[DeepLink] scheme=\(url.scheme ?? "nil") host=\(url.host ?? "nil")")
 
-                // Auth callback (email confirmation)
+                // Auth callback (email confirmation or password recovery)
                 if url.scheme == "latergram", url.host == "auth" {
                     guard case .auth = state.route else {
                         print("[DeepLink] auth callback 進來但 route=\(state.route.debugLabel) 非 .auth，丟棄")
@@ -162,11 +162,22 @@ struct AppFeature {
                         )
                         return .none
                     }
-                    sentryClient.addBreadcrumb(category: "nav", message: "deeplink.auth")
+                    let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                    let linkType = urlComponents?.queryItems?.first(where: { $0.name == "type" })?.value
+                        ?? fragmentQueryItem(named: "type", in: url)
+                    let isRecovery = linkType == "recovery"
+                    sentryClient.addBreadcrumb(
+                        category: "nav",
+                        message: isRecovery ? "deeplink.auth_recovery" : "deeplink.auth"
+                    )
                     return .run { send in
                         do {
                             let userID = try await authClient.handleDeepLink(url)
-                            await send(.auth(.emailConfirmed(userID)))
+                            if isRecovery {
+                                await send(.auth(.passwordResetLinkOpened))
+                            } else {
+                                await send(.auth(.emailConfirmed(userID)))
+                            }
                         } catch {
                             sentryClient.addBreadcrumb(
                                 category: "nav",
@@ -324,6 +335,13 @@ struct AppFeature {
             AuthFeature()
         }
     }
+}
+
+// MARK: - URL helpers
+
+private func fragmentQueryItem(named name: String, in url: URL) -> String? {
+    guard let fragment = url.fragment else { return nil }
+    return URLComponents(string: "?\(fragment)")?.queryItems?.first(where: { $0.name == name })?.value
 }
 
 // MARK: - Breadcrumb helper

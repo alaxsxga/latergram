@@ -12,6 +12,8 @@ struct AuthClient: Sendable {
     var signOut: @Sendable () async throws -> Void
     var currentSession: @Sendable () async -> UserProfile?
     var handleDeepLink: @Sendable (_ url: URL) async throws -> UUID
+    var sendPasswordReset: @Sendable (_ email: String) async throws -> Void
+    var updatePassword: @Sendable (_ newPassword: String) async throws -> Void
 }
 
 extension AuthClient: DependencyKey {
@@ -58,8 +60,7 @@ extension AuthClient: DependencyKey {
                 try await supabase.auth.signUp(email: email, password: password)
             }
             guard !(response.user.identities?.isEmpty ?? true) else {
-                throw NSError(domain: "AuthClient", code: 409,
-                              userInfo: [NSLocalizedDescriptionKey: "此 Email 已被註冊"])
+                throw NSError(domain: "AuthClient", code: 409, userInfo: [:])
             }
             return response.user.id
         },
@@ -111,6 +112,19 @@ extension AuthClient: DependencyKey {
                 let session = try await supabase.auth.session(from: url)
                 return session.user.id
             }
+        },
+        sendPasswordReset: { email in
+            try await tracedSupabase("auth.send_password_reset") {
+                try await supabase.auth.resetPasswordForEmail(
+                    email,
+                    redirectTo: URL(string: "latergram://auth?type=recovery")!
+                )
+            }
+        },
+        updatePassword: { newPassword in
+            _ = try await tracedSupabase("auth.update_password") {
+                try await supabase.auth.update(user: .init(password: newPassword))
+            }
         }
     )
 
@@ -121,7 +135,9 @@ extension AuthClient: DependencyKey {
         setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName) },
         signOut: {},
         currentSession: { nil },
-        handleDeepLink: { _ in UUID() }
+        handleDeepLink: { _ in UUID() },
+        sendPasswordReset: { _ in },
+        updatePassword: { _ in }
     )
 }
 

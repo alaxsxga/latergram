@@ -233,6 +233,465 @@
         }
       }
     },
+    "auth.error.display_name_required": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Bitte gib einen Anzeigenamen ein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Please enter a display name" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ingresa un nombre para mostrar" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Masukkan nama tampilan" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "表示名を入力してください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "표시 이름을 입력해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Digite um nome de exibição" } },
+        "th": { "stringUnit": { "state": "translated", "value": "กรุณากรอกชื่อที่แสดง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請填寫顯示名稱" } }
+      }
+    },
+    "auth.error.email_password_required": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Bitte gib E-Mail und Passwort ein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Please enter your email and password" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ingresa tu correo y contraseña" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Masukkan email dan kata sandi" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "メールアドレスとパスワードを入力してください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이메일과 비밀번호를 입력해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Digite seu e-mail e senha" } },
+        "th": { "stringUnit": { "state": "translated", "value": "กรุณากรอกอีเมลและรหัสผ่าน" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請填寫 Email 與密碼" } }
+      }
+    },
+    "auth.error.email_required": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Bitte gib deine E-Mail-Adresse ein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Please enter your email" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ingresa tu correo electrónico" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Masukkan email Anda" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "メールアドレスを入力してください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이메일을 입력해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Digite seu e-mail" } },
+        "th": { "stringUnit": { "state": "translated", "value": "กรุณากรอกอีเมล" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請填寫 Email" } }
+      }
+    },
+    "auth.error.generic": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Ein Fehler ist aufgetreten. Bitte versuche es erneut" } },
+        "en": { "stringUnit": { "state": "translated", "value": "An error occurred, please try again" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ocurrió un error, por favor intenta de nuevo" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Terjadi kesalahan, silakan coba lagi" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "エラーが発生しました。もう一度お試しください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "오류가 발생했어요. 다시 시도해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ocorreu um erro, por favor tente novamente" } },
+        "th": { "stringUnit": { "state": "translated", "value": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "發生錯誤，請重新嘗試" } }
+      }
+    },
+    "auth.error.new_password_required": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Bitte gib ein neues Passwort ein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Please enter a new password" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ingresa una nueva contraseña" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Masukkan kata sandi baru" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "新しいパスワードを入力してください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "새 비밀번호를 입력해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Digite uma nova senha" } },
+        "th": { "stringUnit": { "state": "translated", "value": "กรุณากรอกรหัสผ่านใหม่" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請填寫新密碼" } }
+      }
+    },
+    "auth.error.password_mismatch": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Die Passwörter stimmen nicht überein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Passwords do not match" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Las contraseñas no coinciden" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Kata sandi tidak cocok" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パスワードが一致しません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "비밀번호가 일치하지 않아요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "As senhas não coincidem" } },
+        "th": { "stringUnit": { "state": "translated", "value": "รหัสผ่านไม่ตรงกัน" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "兩次密碼不一致" } }
+      }
+    },
+    "auth.error.password_too_short": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Das Passwort muss mindestens 6 Zeichen lang sein" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Password must be at least 6 characters" } },
+        "es": { "stringUnit": { "state": "translated", "value": "La contraseña debe tener al menos 6 caracteres" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Kata sandi minimal 6 karakter" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パスワードは6文字以上にしてください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "비밀번호는 6자 이상이어야 해요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "A senha deve ter pelo menos 6 caracteres" } },
+        "th": { "stringUnit": { "state": "translated", "value": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "密碼至少需要 6 個字元" } }
+      }
+    },
+    "auth.error.email_already_registered": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Diese E-Mail ist bereits registriert" } },
+        "en": { "stringUnit": { "state": "translated", "value": "This email is already registered" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Este correo ya está registrado" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Email ini sudah terdaftar" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "このメールアドレスはすでに登録されています" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미 등록된 이메일이에요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Este e-mail já está registrado" } },
+        "th": { "stringUnit": { "state": "translated", "value": "อีเมลนี้ถูกลงทะเบียนแล้ว" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "此 Email 已被註冊" } }
+      }
+    },
+    "auth.error.email_not_confirmed": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Bitte bestätige zuerst deine E-Mail" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Please confirm your email first" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Por favor confirma tu correo electrónico primero" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Harap konfirmasi email Anda terlebih dahulu" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "先にメールアドレスを確認してください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "먼저 이메일을 확인해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Por favor confirme seu e-mail primeiro" } },
+        "th": { "stringUnit": { "state": "translated", "value": "กรุณายืนยันอีเมลก่อน" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請先確認您的 Email" } }
+      }
+    },
+    "auth.error.invalid_credentials": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "E-Mail oder Passwort falsch" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Incorrect email or password" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Correo o contraseña incorrectos" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Email atau kata sandi salah" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "メールアドレスまたはパスワードが間違っています" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이메일 또는 비밀번호가 올바르지 않아요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "E-mail ou senha incorretos" } },
+        "th": { "stringUnit": { "state": "translated", "value": "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "帳號或密碼錯誤" } }
+      }
+    },
+    "auth.error.invalid_email_format": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Ungültiges E-Mail-Format" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Invalid email format" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Formato de correo electrónico inválido" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Format email tidak valid" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "メールアドレスの形式が正しくありません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "올바른 이메일 형식이 아니에요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Formato de e-mail inválido" } },
+        "th": { "stringUnit": { "state": "translated", "value": "รูปแบบอีเมลไม่ถูกต้อง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Email 格式不正確" } }
+      }
+    },
+    "auth.error.network": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Netzwerkfehler, bitte versuche es erneut" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Network error, please try again" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Error de red, por favor intenta de nuevo" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Kesalahan jaringan, silakan coba lagi" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ネットワークエラーが発生しました。もう一度お試しください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "네트워크 오류가 발생했어요. 다시 시도해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Erro de rede, por favor tente novamente" } },
+        "th": { "stringUnit": { "state": "translated", "value": "เกิดข้อผิดพลาดด้านเครือข่าย กรุณาลองอีกครั้ง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "網路連線異常，請稍後再試" } }
+      }
+    },
+    "auth.error.rate_limit": {
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Zu viele Versuche, bitte versuche es später erneut" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Too many attempts, please try again later" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Demasiados intentos, por favor intenta más tarde" } },
+        "id": { "stringUnit": { "state": "translated", "value": "Terlalu banyak percobaan, coba lagi nanti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "リクエストが多すぎます。しばらく後にもう一度お試しください" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "요청이 너무 많아요. 잠시 후 다시 시도해 주세요" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Muitas tentativas, por favor tente novamente mais tarde" } },
+        "th": { "stringUnit": { "state": "translated", "value": "มีการร้องขอมากเกินไป กรุณาลองใหม่อีกครั้งภายหลัง" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請求次數過多，請稍後再試" } }
+      }
+    },
+    "auth.forgot_password_body": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib deine E-Mail-Adresse ein und wir senden dir einen Reset-Link"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your email and we'll send you a reset link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masukkan email dan kami akan kirimkan link reset kata sandi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレスを入力してください。パスワードリセットリンクをお送りします"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일을 입력하면 비밀번호 재설정 링크를 보내드려요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite seu e-mail e enviaremos um link para redefinir sua senha"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กรอกอีเมลของคุณ แล้วเราจะส่งลิงก์รีเซ็ตรหัสผ่านให้"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入 Email，我們會寄送密碼重設連結"
+          }
+        }
+      }
+    },
+    "auth.forgot_password_button": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort vergessen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot Password?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Olvidaste tu contraseña?"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lupa kata sandi?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを忘れましたか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호를 잊으셨나요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esqueceu a senha?"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลืมรหัสผ่าน?"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忘記密碼？"
+          }
+        }
+      }
+    },
+    "auth.forgot_password_sent_body": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wir haben einen Reset-Link an %@ gesendet\nTippe auf den Link, um ein neues Passwort festzulegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A password reset link has been sent to %@\nClick the link to set a new password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviamos un enlace de restablecimiento a %@\nToca el enlace para configurar una nueva contraseña"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link reset kata sandi telah dikirim ke %@\nKetuk tautan di email untuk mengatur kata sandi baru"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ にパスワードリセットリンクを送信しました\nリンクをタップして新しいパスワードを設定してください"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@(으)로 비밀번호 재설정 링크를 보냈어요\n링크를 누르면 새 비밀번호를 설정할 수 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviamos um link de redefinição para %@\nToque no link para definir uma nova senha"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ %@ แล้ว\nแตะลิงก์ในอีเมลเพื่อตั้งรหัสผ่านใหม่"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼重設連結已寄至 %@\n點擊信中連結即可設定新密碼"
+          }
+        }
+      }
+    },
+    "auth.forgot_password_sent_title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link gesendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Sent"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enlace enviado"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link terkirim"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクを送信しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크를 보냈어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link enviado"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งลิงก์แล้ว"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連結已送出"
+          }
+        }
+      }
+    },
+    "auth.forgot_password_title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort zurücksetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer contraseña"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset kata sandi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードをリセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 재설정"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redefinir senha"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รีเซ็ตรหัสผ่าน"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設密碼"
+          }
+        }
+      }
+    },
     "auth.login_button": {
       "localizations": {
         "de": {
@@ -345,6 +804,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "下一步"
+          }
+        }
+      }
+    },
+    "auth.new_password_placeholder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Passwort"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva contraseña"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kata sandi baru"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいパスワード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 비밀번호"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nova senha"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รหัสผ่านใหม่"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新密碼"
           }
         }
       }
@@ -519,6 +1036,122 @@
           "stringUnit": {
             "state": "translated",
             "value": "← 返回修改"
+          }
+        }
+      }
+    },
+    "auth.reset_password_title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Passwort festlegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set New Password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Establecer nueva contraseña"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tetapkan kata sandi baru"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいパスワードを設定"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 비밀번호 설정"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definir nova senha"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งรหัสผ่านใหม่"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定新密碼"
+          }
+        }
+      }
+    },
+    "auth.send_button": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirim"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보내기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่ง"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送出"
           }
         }
       }

@@ -15,6 +15,12 @@ struct AuthView: View {
                 awaitingConfirmationView
             case .setName:
                 setNameView
+            case .forgotPassword:
+                forgotPasswordView
+            case .forgotPasswordSent:
+                forgotPasswordSentView
+            case .resetPassword:
+                resetPasswordView
             }
         }
         .preferredColorScheme(.dark)
@@ -91,7 +97,8 @@ struct AuthView: View {
             .background(Color.brand)
             .foregroundStyle(Color.pageBg)
             .clipShape(RoundedRectangle(cornerRadius: 14))
-            .disabled(store.isSubmitting)
+            .opacity(credentialsReady ? 1 : 0.45)
+            .disabled(store.isSubmitting || !credentialsReady)
 
             Button {
                 store.send(.modeSwitchTapped)
@@ -104,6 +111,16 @@ struct AuthView: View {
                     .foregroundStyle(Color.brand)
             }
 
+            if store.mode == .login {
+                Button {
+                    store.send(.forgotPasswordTapped)
+                } label: {
+                    L("auth.forgot_password_button")
+                        .font(.footnote)
+                        .foregroundStyle(.white.opacity(0.45))
+                }
+            }
+
             Spacer()
 
             #if DEBUG
@@ -111,6 +128,10 @@ struct AuthView: View {
             #endif
         }
         .padding(.horizontal, 32)
+    }
+
+    private var credentialsReady: Bool {
+        !store.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !store.password.isEmpty
     }
 
     private var switchPrefixKey: LocalizedStringKey {
@@ -216,6 +237,163 @@ struct AuthView: View {
         .padding(.horizontal, 32)
     }
 
+    // MARK: - Forgot Password (email input)
+
+    private var forgotPasswordView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "lock.rotation")
+                .font(.system(size: 64))
+                .foregroundStyle(Color.brand)
+
+            L("auth.forgot_password_title")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+
+            L("auth.forgot_password_body")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.5))
+
+            TextField(LS("auth.email_placeholder"), text: $store.email)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .textContentType(.emailAddress)
+                .foregroundStyle(.white)
+                .padding()
+                .background(Color.cardBg)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
+
+            if let error = store.errorMessage {
+                Text(error)
+                    .foregroundStyle(Color.errorRed)
+                    .font(.footnote)
+            }
+
+            Button {
+                store.send(.sendResetEmailTapped)
+            } label: {
+                if store.isSubmitting {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else {
+                    L("auth.send_button")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+            }
+            .background(Color.brand)
+            .foregroundStyle(Color.pageBg)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .opacity(store.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.45 : 1)
+            .disabled(store.isSubmitting || store.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            Button {
+                store.send(.backTapped)
+            } label: {
+                L("common.back")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    // MARK: - Forgot Password Sent (confirmation)
+
+    private var forgotPasswordSentView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "envelope.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(Color.brand)
+
+            L("auth.forgot_password_sent_title")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+
+            Text(String(format: LS("auth.forgot_password_sent_body"), store.email))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.5))
+
+            Spacer()
+
+            Button {
+                store.send(.backTapped)
+            } label: {
+                L("common.back")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .padding(.bottom, 16)
+        }
+        .padding(.horizontal, 32)
+    }
+
+    // MARK: - Reset Password (new password input)
+
+    private var resetPasswordView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            L("auth.reset_password_title")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+
+            VStack(spacing: 12) {
+                SecureField(LS("auth.new_password_placeholder"), text: $store.password)
+                    .textContentType(.newPassword)
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(Color.cardBg)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
+
+                SecureField(LS("auth.password_confirm_placeholder"), text: $store.passwordConfirmation)
+                    .textContentType(.newPassword)
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(Color.cardBg)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
+            }
+
+            if let error = store.errorMessage {
+                Text(error)
+                    .foregroundStyle(Color.errorRed)
+                    .font(.footnote)
+            }
+
+            Button {
+                store.send(.submitTapped)
+            } label: {
+                if store.isSubmitting {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else {
+                    L("common.done")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+            }
+            .background(Color.brand)
+            .foregroundStyle(Color.pageBg)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .disabled(store.isSubmitting)
+
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
     // MARK: - Debug
 
     #if DEBUG
@@ -270,5 +448,17 @@ struct AuthView: View {
 
 #Preview("Set Name") {
     AuthView(store: Store(initialState: AuthFeature.State(mode: .setName, pendingUserID: UUID())) { AuthFeature() })
+}
+
+#Preview("Forgot Password") {
+    AuthView(store: Store(initialState: AuthFeature.State(mode: .forgotPassword)) { AuthFeature() })
+}
+
+#Preview("Forgot Password Sent") {
+    AuthView(store: Store(initialState: AuthFeature.State(mode: .forgotPasswordSent, email: "hello@example.com")) { AuthFeature() })
+}
+
+#Preview("Reset Password") {
+    AuthView(store: Store(initialState: AuthFeature.State(mode: .resetPassword)) { AuthFeature() })
 }
 #endif
