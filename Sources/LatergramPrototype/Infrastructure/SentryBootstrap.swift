@@ -1,6 +1,8 @@
 #if os(iOS)
 import Foundation
+import MachO
 import Sentry
+import UIKit
 
 public enum SentryBootstrap {
     public static func start() {
@@ -19,6 +21,44 @@ public enum SentryBootstrap {
             options.diagnosticLevel = .warning
             #endif
         }
+        startMemoryWarningObserver()
+    }
+
+    // Logs memory footprint when iOS fires a memory warning so that watchdog
+    // termination events include breadcrumbs showing memory state before the kill.
+    private static func startMemoryWarningObserver() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            let mb = memoryFootprintMB()
+            var data: [String: String] = ["level": "warning"]
+            if let mb {
+                data["resident_mb"] = "\(mb)"
+                SentrySDK.configureScope { scope in
+                    scope.setExtra(value: mb, key: "memory_warning_resident_mb")
+                }
+            }
+            addBreadcrumb(
+                category: "memory",
+                message: mb.map { "Memory warning — \($0) MB resident" } ?? "Memory warning",
+                level: .warning,
+                data: data
+            )
+        }
+    }
+
+    private static func memoryFootprintMB() -> Int? {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
+        let result = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+            }
+        }
+        guard result == KERN_SUCCESS else { return nil }
+        return Int(info.resident_size / 1_048_576)
     }
 
     // displayName is user-chosen and treated as low-PII; email/phone never go in.
