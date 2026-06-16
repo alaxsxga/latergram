@@ -15,6 +15,8 @@
 		64DFB3CD2F62576500B355F3 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 64DFB3CC2F62576500B355F3 /* PostgREST */; };
 		64DFB3D02F62595C00B355F3 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 64DFB3CF2F62595C00B355F3 /* Supabase */; };
 		A00100012026030300000001 /* LatergramApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100012026030300000011 /* LatergramApp.swift */; };
+		A00100012026030300000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00100012026030300000013 /* Assets.xcassets */; };
+		A00100012026030300000004 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A00100012026030300000014 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +25,8 @@
 		64CC959F2FC15C79005A191A /* LatergramStore.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = LatergramStore.storekit; sourceTree = "<group>"; };
 		A00100012026030300000010 /* Latergram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Latergram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00100012026030300000011 /* LatergramApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatergramApp.swift; sourceTree = "<group>"; };
+		A00100012026030300000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00100012026030300000014 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +67,8 @@
 		A00100012026030300000031 /* Latergram */ = {
 			isa = PBXGroup;
 			children = (
+				A00100012026030300000013 /* Assets.xcassets */,
+				A00100012026030300000014 /* LaunchScreen.storyboard */,
 				6487AF7E2FB8CA6800E29A58 /* Latergram.entitlements */,
 				64AE37102F67DDE7002252B8 /* Info.plist */,
 				A00100012026030300000011 /* LatergramApp.swift */,
@@ -87,6 +93,7 @@
 			buildPhases = (
 				A00100012026030300000021 /* Sources */,
 				A00100012026030300000020 /* Frameworks */,
+				A00100012026030300000023 /* Resources */,
 				A00100012026030300000022 /* Upload Symbols to Sentry */,
 			);
 			buildRules = (
@@ -142,6 +149,18 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00100012026030300000023 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00100012026030300000003 /* Assets.xcassets in Resources */,
+				A00100012026030300000004 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		A00100012026030300000022 /* Upload Symbols to Sentry */ = {
@@ -215,7 +234,7 @@
 		A00100012026030300000072 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Latergram/Latergram.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -226,7 +245,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -246,7 +264,7 @@
 		A00100012026030300000073 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Latergram/Latergram.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -257,7 +275,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";

@@ -16,7 +16,8 @@ public struct AppView: View {
         Group {
             switch store.route {
             case .splash:
-                ProgressView()
+                Color(red: 0.949, green: 0.949, blue: 0.949)
+                    .ignoresSafeArea()
                     .onAppear { store.send(.onAppear) }
 
             case .auth:
