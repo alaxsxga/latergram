@@ -2,6 +2,22 @@
 import Auth
 import Foundation
 
+// Returns true for errors caused by user input — these are shown as UI messages
+// and should not be reported to Sentry as unexpected errors.
+func isUserInputAuthError(_ error: Error) -> Bool {
+    guard let authError = error as? AuthError else { return false }
+    switch authError.errorCode {
+    case .invalidCredentials, .userNotFound,
+         .emailNotConfirmed,
+         .validationFailed,
+         .weakPassword,
+         .emailExists, .userAlreadyExists:
+        return true
+    default:
+        return false
+    }
+}
+
 func localizedAuthErrorMessage(_ error: Error) -> String {
     if let authError = error as? AuthError {
         switch authError.errorCode {

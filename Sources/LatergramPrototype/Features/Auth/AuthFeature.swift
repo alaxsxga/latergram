@@ -210,7 +210,9 @@ struct AuthFeature {
                         let user = try await authClient.signIn(email, password)
                         await send(.succeeded(user))
                     } catch {
-                        SentryBootstrap.captureBackend(error, op: "auth.sign_in")
+                        if !isUserInputAuthError(error) {
+                            SentryBootstrap.captureBackend(error, op: "auth.sign_in")
+                        }
                         await send(.failed(localizedAuthErrorMessage(error)))
                     }
                 }
