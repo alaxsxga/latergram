@@ -105,6 +105,13 @@ struct NewInviteTokenRow: Encodable {
     let inviter_id: UUID
 }
 
+// MARK: - App Config
+
+struct AppConfigRow: Decodable {
+    let key: String
+    let value: String
+}
+
 // MARK: - Accept Invite RPC
 
 struct AcceptInviteParams: Encodable {

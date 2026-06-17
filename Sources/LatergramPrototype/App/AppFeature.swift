@@ -26,6 +26,7 @@ struct AppFeature {
         var chats = ChatsFeature.State()
         var pendingInviteCode: String? = nil
         var lastEntitlementVerifiedAt: Date? = nil
+        var forceUpdateRequired: Bool = false
     }
 
     enum Action {
@@ -37,6 +38,7 @@ struct AppFeature {
         case profileRefreshed(UserProfile)
         case entitlementVerified(UserProfile?, at: Date)
         case urlOpened(URL)
+        case updateCheckCompleted(isRequired: Bool)
         case auth(AuthFeature.Action)
         case countdown(CountdownInboxFeature.Action)
         case friends(FriendsFeature.Action)
@@ -54,6 +56,7 @@ struct AppFeature {
     @Dependency(\.currentUserClient) var currentUserClient
     @Dependency(\.purchaseClient) var purchaseClient
     @Dependency(\.sentryClient) var sentryClient
+    @Dependency(\.appConfigClient) var appConfigClient
     @Dependency(\.date) var date
 
     var body: some ReducerOf<Self> {
@@ -83,7 +86,12 @@ struct AppFeature {
                             await send(.profileRefreshed(profile))
                         }
                     }
-                    .cancellable(id: CancelID.transactionUpdates)
+                    .cancellable(id: CancelID.transactionUpdates),
+                    .run { [appConfigClient] send in
+                        let minVersion = (try? await appConfigClient.fetchMinIOSVersion()) ?? "0.0.0"
+                        let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+                        await send(.updateCheckCompleted(isRequired: isVersionLessThan(current, minVersion)))
+                    }
                 )
 
             case .sessionChecked(let user):
@@ -236,6 +244,10 @@ struct AppFeature {
                 }
                 return .none
 
+            case .updateCheckCompleted(let isRequired):
+                state.forceUpdateRequired = isRequired
+                return .none
+
             case .notificationTapped:
                 sentryClient.addBreadcrumb(category: "nav", message: "tab.inbox.via_push")
                 state.selectedTab = .countdown
@@ -335,6 +347,21 @@ struct AppFeature {
             AuthFeature()
         }
     }
+}
+
+// MARK: - Version helpers
+
+private func isVersionLessThan(_ current: String, _ minimum: String) -> Bool {
+    let cur = current.split(separator: ".").compactMap { Int($0) }
+    let min = minimum.split(separator: ".").compactMap { Int($0) }
+    let count = max(cur.count, min.count)
+    for i in 0..<count {
+        let c = i < cur.count ? cur[i] : 0
+        let m = i < min.count ? min[i] : 0
+        if c < m { return true }
+        if c > m { return false }
+    }
+    return false
 }
 
 // MARK: - URL helpers

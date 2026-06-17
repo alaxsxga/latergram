@@ -33,6 +33,18 @@ public struct AppView: View {
                     }
             }
         }
+        .alert(
+            Text(LS("force_update.title")),
+            isPresented: Binding(get: { store.forceUpdateRequired }, set: { _ in }),
+            actions: {
+                Button(LS("force_update.button")) {
+                    UIApplication.shared.open(LegalURLs.appStore)
+                }
+            },
+            message: {
+                L("force_update.body")
+            }
+        )
         .onOpenURL { url in
             store.send(.urlOpened(url))
         }
