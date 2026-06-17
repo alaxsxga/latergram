@@ -40,7 +40,7 @@ struct ChatDetailView: View {
                         Label(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(store.now)),
                               systemImage: "clock")
                     } else {
-                        L("chat_detail.create_button")
+                        Image(systemName: "square.and.pencil")
                     }
                 }
             }
