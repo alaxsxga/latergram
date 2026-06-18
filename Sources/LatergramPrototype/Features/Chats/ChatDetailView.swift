@@ -6,7 +6,7 @@ import SwiftUI
 // MARK: - Spec colors (chat history screen only)
 
 private let specBgPage   = Color(red: 0.051, green: 0.067, blue: 0.090) // #0D1117
-private let specBgOpened = Color(red: 0.051, green: 0.110, blue: 0.090) // #0D1C17
+private let specBgOpened = Color(red: 0.063, green: 0.149, blue: 0.110) // #10261C
 private let specBgActive = Color(red: 0.078, green: 0.106, blue: 0.176) // #141B2D
 private let specTextDark = Color(red: 0.039, green: 0.055, blue: 0.090) // #0A0E17
 
