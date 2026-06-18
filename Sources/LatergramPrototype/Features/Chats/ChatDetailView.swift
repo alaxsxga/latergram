@@ -40,9 +40,11 @@ struct ChatDetailView: View {
                         Label(CountdownFormatter.dHms(from: unlockAt.timeIntervalSince(store.now)),
                               systemImage: "clock")
                     } else {
-                        Image(systemName: "square.and.pencil")
+                        Image(systemName: "square.and.pencil.circle.fill")
+                            .font(.system(size: 28))
                     }
                 }
+                .tint(.brand)
             }
         }
         .onAppear { store.send(.onAppear) }
