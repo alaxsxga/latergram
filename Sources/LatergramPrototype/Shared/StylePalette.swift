@@ -102,11 +102,13 @@ struct MessageCardModifier: ViewModifier {
                     .stroke(style.styleColor.opacity(border), lineWidth: 0.8)
             )
             .shadow(color: style.styleColor.opacity(a1), radius: tier.radius, x: 0, y: 0)
+            .animation(
+                tier == .ready ? .easeInOut(duration: 2).repeatForever(autoreverses: true) : nil,
+                value: breathe
+            )
             .onAppear {
                 guard tier == .ready else { return }
-                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                    breathe = true
-                }
+                breathe = true
             }
     }
 }
