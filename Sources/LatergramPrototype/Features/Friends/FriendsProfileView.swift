@@ -439,7 +439,9 @@ struct InitialsAvatar: View {
 
     private var avatarColor: Color {
         // String.hashValue is randomized per launch; use stable scalar sum instead
-        let stableHash = name.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
+        let stableHash = name.unicodeScalars.enumerated().reduce(0) {
+            $0 &+ Int($1.element.value) &* (31 &* ($1.offset + 1))
+        }
         return Color.avatarPalette[abs(stableHash) % Color.avatarPalette.count]
     }
 

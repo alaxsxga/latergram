@@ -16,13 +16,28 @@ extension Color {
     static let errorRed   = Color.red                                     // 表單錯誤
     static let badgeNew   = Color(red: 0.6,   green: 0.85,  blue: 0.6)   // NEW badge
 
-    // Avatar palette — index by abs(name.hashValue) % count
+    // Avatar palette — index by stable polynomial hash % count
     static let avatarPalette: [Color] = [
-        .brand,
+        Color(red: 0.00, green: 0.80, blue: 0.64), // brand mint
         Color(red: 0.49, green: 0.36, blue: 0.75), // purple
         Color(red: 0.91, green: 0.44, blue: 0.35), // coral
-        Color(red: 0.20, green: 0.60, blue: 0.86), // blue
+        Color(red: 0.20, green: 0.60, blue: 0.86), // sky blue
         Color(red: 0.91, green: 0.60, blue: 0.20), // amber
+        Color(red: 0.85, green: 0.33, blue: 0.60), // rose
+        Color(red: 0.30, green: 0.72, blue: 0.50), // emerald
+        Color(red: 0.95, green: 0.55, blue: 0.10), // orange
+        Color(red: 0.40, green: 0.55, blue: 0.90), // periwinkle
+        Color(red: 0.70, green: 0.28, blue: 0.28), // crimson
+        Color(red: 0.15, green: 0.65, blue: 0.75), // teal
+        Color(red: 0.80, green: 0.65, blue: 0.10), // gold
+        Color(red: 0.60, green: 0.35, blue: 0.70), // violet
+        Color(red: 0.25, green: 0.50, blue: 0.30), // forest
+        Color(red: 0.90, green: 0.40, blue: 0.55), // pink
+        Color(red: 0.35, green: 0.70, blue: 0.85), // cyan
+        Color(red: 0.75, green: 0.45, blue: 0.20), // sienna
+        Color(red: 0.50, green: 0.75, blue: 0.30), // lime
+        Color(red: 0.65, green: 0.25, blue: 0.50), // plum
+        Color(red: 0.20, green: 0.40, blue: 0.70), // navy
     ]
 }
 
