@@ -398,7 +398,17 @@ struct CountdownInboxFeature {
                 // -999 = cancelled (newer load or background); -1001 = timeout after bg/fg cycling.
                 // Both are expected transient network conditions; cache is still visible, no alert needed.
                 guard nsError.code != NSURLErrorCancelled,
-                      nsError.code != NSURLErrorTimedOut else { return }
+                      nsError.code != NSURLErrorTimedOut else {
+                    // Silenced (no alert), but leave a breadcrumb so frequency/context is visible
+                    // in Sentry when any other event later fires.
+                    if nsError.code == NSURLErrorTimedOut {
+                        sentryClient.addBreadcrumb(
+                            category: "inbox",
+                            message: "inbox.load_timeout_silenced"
+                        )
+                    }
+                    return
+                }
                 await send(.loadFailed(error.localizedDescription))
             }
         }
