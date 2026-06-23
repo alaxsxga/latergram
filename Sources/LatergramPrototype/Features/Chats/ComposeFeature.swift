@@ -18,6 +18,7 @@ struct ComposeFeature {
         var timingMode: TimingMode = .countdown
         var errorMessage: String?
         var isSending = false
+        var showSendConfirmation = false
         var showPaywallHint: Bool = false
         @Presents var paywall: PaywallFeature.State?
         var isPremium: Bool = false
@@ -28,6 +29,8 @@ struct ComposeFeature {
         case binding(BindingAction<State>)
         case onAppear
         case submitTapped
+        case sendConfirmed
+        case sendCancelled
         case cancelTapped
         case sendSucceeded(DelayedMessage)
         case sendFailed(String)
@@ -83,19 +86,8 @@ struct ComposeFeature {
                 let now = date()
                 state.body = state.body.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                // Compute final unlockAt and delaySeconds at submit time.
-                // Countdown mode: delaySeconds is the intent; unlockAt is derived now.
-                // UnlockDate mode: the chosen date is the intent; delaySeconds is derived now.
-                let finalUnlockAt: Date
-                let finalDelaySeconds: Int
-                switch state.timingMode {
-                case .countdown:
-                    finalDelaySeconds = state.delaySeconds
-                    finalUnlockAt = now.addingTimeInterval(TimeInterval(finalDelaySeconds))
-                case .unlockDate:
-                    finalUnlockAt = state.unlockAt
-                    finalDelaySeconds = max(60, Int(finalUnlockAt.timeIntervalSince(now)))
-                }
+                // Compute final unlockAt and delaySeconds at submit time for validation.
+                let (finalUnlockAt, finalDelaySeconds) = finalTiming(for: state, now: now)
 
                 if !state.isPremium && finalDelaySeconds > state.maxDelaySeconds {
                     if !state.showPaywallHint {
@@ -130,6 +122,30 @@ struct ComposeFeature {
                         "timingMode": state.timingMode == .countdown ? "countdown" : "unlock_date",
                         "friendID": state.friend.id.uuidString
                     ]
+                )
+                // Validation passed; ask the user to confirm before actually sending.
+                state.errorMessage = nil
+                state.showSendConfirmation = true
+                return .none
+
+            case .sendCancelled:
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.send_confirmation_dismissed"
+                )
+                state.showSendConfirmation = false
+                return .none
+
+            case .sendConfirmed:
+                state.showSendConfirmation = false
+                // Recompute timing at confirm time so countdown stays accurate
+                // even if the confirmation dialog sat open for a while.
+                let now = date()
+                let (finalUnlockAt, finalDelaySeconds) = finalTiming(for: state, now: now)
+                sentryClient.addBreadcrumb(
+                    category: "compose",
+                    message: "compose.send_confirmed",
+                    data: ["delaySeconds": String(finalDelaySeconds)]
                 )
                 state.isSending = true
                 state.errorMessage = nil
@@ -211,6 +227,20 @@ struct ComposeFeature {
         }
         .ifLet(\.$paywall, action: \.paywall) {
             PaywallFeature()
+        }
+    }
+
+    /// Resolve the final unlock date and delay from the current timing mode.
+    /// Countdown mode: delaySeconds is the intent; unlockAt is derived from `now`.
+    /// UnlockDate mode: the chosen date is the intent; delaySeconds is derived from `now`.
+    private func finalTiming(for state: State, now: Date) -> (unlockAt: Date, delaySeconds: Int) {
+        switch state.timingMode {
+        case .countdown:
+            let delaySeconds = state.delaySeconds
+            return (now.addingTimeInterval(TimeInterval(delaySeconds)), delaySeconds)
+        case .unlockDate:
+            let unlockAt = state.unlockAt
+            return (unlockAt, max(60, Int(unlockAt.timeIntervalSince(now))))
         }
     }
 

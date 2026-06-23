@@ -99,6 +99,16 @@ struct ComposeView: View {
             store.send(.onAppear)
         }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now = $0 }
+        .alert(
+            L("compose.send_confirm_title"),
+            isPresented: Binding(
+                get: { store.showSendConfirmation },
+                set: { if !$0 { store.send(.sendCancelled) } }
+            )
+        ) {
+            Button(LS("common.confirm")) { store.send(.sendConfirmed) }
+            Button(LS("common.back"), role: .cancel) { store.send(.sendCancelled) }
+        }
         .sheet(isPresented: Binding(
             get: { store.showPaywallHint },
             set: { if !$0 { store.send(.paywallHintDismissed) } }
