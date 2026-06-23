@@ -9,6 +9,8 @@ struct SettingsFeature {
         var me: UserProfile
         var isConfirmingLogout = false
         @Presents var paywall: PaywallFeature.State?
+        @Presents var feedback: FeedbackFeature.State?
+        @Presents var thanksAlert: AlertState<Action.ThanksAlert>?
     }
 
     enum Action {
@@ -17,8 +19,13 @@ struct SettingsFeature {
         case logoutTapped
         case logoutSucceeded
         case upgradeButtonTapped
+        case feedbackButtonTapped
+        case feedback(PresentationAction<FeedbackFeature.Action>)
+        case thanksAlert(PresentationAction<ThanksAlert>)
         case paywall(PresentationAction<PaywallFeature.Action>)
         case delegate(Delegate)
+
+        enum ThanksAlert: Equatable {}
 
         @CasePathable
         enum Delegate: Equatable {
@@ -60,6 +67,27 @@ struct SettingsFeature {
                 state.paywall = PaywallFeature.State()
                 return .none
 
+            case .feedbackButtonTapped:
+                state.feedback = FeedbackFeature.State(me: state.me)
+                return .none
+
+            case .feedback(.presented(.delegate(.submitted))):
+                state.feedback = nil
+                state.thanksAlert = AlertState {
+                    TextState(LS("feedback.thanks_title"))
+                } actions: {
+                    ButtonState(role: .cancel) { TextState(LS("common.ok")) }
+                } message: {
+                    TextState(LS("feedback.thanks_message"))
+                }
+                return .none
+
+            case .feedback:
+                return .none
+
+            case .thanksAlert:
+                return .none
+
             case .paywall(.presented(.delegate(.purchaseSucceeded(let profile)))):
                 state.me = profile
                 state.paywall = nil
@@ -75,5 +103,9 @@ struct SettingsFeature {
         .ifLet(\.$paywall, action: \.paywall) {
             PaywallFeature()
         }
+        .ifLet(\.$feedback, action: \.feedback) {
+            FeedbackFeature()
+        }
+        .ifLet(\.$thanksAlert, action: \.thanksAlert)
     }
 }

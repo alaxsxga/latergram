@@ -49,6 +49,11 @@ struct SettingsView: View {
             }
 
             Section(LS("settings.section_about")) {
+                Button {
+                    store.send(.feedbackButtonTapped)
+                } label: {
+                    Label(LS("feedback.title"), systemImage: "envelope")
+                }
                 Link(destination: LegalURLs.privacyPolicy) {
                     Label(LS("legal.privacy_policy"), systemImage: "hand.raised")
                 }
@@ -78,6 +83,10 @@ struct SettingsView: View {
         .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
             PaywallView(store: $0)
         }
+        .sheet(item: $store.scope(state: \.feedback, action: \.feedback)) {
+            FeedbackView(store: $0)
+        }
+        .alert($store.scope(state: \.thanksAlert, action: \.thanksAlert))
     }
 }
 #endif

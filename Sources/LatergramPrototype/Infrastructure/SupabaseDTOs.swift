@@ -51,6 +51,20 @@ struct InsertMessageRow: Encodable {
     let status: String
 }
 
+// MARK: - Feedback
+
+struct InsertFeedbackRow: Encodable {
+    let user_id: UUID
+    let category: String?
+    let content: String
+    let contact_email: String?
+    let app_version: String?
+    let os_version: String?
+    let device_model: String?
+    let is_premium: Bool
+    let locale: String
+}
+
 // MARK: - Profile
 
 struct ProfileRow: Codable {
