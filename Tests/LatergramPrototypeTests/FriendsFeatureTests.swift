@@ -48,7 +48,7 @@ final class FriendsFeatureTests: XCTestCase {
 
     // MARK: - inviteAccepted
 
-    func test_inviteAccepted_appendsFriendSortedAlphabeticallyAndShowsBanner() async {
+    func test_inviteAccepted_appendsFriendSortedAlphabetically() async {
         let charlie = Friend(displayName: "Charlie", status: .accepted)
         var initialState = FriendsFeature.State()
         initialState.friends = [charlie]
@@ -63,13 +63,12 @@ final class FriendsFeatureTests: XCTestCase {
         await store.send(.inviteAccepted(alice)) {
             $0.friends = [alice, charlie] // Alice < Charlie
             $0.pastedInviteCode = ""
-            $0.banner = "好友已確認，可開始傳送訊息"
         }
     }
 
     // MARK: - acceptInviteCodeTapped — empty code validation
 
-    func test_acceptInviteCodeTapped_emptyCode_setsBanner() async {
+    func test_acceptInviteCodeTapped_emptyCode_isNoOp() async {
         var initialState = FriendsFeature.State()
         initialState.pastedInviteCode = "   " // whitespace only
 
@@ -77,9 +76,8 @@ final class FriendsFeatureTests: XCTestCase {
             FriendsFeature()
         }
 
-        await store.send(.acceptInviteCodeTapped) {
-            $0.banner = "邀請碼不可為空"
-        }
+        // Empty code is blocked before any network call; no state change.
+        await store.send(.acceptInviteCodeTapped)
     }
 
     // MARK: - settingsButtonTapped — push SettingsFeature 到 path

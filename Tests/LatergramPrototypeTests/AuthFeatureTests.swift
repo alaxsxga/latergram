@@ -117,7 +117,9 @@ final class AuthFeatureTests: XCTestCase {
         }
         await store.receive(\.failed) {
             $0.isSubmitting = false
-            $0.errorMessage = "帳號建立失敗"
+            // Non-Supabase errors are mapped to a generic localized message rather
+            // than leaking the raw errorDescription. See localizedAuthErrorMessage.
+            $0.errorMessage = LS("auth.error.generic")
         }
     }
 

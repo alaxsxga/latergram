@@ -17,6 +17,8 @@ final class AppFeatureTests: XCTestCase {
         } withDependencies: {
             $0.messageClient.fetchCountdownFeed = { _ in [] }
             $0.friendClient.fetchFriends = { _ in [] }
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendsCacheClient.save = { _, _ in }
             $0.date = .constant(now)
         }
         store.exhaustivity = .off

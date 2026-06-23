@@ -71,29 +71,25 @@ final class ComposeFeatureTests: XCTestCase {
         }
     }
 
-    // MARK: - submitTapped — valid input
+    // MARK: - submitTapped — valid input shows confirmation (does not send yet)
 
-    func test_submitTapped_valid_setsSendingTrue() async {
+    func test_submitTapped_valid_showsConfirmation() async {
         let store = TestStore(initialState: makeState()) {
             ComposeFeature()
         } withDependencies: {
             $0.date = .constant(now)
-            $0.messageClient.send = { _ in }
         }
-        store.exhaustivity = .off
 
         await store.send(.submitTapped) {
-            $0.isSending = true
-            $0.errorMessage = nil
+            $0.showSendConfirmation = true
         }
     }
 
-    // MARK: - premium bypass
+    // MARK: - sendConfirmed — actually sends
 
-    func test_submitTapped_over24h_premium_doesNotShowPaywall() async {
-        var state = makeState(unlockAt: now.addingTimeInterval(25 * 3600))
-        state.timingMode = .unlockDate
-        state.isPremium = true
+    func test_sendConfirmed_setsSendingTrue() async {
+        var state = makeState()
+        state.showSendConfirmation = true
 
         let store = TestStore(initialState: state) {
             ComposeFeature()
@@ -103,9 +99,45 @@ final class ComposeFeatureTests: XCTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.submitTapped) {
+        await store.send(.sendConfirmed) {
+            $0.showSendConfirmation = false
             $0.isSending = true
-            $0.showPaywallHint = false
+            $0.errorMessage = nil
+        }
+    }
+
+    // MARK: - sendCancelled — dismisses confirmation without sending
+
+    func test_sendCancelled_dismissesConfirmation() async {
+        var state = makeState()
+        state.showSendConfirmation = true
+
+        let store = TestStore(initialState: state) {
+            ComposeFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+        }
+
+        await store.send(.sendCancelled) {
+            $0.showSendConfirmation = false
+        }
+    }
+
+    // MARK: - premium bypass
+
+    func test_submitTapped_over24h_premium_showsConfirmation() async {
+        var state = makeState(unlockAt: now.addingTimeInterval(25 * 3600))
+        state.timingMode = .unlockDate
+        state.isPremium = true
+
+        let store = TestStore(initialState: state) {
+            ComposeFeature()
+        } withDependencies: {
+            $0.date = .constant(now)
+        }
+
+        await store.send(.submitTapped) {
+            $0.showSendConfirmation = true
         }
     }
 

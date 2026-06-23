@@ -31,6 +31,7 @@ final class CountdownInboxFeatureTests: XCTestCase {
 
         await store.send(.messagesLoaded([staleMessage])) {
             $0.lastFetchedAt = now
+            $0.lastNotificationRebuildAt = now
             // staleMessage is filtered out — messages stays empty
         }
 
