@@ -1,4 +1,6 @@
 import XCTest
+import Foundation
+import Auth
 import ComposableArchitecture
 import LatergramCore
 @testable import LatergramPrototype
@@ -150,6 +152,67 @@ final class AuthFeatureTests: XCTestCase {
 
         await store.send(.submitTapped) {
             $0.errorMessage = "發生錯誤，請重新嘗試"
+        }
+    }
+
+    // MARK: - submitTapped — resetPassword mode
+
+    /// During recovery the session is already authenticated, so re-entering the
+    /// existing password (GoTrue's `same_password` rejection) is treated as success.
+    func test_submitReset_samePassword_treatedAsSuccess() async {
+        let samePasswordError = AuthError.api(
+            message: "New password should be different from the old password.",
+            errorCode: .samePassword,
+            underlyingData: Data(),
+            underlyingResponse: HTTPURLResponse(
+                url: URL(string: "https://example.supabase.co")!,
+                statusCode: 422,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+        )
+        let store = TestStore(initialState: {
+            var s = AuthFeature.State()
+            s.mode = .resetPassword
+            s.password = "samepass"
+            s.passwordConfirmation = "samepass"
+            return s
+        }()) {
+            AuthFeature()
+        } withDependencies: {
+            $0.authClient.updatePassword = { _ in throw samePasswordError }
+            $0.authClient.currentSession = { UserProfile(displayName: "Alice") }
+        }
+
+        await store.send(.submitTapped) {
+            $0.isSubmitting = true
+        }
+        await store.receive(\.succeeded) {
+            $0.isSubmitting = false
+        }
+    }
+
+    /// Any other update-password failure still surfaces an error to the user.
+    func test_submitReset_otherError_setsError() async {
+        struct ResetError: Error {}
+        let store = TestStore(initialState: {
+            var s = AuthFeature.State()
+            s.mode = .resetPassword
+            s.password = "brandnewpass"
+            s.passwordConfirmation = "brandnewpass"
+            return s
+        }()) {
+            AuthFeature()
+        } withDependencies: {
+            $0.authClient.updatePassword = { _ in throw ResetError() }
+        }
+
+        await store.send(.submitTapped) {
+            $0.isSubmitting = true
+        }
+        await store.receive(\.failed) {
+            $0.isSubmitting = false
+            $0.errorMessage = LS("auth.error.generic")
         }
     }
 

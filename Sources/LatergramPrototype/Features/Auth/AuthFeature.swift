@@ -176,8 +176,15 @@ struct AuthFeature {
                             let user = await authClient.currentSession() ?? UserProfile(displayName: "")
                             await send(.succeeded(user))
                         } catch {
-                            SentryBootstrap.captureBackend(error, op: "auth.update_password")
-                            await send(.failed(localizedAuthErrorMessage(error)))
+                            // Re-entering the existing password during recovery is fine —
+                            // the session is already authenticated, so treat it as success.
+                            if isSamePasswordError(error) {
+                                let user = await authClient.currentSession() ?? UserProfile(displayName: "")
+                                await send(.succeeded(user))
+                            } else {
+                                SentryBootstrap.captureBackend(error, op: "auth.update_password")
+                                await send(.failed(localizedAuthErrorMessage(error)))
+                            }
                         }
                     }
                 }

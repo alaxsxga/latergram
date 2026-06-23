@@ -18,6 +18,13 @@ func isUserInputAuthError(_ error: Error) -> Bool {
     }
 }
 
+// True when GoTrue rejects the new password for being identical to the current one
+// (error_code "same_password"). In the recovery flow the user is already authenticated,
+// so re-entering their existing password is harmless — callers treat this as success.
+func isSamePasswordError(_ error: Error) -> Bool {
+    (error as? AuthError)?.errorCode == .samePassword
+}
+
 func localizedAuthErrorMessage(_ error: Error) -> String {
     if let authError = error as? AuthError {
         switch authError.errorCode {
