@@ -40,6 +40,7 @@ struct FriendsFeature {
         case settingsButtonTapped
         case generateInviteCodeTapped
         case shareInviteCodeTapped
+        case copyInviteCodeTapped
         case shareSheetDismissed
         case revokeInviteCodeTapped
         case acceptInviteCodeTapped
@@ -146,6 +147,10 @@ struct FriendsFeature {
                 sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_share_tapped")
                 state.inviteShareMessage = "加我的 Latergram！\nlatergram://invite?code=\(state.generatedInviteCode)"
                 state.isSharingInvite = true
+                return .none
+
+            case .copyInviteCodeTapped:
+                sentryClient.addBreadcrumb(category: "friends", message: "friends.invite_copy_code_tapped")
                 return .none
 
             case .shareSheetDismissed:

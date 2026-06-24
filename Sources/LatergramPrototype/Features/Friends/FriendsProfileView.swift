@@ -2,6 +2,7 @@
 import ComposableArchitecture
 import LatergramCore
 import SwiftUI
+import UIKit
 
 
 struct FriendsProfileView: View {
@@ -224,6 +225,7 @@ private struct FriendRow: View {
 private struct InviteSheet: View {
     @Bindable var store: StoreOf<FriendsFeature>
     @Environment(\.dismiss) private var dismiss
+    @State private var didCopyCode = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -316,6 +318,30 @@ private struct InviteSheet: View {
                             .background(Color.brand)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
+
+                    Button {
+                        UIPasteboard.general.string = store.generatedInviteCode
+                        store.send(.copyInviteCodeTapped)
+                        withAnimation { didCopyCode = true }
+                        Task {
+                            try? await Task.sleep(for: .seconds(1.6))
+                            withAnimation { didCopyCode = false }
+                        }
+                    } label: {
+                        Label {
+                            Text(didCopyCode ? LS("friends.invite_sheet.copied") : LS("friends.invite_sheet.copy_code"))
+                        } icon: {
+                            Image(systemName: didCopyCode ? "checkmark" : "doc.on.doc")
+                                .frame(height: 18)
+                        }
+                        .font(.headline)
+                        .foregroundStyle(Color.brand)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.surfaceMid)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .disabled(didCopyCode)
                 }
             }
         }
