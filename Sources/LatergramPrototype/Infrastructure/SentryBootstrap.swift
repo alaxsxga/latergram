@@ -19,6 +19,9 @@ public enum SentryBootstrap {
             #if DEBUG
             options.debug = true
             options.diagnosticLevel = .warning
+            // 接線 Run 時拔線 / 從 Xcode 停止會讓上次 session 被判為非正常結束，
+            // Sentry 下次啟動誤報成 watchdog termination。dev 不追，真 OOM 仍有 memory warning breadcrumb。
+            options.enableWatchdogTerminationTracking = false
             #endif
         }
         startMemoryWarningObserver()
