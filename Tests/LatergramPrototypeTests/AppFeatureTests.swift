@@ -117,6 +117,53 @@ final class AppFeatureTests: XCTestCase {
         }
     }
 
+    // MARK: - accountDeleted
+
+    func test_accountDeleted_clearsAllState() async {
+        let alice = UserProfile(id: UUID(), displayName: "Alice")
+        let bob = Friend(displayName: "Bob", status: .accepted)
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = DelayedMessage(
+            senderID: bob.id, receiverID: alice.id,
+            senderName: "Bob", receiverName: "Alice",
+            body: "hi",
+            style: .classic,
+            sentAt: now.addingTimeInterval(-60),
+            unlockAt: now.addingTimeInterval(3600),
+            delaySeconds: 3600,
+            status: .scheduled
+        )
+        let initialState = {
+            var s = AppFeature.State()
+            s.currentUser = alice
+            s.route = .main
+            s.selectedTab = .chats
+            s.friends.me = alice
+            s.friends.friends = [bob]
+            s.friends.path.append(SettingsFeature.State(me: alice))
+            s.chats.friends = [bob]
+            s.chats.latestMessages = [bob.id: msg]
+            return s
+        }()
+
+        let store = TestStore(initialState: initialState) { AppFeature() }
+        store.exhaustivity = .off
+
+        let stackID = store.state.friends.path.ids[0]
+        await store.send(.friends(.path(.element(id: stackID, action: .delegate(.accountDeleted)))))
+        await store.skipReceivedActions()
+
+        XCTAssertNil(store.state.currentUser)
+        XCTAssertEqual(store.state.selectedTab, .countdown)
+        XCTAssertTrue(store.state.friends.friends.isEmpty)
+        XCTAssertTrue(store.state.friends.path.isEmpty)
+        XCTAssertTrue(store.state.countdown.messages.isEmpty)
+        XCTAssertTrue(store.state.chats.latestMessages.isEmpty)
+        if case .auth = store.state.route { } else {
+            XCTFail("Expected route to be .auth after account deletion")
+        }
+    }
+
     // MARK: - countdown(.messagesLoaded) → chats aggregation
 
     func test_messagesLoaded_groupsByFriendID_picksLatestSentAt() async {
