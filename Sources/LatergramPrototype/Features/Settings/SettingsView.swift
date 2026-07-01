@@ -69,7 +69,23 @@ struct SettingsView: View {
                     Label(LS("friends.logout_button"), systemImage: "rectangle.portrait.and.arrow.right")
                 }
             }
+
+            Section {
+                Button(role: .destructive) {
+                    store.send(.deleteAccountConfirmTapped)
+                } label: {
+                    HStack {
+                        Label(LS("settings.delete_account"), systemImage: "trash")
+                        if store.isDeletingAccount {
+                            Spacer()
+                            ProgressView()
+                        }
+                    }
+                }
+            }
         }
+        // 刪除進行中鎖住整頁，避免同時觸發登出等其他 session 操作互相打架
+        .disabled(store.isDeletingAccount)
         .navigationTitle(LS("settings.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
@@ -80,6 +96,16 @@ struct SettingsView: View {
             Button(LS("friends.logout_button"), role: .destructive) { store.send(.logoutTapped) }
             Button(LS("common.cancel"), role: .cancel) {}
         }
+        .alert(L("settings.delete_account_confirm_title"), isPresented: Binding(
+            get: { store.isConfirmingDeleteAccount },
+            set: { if !$0 { store.send(.deleteAccountCancelled) } }
+        )) {
+            Button(LS("settings.delete_account"), role: .destructive) { store.send(.deleteAccountTapped) }
+            Button(LS("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(LS("settings.delete_account_confirm_message"))
+        }
+        .alert($store.scope(state: \.deleteErrorAlert, action: \.deleteErrorAlert))
         .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) {
             PaywallView(store: $0)
         }

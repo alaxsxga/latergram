@@ -14,6 +14,7 @@ struct AuthClient: Sendable {
     var handleDeepLink: @Sendable (_ url: URL) async throws -> UUID
     var sendPasswordReset: @Sendable (_ email: String) async throws -> Void
     var updatePassword: @Sendable (_ newPassword: String) async throws -> Void
+    var deleteAccount: @Sendable () async throws -> Void
 }
 
 extension AuthClient: DependencyKey {
@@ -125,6 +126,15 @@ extension AuthClient: DependencyKey {
             _ = try await tracedSupabase("auth.update_password") {
                 try await supabase.auth.update(user: .init(password: newPassword))
             }
+        },
+        deleteAccount: {
+            // 走 Edge Function（service role admin.deleteUser），刪 auth.users 一列
+            // 後靠 DB cascade 清掉所有關聯資料。client 端無權直接刪 auth 使用者。
+            _ = try await tracedSupabase("auth.delete_account") {
+                let _: DeleteAccountResponse = try await supabase.functions.invoke("delete-account")
+            }
+            // 帳號已刪，清掉本機殘留的 session（user 已不存在，忽略錯誤）
+            try? await supabase.auth.signOut()
         }
     )
 
@@ -137,8 +147,13 @@ extension AuthClient: DependencyKey {
         currentSession: { nil },
         handleDeepLink: { _ in UUID() },
         sendPasswordReset: { _ in },
-        updatePassword: { _ in }
+        updatePassword: { _ in },
+        deleteAccount: {}
     )
+}
+
+private struct DeleteAccountResponse: Decodable {
+    let success: Bool
 }
 
 extension DependencyValues {

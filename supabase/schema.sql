@@ -72,7 +72,9 @@ create table public.invite_tokens (
     id uuid primary key default gen_random_uuid(),
     token text unique not null default generate_short_invite_code(),
     inviter_id uuid not null references public.profiles(id) on delete cascade,
-    invitee_id uuid references public.profiles(id),
+    -- invitee_id 用 set null（非 cascade）：token 屬於 inviter，被邀請者刪帳號時
+    -- 只清掉這一格，不刪整列。詳見 migration 20260701120000。
+    invitee_id uuid references public.profiles(id) on delete set null,
     created_at timestamptz not null default now()
 );
 

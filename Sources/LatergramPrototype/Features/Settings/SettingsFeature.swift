@@ -8,9 +8,12 @@ struct SettingsFeature {
     struct State: Equatable {
         var me: UserProfile
         var isConfirmingLogout = false
+        var isConfirmingDeleteAccount = false
+        var isDeletingAccount = false
         @Presents var paywall: PaywallFeature.State?
         @Presents var feedback: FeedbackFeature.State?
         @Presents var thanksAlert: AlertState<Action.ThanksAlert>?
+        @Presents var deleteErrorAlert: AlertState<Action.DeleteErrorAlert>?
     }
 
     enum Action {
@@ -18,18 +21,26 @@ struct SettingsFeature {
         case logoutCancelled
         case logoutTapped
         case logoutSucceeded
+        case deleteAccountConfirmTapped
+        case deleteAccountCancelled
+        case deleteAccountTapped
+        case accountDeletionSucceeded
+        case accountDeletionFailed(String)
         case upgradeButtonTapped
         case feedbackButtonTapped
         case feedback(PresentationAction<FeedbackFeature.Action>)
         case thanksAlert(PresentationAction<ThanksAlert>)
+        case deleteErrorAlert(PresentationAction<DeleteErrorAlert>)
         case paywall(PresentationAction<PaywallFeature.Action>)
         case delegate(Delegate)
 
         enum ThanksAlert: Equatable {}
+        enum DeleteErrorAlert: Equatable {}
 
         @CasePathable
         enum Delegate: Equatable {
             case logoutSucceeded
+            case accountDeleted
             case purchaseSucceeded(UserProfile)
         }
     }
@@ -37,6 +48,7 @@ struct SettingsFeature {
     @Dependency(\.authClient) var authClient
     @Dependency(\.friendsCacheClient) var friendsCacheClient
     @Dependency(\.messagesCacheClient) var messagesCacheClient
+    @Dependency(\.sentryClient) var sentryClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -62,6 +74,55 @@ struct SettingsFeature {
 
             case .logoutSucceeded:
                 return .send(.delegate(.logoutSucceeded))
+
+            case .deleteAccountConfirmTapped:
+                state.isConfirmingDeleteAccount = true
+                return .none
+
+            case .deleteAccountCancelled:
+                state.isConfirmingDeleteAccount = false
+                return .none
+
+            case .deleteAccountTapped:
+                state.isConfirmingDeleteAccount = false
+                state.isDeletingAccount = true
+                sentryClient.addBreadcrumb(category: "auth", message: "account.delete_requested")
+                let userID = state.me.id
+                return .run { send in
+                    do {
+                        try await authClient.deleteAccount()
+                        // 帳號已刪 → 沿用 logout 的 clean slate 清理（CLAUDE.md #1）
+                        friendsCacheClient.clear(userID)
+                        messagesCacheClient.clear(userID)
+                        await send(.accountDeletionSucceeded)
+                    } catch {
+                        await send(.accountDeletionFailed(error.localizedDescription))
+                    }
+                }
+
+            case .accountDeletionSucceeded:
+                state.isDeletingAccount = false
+                return .send(.delegate(.accountDeleted))
+
+            case .accountDeletionFailed(let message):
+                state.isDeletingAccount = false
+                sentryClient.addBreadcrumb(
+                    category: "auth",
+                    message: "account.delete_failed",
+                    level: .warning,
+                    data: ["error": message]
+                )
+                state.deleteErrorAlert = AlertState {
+                    TextState(LS("settings.delete_account_error_title"))
+                } actions: {
+                    ButtonState(role: .cancel) { TextState(LS("common.ok")) }
+                } message: {
+                    TextState(LS("settings.delete_account_error_message"))
+                }
+                return .none
+
+            case .deleteErrorAlert:
+                return .none
 
             case .upgradeButtonTapped:
                 state.paywall = PaywallFeature.State()
@@ -107,5 +168,6 @@ struct SettingsFeature {
             FeedbackFeature()
         }
         .ifLet(\.$thanksAlert, action: \.thanksAlert)
+        .ifLet(\.$deleteErrorAlert, action: \.deleteErrorAlert)
     }
 }

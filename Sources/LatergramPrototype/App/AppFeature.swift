@@ -288,24 +288,11 @@ struct AppFeature {
 
             case .friends(.path(.element(_, .delegate(.logoutSucceeded)))):
                 sentryClient.addBreadcrumb(category: "nav", message: "route.auth.logout")
-                state.currentUser = nil
-                currentUserClient.update(UserProfile(displayName: ""))
-                sentryClient.clearUser()
-                state.countdown = CountdownInboxFeature.State()
-                state.selectedTab = .countdown
-                state.route = .auth(AuthFeature.State())
-                state.lastEntitlementVerifiedAt = nil
-                // Send .reset to features with StackState so forEach(\.path) can
-                // detect path elements being removed and cancel child effects
-                // before state is wiped.
-                return .merge(
-                    .cancel(id: CountdownInboxFeature.CancelID.timer),
-                    .cancel(id: CountdownInboxFeature.CancelID.load),
-                    .cancel(id: CountdownInboxFeature.CancelID.messageStream),
-                    .send(.chats(.reset)),
-                    .send(.friends(.reset)),
-                    .run { [notificationClient] _ in await notificationClient.cancelAll() }
-                )
+                return resetToAuth(&state)
+
+            case .friends(.path(.element(_, .delegate(.accountDeleted)))):
+                sentryClient.addBreadcrumb(category: "nav", message: "route.auth.account_deleted")
+                return resetToAuth(&state)
 
             case .chats(.path(.element(_, .delegate(.purchaseSucceeded(let profile))))):
                 return .send(.profileRefreshed(profile))
@@ -346,6 +333,29 @@ struct AppFeature {
         .ifLet(\.route.authState, action: \.auth) {
             AuthFeature()
         }
+    }
+
+    /// 登出與刪除帳號共用的 session 重置：清 in-memory / 導回 auth / 取消子 effect。
+    /// 符合 CLAUDE.md #1「登出要 clean slate」——刪除帳號同樣走這條路確保不留痕跡。
+    private func resetToAuth(_ state: inout State) -> Effect<Action> {
+        state.currentUser = nil
+        currentUserClient.update(UserProfile(displayName: ""))
+        sentryClient.clearUser()
+        state.countdown = CountdownInboxFeature.State()
+        state.selectedTab = .countdown
+        state.route = .auth(AuthFeature.State())
+        state.lastEntitlementVerifiedAt = nil
+        // Send .reset to features with StackState so forEach(\.path) can
+        // detect path elements being removed and cancel child effects
+        // before state is wiped.
+        return .merge(
+            .cancel(id: CountdownInboxFeature.CancelID.timer),
+            .cancel(id: CountdownInboxFeature.CancelID.load),
+            .cancel(id: CountdownInboxFeature.CancelID.messageStream),
+            .send(.chats(.reset)),
+            .send(.friends(.reset)),
+            .run { [notificationClient] _ in await notificationClient.cancelAll() }
+        )
     }
 }
 

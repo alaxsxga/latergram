@@ -586,55 +586,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Mail oder Passwort falsch"
+            "value": "E-Mail oder Passwort ist falsch. Wenn du noch kein Konto hast, registriere dich zuerst."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Incorrect email or password"
+            "value": "Incorrect email or password. If you don't have an account yet, sign up first."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Correo o contraseña incorrectos"
+            "value": "El correo o la contraseña no son correctos. Si aún no tienes una cuenta, regístrate primero."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Email atau kata sandi salah"
+            "value": "Email atau kata sandi salah. Jika belum punya akun, daftar dulu."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "メールアドレスまたはパスワードが間違っています"
+            "value": "メールアドレスまたはパスワードが正しくありません。アカウントをお持ちでない場合は、まず登録してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이메일 또는 비밀번호가 올바르지 않아요"
+            "value": "이메일 또는 비밀번호가 올바르지 않아요. 아직 계정이 없다면 먼저 가입해 주세요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-mail ou senha incorretos"
+            "value": "E-mail ou senha incorretos. Se você ainda não tem uma conta, cadastre-se primeiro."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+            "value": "อีเมลหรือรหัสผ่านไม่ถูกต้อง หากยังไม่มีบัญชี กรุณาสมัครก่อน"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "帳號或密碼錯誤"
+            "value": "帳號或密碼錯誤。若還沒有帳號，請先註冊。"
           }
         }
       }
@@ -10669,6 +10669,296 @@
           "stringUnit": {
             "state": "translated",
             "value": "我們已收到你的回饋。"
+          }
+        }
+      }
+    },
+    "settings.delete_account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Account"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar cuenta"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus Akun"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントを削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 삭제"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir conta"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบบัญชี"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除帳號"
+          }
+        }
+      }
+    },
+    "settings.delete_account_confirm_title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Account?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar cuenta?"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus Akun?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントを削除しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정을 삭제할까요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir conta?"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบบัญชีใช่ไหม"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除帳號？"
+          }
+        }
+      }
+    },
+    "settings.delete_account_confirm_message": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden dein Konto und alle deine Nachrichten, Freunde und Daten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will permanently delete your account and all your messages, friends, and data. This action cannot be undone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto eliminará permanentemente tu cuenta y todos tus mensajes, amigos y datos. Esta acción no se puede deshacer."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini akan menghapus akun Anda secara permanen beserta semua pesan, teman, dan data Anda. Tindakan ini tidak dapat dibatalkan."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントと、すべてのメッセージ・友だち・データが完全に削除されます。この操作は取り消せません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정과 모든 메시지, 친구, 데이터가 영구적으로 삭제돼요. 이 작업은 되돌릴 수 없어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso excluirá permanentemente sua conta e todas as suas mensagens, amigos e dados. Esta ação não pode ser desfeita."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การดำเนินการนี้จะลบบัญชีของคุณและข้อความ เพื่อน และข้อมูลทั้งหมดอย่างถาวร ไม่สามารถย้อนกลับได้"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將永久刪除你的帳號，以及你所有的訊息、好友與資料。此動作無法復原。"
+          }
+        }
+      }
+    },
+    "settings.delete_account_error_title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen fehlgeschlagen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletion Failed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al eliminar"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gagal Menghapus"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除に失敗しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제 실패"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha ao excluir"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบไม่สำเร็จ"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除失敗"
+          }
+        }
+      }
+    },
+    "settings.delete_account_error_message": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Konto konnte nicht gelöscht werden. Bitte überprüfe deine Verbindung und versuche es erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't delete your account. Please check your connection and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No pudimos eliminar tu cuenta. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kami tidak dapat menghapus akun Anda. Periksa koneksi Anda dan coba lagi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントを削除できませんでした。接続を確認して、もう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정을 삭제하지 못했어요. 연결 상태를 확인하고 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível excluir sua conta. Verifique sua conexão e tente novamente."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เราไม่สามารถลบบัญชีของคุณได้ โปรดตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法刪除你的帳號，請檢查網路連線後再試一次。"
           }
         }
       }
