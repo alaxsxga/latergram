@@ -1,5 +1,6 @@
 import Auth
 import Foundation
+import StoreKit
 
 @discardableResult
 func tracedSupabase<T: Sendable>(
@@ -43,6 +44,17 @@ private func shouldCaptureForSentry(_ error: Error) -> Bool {
         switch purchaseError {
         // timeout 跟 URLError.timedOut 同類別網路訊號，一致 SKIP
         case .userCancelled, .pending, .timeout:
+            return false
+        default:
+            return true
+        }
+    }
+
+    // restore（AppStore.sync）不經 purchase 那段 switch 轉換，會丟原生 StoreKitError，
+    // 需在此比照 PurchaseError 過濾掉使用者取消與網路噪音，避免誤報上 Sentry。
+    if let storeKitError = error as? StoreKitError {
+        switch storeKitError {
+        case .userCancelled, .networkError:
             return false
         default:
             return true

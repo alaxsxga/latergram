@@ -222,7 +222,12 @@ PurchaseClient.restorePurchases()
   ↓
 PaywallFeature._restoreResult(.success(.some)) → 升級
                           (.success(.none))    → 顯示「找不到可還原的購買紀錄」
+                          (.failure)           → 使用者取消（AppStore.sync 登入框丟原生
+                                                 StoreKitError.userCancelled）靜默返回、不跳 alert、
+                                                 不上報 Sentry；其餘錯誤才顯示訊息並上報
 ```
+
+> 取消判斷集中在 `PaywallFeature.isUserCancellation`（同時認 `PurchaseError.userCancelled` 與原生 `StoreKitError.userCancelled`）；Sentry 過濾同步在 `SupabaseTracing.shouldCaptureForSentry`。
 
 ### 4.4 Transaction.updates 長駐 listener
 

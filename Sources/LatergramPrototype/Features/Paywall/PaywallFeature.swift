@@ -135,7 +135,7 @@ struct PaywallFeature {
                     data: ["reason": reason]
                 )
                 state.isPurchasing = false
-                if let pe = error as? PurchaseError, pe == .userCancelled { return .none }
+                if isUserCancellation(error) { return .none }
                 state.errorMessage = error.localizedDescription
                 return .none
 
@@ -164,12 +164,21 @@ struct PaywallFeature {
                 return .none
 
             case ._restoreResult(.failure(let error)):
+                state.isRestoring = false
+                // 使用者在 AppStore.sync 登入框按取消丟 StoreKitError.userCancelled，屬正常行為，不跳 alert
+                if isUserCancellation(error) {
+                    sentryClient.addBreadcrumb(
+                        category: "paywall",
+                        message: "paywall.restore_cancelled",
+                        level: .info
+                    )
+                    return .none
+                }
                 sentryClient.addBreadcrumb(
                     category: "paywall",
                     message: "paywall.restore_failed",
                     level: .warning
                 )
-                state.isRestoring = false
                 state.errorMessage = error.localizedDescription
                 return .none
 
@@ -196,6 +205,13 @@ struct PaywallFeature {
                 await send(._productsLoadFailed)
             }
         }
+    }
+
+    // 使用者取消：購買走轉換後的 PurchaseError.userCancelled；restore（AppStore.sync）丟原生 StoreKitError.userCancelled
+    private func isUserCancellation(_ error: Error) -> Bool {
+        if let pe = error as? PurchaseError, pe == .userCancelled { return true }
+        if let ske = error as? StoreKitError, case .userCancelled = ske { return true }
+        return false
     }
 
     private func purchaseFailureReason(_ error: Error) -> String {
