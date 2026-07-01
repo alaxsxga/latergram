@@ -70,12 +70,12 @@ struct AuthFeature {
                 sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_up_tapped")
                 state.errorMessage = nil
                 state.isSubmitting = true
-                return .run { [sentryClient] send in
+                return .run { send in
                     do {
                         let userID = try await authClient.createAccount(email, password)
                         await send(.accountCreated(userID))
                     } catch {
-                        SentryBootstrap.captureBackend(error, op: "auth.create_account")
+                        // 上報交給 AuthClient 內的 tracedSupabase 統一處理（含過濾），此處只顯示訊息
                         await send(.failed(localizedAuthErrorMessage(error)))
                     }
                 }
@@ -99,7 +99,6 @@ struct AuthFeature {
                         try await authClient.sendPasswordReset(email)
                         await send(.passwordResetEmailSent)
                     } catch {
-                        SentryBootstrap.captureBackend(error, op: "auth.send_password_reset")
                         await send(.failed(localizedAuthErrorMessage(error)))
                     }
                 }
@@ -182,7 +181,6 @@ struct AuthFeature {
                                 let user = await authClient.currentSession() ?? UserProfile(displayName: "")
                                 await send(.succeeded(user))
                             } else {
-                                SentryBootstrap.captureBackend(error, op: "auth.update_password")
                                 await send(.failed(localizedAuthErrorMessage(error)))
                             }
                         }
@@ -201,25 +199,21 @@ struct AuthFeature {
                         return .none
                     }
                     sentryClient.addBreadcrumb(category: "auth", message: "auth.set_name_tapped")
-                    return .run { [sentryClient] send in
+                    return .run { send in
                         do {
                             let user = try await authClient.setDisplayName(userID, displayName)
                             await send(.succeeded(user))
                         } catch {
-                            SentryBootstrap.captureBackend(error, op: "auth.set_display_name")
                             await send(.failed(localizedAuthErrorMessage(error)))
                         }
                     }
                 }
                 sentryClient.addBreadcrumb(category: "auth", message: "auth.sign_in_tapped")
-                return .run { [sentryClient] send in
+                return .run { send in
                     do {
                         let user = try await authClient.signIn(email, password)
                         await send(.succeeded(user))
                     } catch {
-                        if !isUserInputAuthError(error) {
-                            SentryBootstrap.captureBackend(error, op: "auth.sign_in")
-                        }
                         await send(.failed(localizedAuthErrorMessage(error)))
                     }
                 }

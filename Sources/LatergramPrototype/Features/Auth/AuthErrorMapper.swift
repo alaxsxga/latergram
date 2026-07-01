@@ -2,22 +2,6 @@
 import Auth
 import Foundation
 
-// Returns true for errors caused by user input — these are shown as UI messages
-// and should not be reported to Sentry as unexpected errors.
-func isUserInputAuthError(_ error: Error) -> Bool {
-    guard let authError = error as? AuthError else { return false }
-    switch authError.errorCode {
-    case .invalidCredentials, .userNotFound,
-         .emailNotConfirmed,
-         .validationFailed,
-         .weakPassword,
-         .emailExists, .userAlreadyExists:
-        return true
-    default:
-        return false
-    }
-}
-
 // True when GoTrue rejects the new password for being identical to the current one
 // (error_code "same_password"). In the recovery flow the user is already authenticated,
 // so re-entering their existing password is harmless — callers treat this as success.

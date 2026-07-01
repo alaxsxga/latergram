@@ -61,5 +61,10 @@ private func shouldCaptureForSentry(_ error: Error) -> Bool {
         }
     }
 
+    // AuthClient.createAccount 對「email 已註冊」丟自訂 NSError(domain:"AuthClient", code:409)，
+    // 屬使用者輸入錯誤（UI 已提示），不上報 Sentry
+    let nsError = error as NSError
+    if nsError.domain == "AuthClient", nsError.code == 409 { return false }
+
     return true
 }
