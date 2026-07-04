@@ -1,0 +1,10 @@
+project_id = "fhmwkrllauvpycwwcnng"
+
+# 敏感 Edge Functions 一律要求 gateway 驗證 JWT 簽章，
+# 釘進版控避免 --no-verify-jwt 部署或 dashboard 誤改造成漂移。
+# function 內只解 payload 取 sub、不自驗簽章，安全性完全依賴這裡的設定。
+[functions.delete-account]
+verify_jwt = true
+
+[functions.sync-entitlement]
+verify_jwt = true
