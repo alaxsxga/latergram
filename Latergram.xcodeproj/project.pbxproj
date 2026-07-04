@@ -238,7 +238,7 @@
 				CODE_SIGN_ENTITLEMENTS = Latergram/Latergram.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 8GKRY6478E;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Latergram/Info.plist;
@@ -268,7 +268,7 @@
 				CODE_SIGN_ENTITLEMENTS = Latergram/Latergram.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 8GKRY6478E;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Latergram/Info.plist;
