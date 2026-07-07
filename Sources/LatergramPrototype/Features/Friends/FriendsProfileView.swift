@@ -142,7 +142,7 @@ struct FriendsProfileView: View {
                         store.send(.removeFriendSwiped(friend))
                     }
                 )
-                .presentationDetents([.height(340)])
+                .presentationDetents([.height(284)])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(Color.pageBg.opacity(0.35))
             }
