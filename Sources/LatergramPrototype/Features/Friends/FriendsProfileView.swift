@@ -440,16 +440,7 @@ private struct FriendActionSheet: View {
                     action: onSendMessage
                 )
 
-                Divider().padding(.leading, 56)
-
-                actionButton(
-                    icon: "person.crop.circle",
-                    label: LS("friends.edit_avatar"),
-                    color: .secondary,
-                    action: {}
-                )
-                .disabled(true)
-                .opacity(0.4)
+                // 「編輯頭像」暫時隱藏，等大頭照功能（post-MVP）完成後再加回
 
                 Divider().padding(.leading, 56)
 
