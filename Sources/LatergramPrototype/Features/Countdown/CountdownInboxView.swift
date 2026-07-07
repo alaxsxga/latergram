@@ -290,6 +290,7 @@ private struct ReceivedPage: View {
             if let msg = focusedMessage {
                 RevealFocusOverlay(message: msg) {
                     focusedMessage = nil
+                    store.send(.revealOverlayDismissed(msg.id))
                 }
                 .ignoresSafeArea()
             }

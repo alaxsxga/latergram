@@ -37,6 +37,7 @@ struct CountdownInboxFeature {
         case revealTapped(UUID)
         case revealResponse(id: UUID, result: Bool?)
         case revealCommitFailed(UUID)
+        case revealOverlayDismissed(UUID)
         case messagesLoaded([DelayedMessage])
         case loadFailed(String)
         case errorDismissed
@@ -68,6 +69,7 @@ struct CountdownInboxFeature {
     @Dependency(\.date) var date
     @Dependency(\.currentUserClient) var currentUserClient
     @Dependency(\.sentryClient) var sentryClient
+    @Dependency(\.appReviewClient) var appReviewClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -181,6 +183,13 @@ struct CountdownInboxFeature {
                     state.errorMessage = "無法連線至伺服器，請確認網路連線後再試"
                 }
                 return .none
+
+            case .revealOverlayDismissed(let id):
+                // Only after a confirmed successful reveal — a failed reveal rolls the
+                // status back to .readyToReveal and must not trigger the rating prompt.
+                guard state.messages[id: id]?.status == .revealed,
+                      !appReviewClient.hasRequestedFirstRevealReview() else { return .none }
+                return requestFirstRevealReview()
 
             case .revealCommitFailed(let id):
                 sentryClient.addBreadcrumb(
@@ -368,6 +377,19 @@ struct CountdownInboxFeature {
         state.revealedSortOrder = revealed
             .sorted { $0.sentAt > $1.sentAt }
             .map(\.id)
+    }
+
+    /// One-shot App Store rating prompt, fired when the user closes the
+    /// reveal overlay of their first successfully revealed message.
+    private func requestFirstRevealReview() -> Effect<Action> {
+        .run { _ in
+            appReviewClient.markFirstRevealReviewRequested()
+            sentryClient.addBreadcrumb(
+                category: "review",
+                message: "review.first_reveal_prompt_requested"
+            )
+            await appReviewClient.requestReview()
+        }
     }
 
     private func startMessageStream(userID: UUID) -> Effect<Action> {

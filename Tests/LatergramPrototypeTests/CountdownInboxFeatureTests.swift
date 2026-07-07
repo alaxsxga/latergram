@@ -306,6 +306,83 @@ final class CountdownInboxFeatureTests: XCTestCase {
         }
     }
 
+    // MARK: - revealOverlayDismissed — first-reveal App Store rating prompt
+
+    func test_revealOverlayDismissed_firstReveal_requestsAppReview() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeRevealedMessage(senderID: friendID, receiverID: meID,
+                                      revealedAt: now, now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        initialState.messages = [msg]
+
+        let marked = LockIsolated(false)
+        let requested = LockIsolated(false)
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.appReviewClient.hasRequestedFirstRevealReview = { false }
+            $0.appReviewClient.markFirstRevealReviewRequested = { marked.setValue(true) }
+            $0.appReviewClient.requestReview = { requested.setValue(true) }
+        }
+
+        await store.send(.revealOverlayDismissed(msg.id))
+        await store.finish()
+
+        XCTAssertTrue(marked.value)
+        XCTAssertTrue(requested.value)
+    }
+
+    func test_revealOverlayDismissed_alreadyRequested_doesNotRequestAppReview() async {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeRevealedMessage(senderID: friendID, receiverID: meID,
+                                      revealedAt: now, now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        initialState.messages = [msg]
+
+        let requested = LockIsolated(false)
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.appReviewClient.hasRequestedFirstRevealReview = { true }
+            $0.appReviewClient.requestReview = { requested.setValue(true) }
+        }
+
+        await store.send(.revealOverlayDismissed(msg.id))
+        await store.finish()
+
+        XCTAssertFalse(requested.value)
+    }
+
+    func test_revealOverlayDismissed_notRevealed_doesNotRequestAppReview() async {
+        // Reveal failed and rolled back to .readyToReveal before the overlay closed.
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
+                                       unlockAt: now.addingTimeInterval(-60), now: now)
+        var initialState = CountdownInboxFeature.State()
+        initialState.currentUserID = meID
+        var readyMsg = msg
+        readyMsg.status = .readyToReveal
+        initialState.messages = [readyMsg]
+
+        let requested = LockIsolated(false)
+
+        let store = TestStore(initialState: initialState) {
+            CountdownInboxFeature()
+        } withDependencies: {
+            $0.appReviewClient.hasRequestedFirstRevealReview = { false }
+            $0.appReviewClient.requestReview = { requested.setValue(true) }
+        }
+
+        await store.send(.revealOverlayDismissed(msg.id))
+        await store.finish()
+
+        XCTAssertFalse(requested.value)
+    }
+
     func test_revealResponse_false_setsTimeError() async {
         let now = Date(timeIntervalSince1970: 1_000_000)
         let msg = makeScheduledMessage(senderID: friendID, receiverID: meID,
