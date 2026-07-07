@@ -97,6 +97,18 @@ struct FriendsProfileView: View {
                     Text(failure.message)
                 }
             }
+            // Success alert for the deep-link accept flow (invite sheet closed).
+            // The paste-in-sheet flow shows the same alert inside InviteSheet;
+            // the showInviteSheet guard keeps the two from presenting together.
+            .alert(
+                Text(String(format: LS("friends.invite_accepted_title"), store.inviteAcceptedFriendName ?? "")),
+                isPresented: Binding(
+                    get: { store.inviteAcceptedFriendName != nil && !showInviteSheet },
+                    set: { if !$0 { store.send(.inviteAcceptedAlertDismissed) } }
+                )
+            ) {
+                Button(LS("common.ok"), role: .cancel) { store.send(.inviteAcceptedAlertDismissed) }
+            }
             .alert(L("friends.invite_pasted_title"), isPresented: Binding(
                 get: { store.showDeepLinkInviteAlert },
                 set: { if !$0 { store.send(.deepLinkAlertDismissed) } }
@@ -260,6 +272,18 @@ private struct InviteSheet: View {
             }
         }
         .pageBackground()
+        .alert(
+            Text(String(format: LS("friends.invite_accepted_title"), store.inviteAcceptedFriendName ?? "")),
+            isPresented: Binding(
+                get: { store.inviteAcceptedFriendName != nil },
+                set: { if !$0 { store.send(.inviteAcceptedAlertDismissed) } }
+            )
+        ) {
+            Button(LS("common.ok"), role: .cancel) {
+                store.send(.inviteAcceptedAlertDismissed)
+                dismiss()
+            }
+        }
     }
 
     // MARK: My Code

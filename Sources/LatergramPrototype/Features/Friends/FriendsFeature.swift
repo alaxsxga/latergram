@@ -29,6 +29,7 @@ struct FriendsFeature {
         var friendPendingDeletion: Friend? = nil
         var showDeepLinkInviteAlert = false
         var inviteAcceptError: AcceptInviteFailure? = nil
+        var inviteAcceptedFriendName: String? = nil
         var path = StackState<SettingsFeature.State>()
         @Presents var compose: ComposeFeature.State?
     }
@@ -62,6 +63,7 @@ struct FriendsFeature {
         case acceptInviteFromDeepLink(String)
         case deepLinkAlertDismissed
         case inviteAcceptErrorDismissed
+        case inviteAcceptedAlertDismissed
         case friendTapped(Friend)
         case compose(PresentationAction<ComposeFeature.Action>)
         case path(StackActionOf<SettingsFeature>)
@@ -239,7 +241,14 @@ struct FriendsFeature {
                 state.friends.append(friend)
                 state.friends.sort { $0.displayName.localizedCompare($1.displayName) == .orderedAscending }
                 state.pastedInviteCode = ""
-                return .none
+                state.inviteAcceptedFriendName = friend.displayName
+                // Persist immediately — onAppear reloads from this cache on every
+                // tab switch and would otherwise wipe the freshly added friend.
+                let updated = Array(state.friends)
+                let userID = state.me.id
+                return .run { _ in
+                    friendsCacheClient.save(updated, userID)
+                }
 
             case .inviteAcceptFailed(let failure):
                 sentryClient.addBreadcrumb(
@@ -253,6 +262,10 @@ struct FriendsFeature {
 
             case .inviteAcceptErrorDismissed:
                 state.inviteAcceptError = nil
+                return .none
+
+            case .inviteAcceptedAlertDismissed:
+                state.inviteAcceptedFriendName = nil
                 return .none
 
             case .reset:

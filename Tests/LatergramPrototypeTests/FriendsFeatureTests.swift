@@ -55,14 +55,35 @@ final class FriendsFeatureTests: XCTestCase {
         initialState.pastedInviteCode = "INVITE123"
 
         let alice = Friend(displayName: "Alice", status: .accepted)
+        let savedFriends = LockIsolated<[Friend]>([])
 
         let store = TestStore(initialState: initialState) {
             FriendsFeature()
+        } withDependencies: {
+            $0.friendsCacheClient.save = { friends, _ in savedFriends.setValue(friends) }
         }
 
         await store.send(.inviteAccepted(alice)) {
             $0.friends = [alice, charlie] // Alice < Charlie
             $0.pastedInviteCode = ""
+            $0.inviteAcceptedFriendName = "Alice"
+        }
+        await store.finish()
+
+        // Cache must be updated too — onAppear reloads from it on every tab switch.
+        XCTAssertEqual(savedFriends.value, [alice, charlie])
+    }
+
+    func test_inviteAcceptedAlertDismissed_clearsFriendName() async {
+        var initialState = FriendsFeature.State()
+        initialState.inviteAcceptedFriendName = "Alice"
+
+        let store = TestStore(initialState: initialState) {
+            FriendsFeature()
+        }
+
+        await store.send(.inviteAcceptedAlertDismissed) {
+            $0.inviteAcceptedFriendName = nil
         }
     }
 

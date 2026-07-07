@@ -36,6 +36,15 @@ struct ChatsFeature {
             switch action {
 
             case .onAppear:
+                // Sync from the shared friends cache on every appear — other
+                // features (e.g. accepting an invite on the Friends tab) update
+                // it while this tab is inactive.
+                let cached = friendsCacheClient.load(state.currentUserID)
+                if !cached.isEmpty {
+                    state.friends = IdentifiedArray(
+                        uniqueElements: cached.filter { $0.status == .accepted }
+                    )
+                }
                 guard state.friends.isEmpty else { return .none }
                 state.isLoading = true
                 return loadFriends(userID: state.currentUserID)

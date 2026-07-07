@@ -37,4 +37,46 @@ final class ChatsFeatureTests: XCTestCase {
             $0.friends = []
         }
     }
+
+    // MARK: - onAppear — sync from shared friends cache
+
+    func test_onAppear_nonEmptyFriends_syncsFromCacheWithoutFetch() async {
+        // A friend added on the Friends tab lands in the shared cache; re-appearing
+        // must pick it up without a remote fetch.
+        let alice = Friend(displayName: "Alice", status: .accepted)
+        let bob   = Friend(displayName: "Bob",   status: .accepted)
+        let pending = Friend(displayName: "Carol", status: .pending)
+
+        var initialState = ChatsFeature.State()
+        initialState.friends = [alice]
+
+        let store = TestStore(initialState: initialState) {
+            ChatsFeature()
+        } withDependencies: {
+            $0.friendsCacheClient.load = { _ in [alice, bob, pending] }
+        }
+
+        await store.send(.onAppear) {
+            $0.friends = [alice, bob] // pending filtered out; no isLoading, no fetch
+        }
+    }
+
+    func test_onAppear_emptyFriendsAndCache_fetchesRemote() async {
+        let alice = Friend(displayName: "Alice", status: .accepted)
+
+        let store = TestStore(initialState: ChatsFeature.State()) {
+            ChatsFeature()
+        } withDependencies: {
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendClient.fetchFriends = { _ in [alice] }
+        }
+
+        await store.send(.onAppear) {
+            $0.isLoading = true
+        }
+        await store.receive(\.friendsLoaded) {
+            $0.isLoading = false
+            $0.friends = [alice]
+        }
+    }
 }
