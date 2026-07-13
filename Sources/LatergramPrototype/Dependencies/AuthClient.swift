@@ -58,6 +58,12 @@ extension AuthClient: DependencyKey {
         },
         createAccount: { email, password in
             let response = try await tracedSupabase("auth.sign_up") {
+                // 註記：不傳 redirectTo。確認信的連結由 email 模板（Confirm signup）自組，
+                // 指向 Cloudflare 中間頁並在「fragment」夾帶 token_hash：
+                //   https://latergram-verify.alaxsxga-dev.workers.dev/#token_hash={{ .TokenHash }}&type=signup
+                // 這樣 token 不會在「點連結」當下被 Supabase verify 消耗掉（避免電腦先點就把
+                // 帳號確認掉的跨裝置陷阱），改由手機上的 App 呼叫 verifyOtp 才消耗（見 handleDeepLink）。
+                // token 放 fragment 是為了讓中間頁的 host 收不到它（fragment 不送伺服器）。
                 try await supabase.auth.signUp(email: email, password: password)
             }
             guard !(response.user.identities?.isEmpty ?? true) else {
@@ -109,7 +115,23 @@ extension AuthClient: DependencyKey {
             }
         },
         handleDeepLink: { url in
-            try await tracedSupabase("auth.handle_deep_link") {
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            let queryItems = components?.queryItems ?? []
+
+            // 註冊確認走 token_hash 流程：中間頁把 token_hash + type 以 query 帶進 deeplink，
+            // 由 App 在此呼叫 verifyOtp「自己撕票」。token 直到這一刻才被消耗，
+            // 所以電腦先點連結不會消耗它（見 createAccount 註解）。
+            if let tokenHash = queryItems.first(where: { $0.name == "token_hash" })?.value {
+                let typeRaw = queryItems.first(where: { $0.name == "type" })?.value ?? "signup"
+                let otpType = EmailOTPType(rawValue: typeRaw) ?? .signup
+                return try await tracedSupabase("auth.verify_otp") {
+                    let session = try await supabase.auth.verifyOTP(tokenHash: tokenHash, type: otpType)
+                    return session.user.id
+                }
+            }
+
+            // 密碼重設仍走舊的 PKCE code 流程（resetPasswordForEmail → latergram://auth?type=recovery）。
+            return try await tracedSupabase("auth.handle_deep_link") {
                 let session = try await supabase.auth.session(from: url)
                 return session.user.id
             }

@@ -32,3 +32,6 @@ supabase/.temp/
 .vscode/
 *.swp
 *.swo
+
+# Cloudflare wrangler 本地快取
+.wrangler/
