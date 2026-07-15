@@ -25,6 +25,7 @@ struct SettingsFeature {
         case deleteAccountCancelled
         case deleteAccountTapped
         case accountDeletionSucceeded
+        case accountDeletionCancelled
         case accountDeletionFailed(String)
         case upgradeButtonTapped
         case feedbackButtonTapped
@@ -46,6 +47,7 @@ struct SettingsFeature {
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.appleReauthClient) var appleReauthClient
     @Dependency(\.friendsCacheClient) var friendsCacheClient
     @Dependency(\.messagesCacheClient) var messagesCacheClient
     @Dependency(\.sentryClient) var sentryClient
@@ -90,11 +92,20 @@ struct SettingsFeature {
                 let userID = state.me.id
                 return .run { send in
                     do {
-                        try await authClient.deleteAccount()
+                        // 連結了 Apple identity：刪帳號前重新驗證取得 authorizationCode，讓 server 撤銷 Apple 授權（5.1.1(v)）。
+                        // 看 identities 而非當下 session 的 provider——email+apple 連結帳號用 email 登入時也要送 code。
+                        var appleAuthorizationCode: String?
+                        if await authClient.hasAppleIdentity() {
+                            appleAuthorizationCode = try await appleReauthClient.authorizationCode()
+                        }
+                        try await authClient.deleteAccount(appleAuthorizationCode)
                         // 帳號已刪 → 沿用 logout 的 clean slate 清理（CLAUDE.md #1）
                         friendsCacheClient.clear(userID)
                         messagesCacheClient.clear(userID)
                         await send(.accountDeletionSucceeded)
+                    } catch is CancellationError {
+                        // 使用者滑掉 Apple 重新驗證面板 → 靜默中止，不刪除也不報錯。
+                        await send(.accountDeletionCancelled)
                     } catch {
                         await send(.accountDeletionFailed(error.localizedDescription))
                     }
@@ -103,6 +114,11 @@ struct SettingsFeature {
             case .accountDeletionSucceeded:
                 state.isDeletingAccount = false
                 return .send(.delegate(.accountDeleted))
+
+            case .accountDeletionCancelled:
+                state.isDeletingAccount = false
+                sentryClient.addBreadcrumb(category: "auth", message: "account.delete_cancelled")
+                return .none
 
             case .accountDeletionFailed(let message):
                 state.isDeletingAccount = false

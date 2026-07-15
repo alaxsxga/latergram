@@ -119,7 +119,7 @@ final class SettingsFeatureTests: XCTestCase {
         let store = TestStore(initialState: initial) {
             SettingsFeature()
         } withDependencies: {
-            $0.authClient.deleteAccount = { deleteCalled.setValue(true) }
+            $0.authClient.deleteAccount = { _ in deleteCalled.setValue(true) }
             $0.friendsCacheClient.clear = { friendsCacheCleared.setValue($0) }
             $0.messagesCacheClient.clear = { messagesCacheCleared.setValue($0) }
         }
@@ -149,7 +149,7 @@ final class SettingsFeatureTests: XCTestCase {
         let store = TestStore(initialState: initial) {
             SettingsFeature()
         } withDependencies: {
-            $0.authClient.deleteAccount = { throw DeleteError() }
+            $0.authClient.deleteAccount = { _ in throw DeleteError() }
         }
 
         await store.send(.deleteAccountTapped) {
@@ -166,5 +166,62 @@ final class SettingsFeatureTests: XCTestCase {
                 TextState(LS("settings.delete_account_error_message"))
             }
         }
+    }
+
+    // MARK: - deleteAccountTapped（Apple 用戶 → 撤銷授權）
+
+    func test_deleteAccountTapped_appleUser_reauthsAndPassesCode() async {
+        var initial = SettingsFeature.State(me: makeUser())
+        initial.isConfirmingDeleteAccount = true
+
+        let passedCode = LockIsolated<String?>(nil)
+
+        let store = TestStore(initialState: initial) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.authClient.hasAppleIdentity = { true }
+            $0.appleReauthClient.authorizationCode = { "fresh-code" }
+            $0.authClient.deleteAccount = { passedCode.setValue($0) }
+            $0.friendsCacheClient.clear = { _ in }
+            $0.messagesCacheClient.clear = { _ in }
+        }
+
+        await store.send(.deleteAccountTapped) {
+            $0.isConfirmingDeleteAccount = false
+            $0.isDeletingAccount = true
+        }
+        await store.receive(\.accountDeletionSucceeded) {
+            $0.isDeletingAccount = false
+        }
+        await store.receive(\.delegate.accountDeleted)
+
+        XCTAssertEqual(passedCode.value, "fresh-code")
+    }
+
+    // MARK: - deleteAccountTapped（Apple 重新驗證被取消 → 靜默中止）
+
+    func test_deleteAccountTapped_appleReauthCancelled_abortsSilently() async {
+        var initial = SettingsFeature.State(me: makeUser())
+        initial.isConfirmingDeleteAccount = true
+
+        let deleteCalled = LockIsolated(false)
+
+        let store = TestStore(initialState: initial) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.authClient.hasAppleIdentity = { true }
+            $0.appleReauthClient.authorizationCode = { throw CancellationError() }
+            $0.authClient.deleteAccount = { _ in deleteCalled.setValue(true) }
+        }
+
+        await store.send(.deleteAccountTapped) {
+            $0.isConfirmingDeleteAccount = false
+            $0.isDeletingAccount = true
+        }
+        await store.receive(\.accountDeletionCancelled) {
+            $0.isDeletingAccount = false
+        }
+
+        XCTAssertFalse(deleteCalled.value)
     }
 }

@@ -1,5 +1,6 @@
 import Auth
 import ComposableArchitecture
+import Functions
 import LatergramCore
 import Foundation
 
@@ -15,7 +16,11 @@ struct AuthClient: Sendable {
     var handleDeepLink: @Sendable (_ url: URL) async throws -> UUID
     var sendPasswordReset: @Sendable (_ email: String) async throws -> Void
     var updatePassword: @Sendable (_ newPassword: String) async throws -> Void
-    var deleteAccount: @Sendable () async throws -> Void
+    var deleteAccount: @Sendable (_ appleAuthorizationCode: String?) async throws -> Void
+    /// 帳號是否連結了 Apple identity（連結帳號可能同時有 email + apple）。
+    /// 判斷刪帳號前是否需要重新驗證取 code 撤銷授權——必須看 identities 陣列，
+    /// 不能只看當下 session 的單數 provider，否則 email session 刪連結帳號會漏送 code → server 擋 400。
+    var hasAppleIdentity: @Sendable () async -> Bool = { false }
 }
 
 extension AuthClient: DependencyKey {
@@ -179,14 +184,23 @@ extension AuthClient: DependencyKey {
                 try await supabase.auth.update(user: .init(password: newPassword))
             }
         },
-        deleteAccount: {
+        deleteAccount: { appleAuthorizationCode in
             // 走 Edge Function（service role admin.deleteUser），刪 auth.users 一列
             // 後靠 DB cascade 清掉所有關聯資料。client 端無權直接刪 auth 使用者。
+            // Apple 用戶會夾帶重新驗證取得的 authorizationCode，讓 server 撤銷 Apple 授權（5.1.1(v)）。
             _ = try await tracedSupabase("auth.delete_account") {
-                let _: DeleteAccountResponse = try await supabase.functions.invoke("delete-account")
+                let body = DeleteAccountBody(appleAuthorizationCode: appleAuthorizationCode)
+                let _: DeleteAccountResponse = try await supabase.functions.invoke(
+                    "delete-account",
+                    options: FunctionInvokeOptions(body: body)
+                )
             }
             // 帳號已刪，清掉本機殘留的 session（user 已不存在，忽略錯誤）
             try? await supabase.auth.signOut()
+        },
+        hasAppleIdentity: {
+            guard let session = try? await supabase.auth.session else { return false }
+            return session.user.identities?.contains { $0.provider == "apple" } ?? false
         }
     )
 
@@ -201,7 +215,8 @@ extension AuthClient: DependencyKey {
         handleDeepLink: { _ in UUID() },
         sendPasswordReset: { _ in },
         updatePassword: { _ in },
-        deleteAccount: {}
+        deleteAccount: { _ in },
+        hasAppleIdentity: { false }
     )
 }
 
@@ -214,6 +229,12 @@ struct AppleSignInResult: Equatable, Sendable {
 
 private struct DeleteAccountResponse: Decodable {
     let success: Bool
+}
+
+// 送給 delete-account 的 body；Apple 用戶帶 authorizationCode（server 據此撤銷授權）。
+// email 用戶為 nil，會被編成 null，server 端視為一般刪除。
+private struct DeleteAccountBody: Encodable, Sendable {
+    let appleAuthorizationCode: String?
 }
 
 extension DependencyValues {
