@@ -30,6 +30,9 @@ struct AuthFeature {
         case passwordResetLinkOpened
         case accountCreated(UUID)
         case emailConfirmed(UUID)
+        case appleSignInCompleted(idToken: String, nonce: String)
+        case appleSignInResult(AppleSignInResult)
+        case appleSignInFailed(String)
         case succeeded(UserProfile)
         case failed(String)
     }
@@ -143,6 +146,43 @@ struct AuthFeature {
                 sentryClient.addBreadcrumb(category: "auth", message: "auth.email_confirmed")
                 state.pendingUserID = userID
                 state.mode = .setName
+                return .none
+
+            case let .appleSignInCompleted(idToken, nonce):
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.apple_completed")
+                state.isSubmitting = true
+                state.errorMessage = nil
+                return .run { send in
+                    do {
+                        let result = try await authClient.signInWithApple(idToken, nonce)
+                        await send(.appleSignInResult(result))
+                    } catch {
+                        await send(.failed(localizedAuthErrorMessage(error)))
+                    }
+                }
+
+            case .appleSignInResult(let result):
+                state.isSubmitting = false
+                // 首次註冊 / 尚未取名 → 導到 setName 頁自行輸入（欄位留空，不預填）。
+                guard result.needsDisplayName else {
+                    return .send(.succeeded(result.profile))
+                }
+                sentryClient.addBreadcrumb(category: "auth", message: "auth.apple_needs_name")
+                state.pendingUserID = result.profile.id
+                state.displayName = ""
+                state.errorMessage = nil
+                state.mode = .setName
+                return .none
+
+            case .appleSignInFailed(let message):
+                sentryClient.addBreadcrumb(
+                    category: "auth",
+                    message: "auth.apple_failed",
+                    level: .warning,
+                    data: ["detail": message]
+                )
+                state.isSubmitting = false
+                state.errorMessage = message
                 return .none
 
             case .submitTapped:

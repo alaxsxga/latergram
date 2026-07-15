@@ -16,10 +16,12 @@ create table public.profiles (
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
+    -- NULL email（Apple 重複授權不再釋出 email）時退回空字串：滿足 NOT NULL，
+    -- 且 App 端會把空 display_name 判為「尚未取名」→ 導到 setName 頁自行輸入。
     insert into public.profiles (id, display_name)
     values (
         new.id,
-        split_part(new.email, '@', 1)
+        coalesce(nullif(split_part(new.email, '@', 1), ''), '')
     );
     return new;
 end;

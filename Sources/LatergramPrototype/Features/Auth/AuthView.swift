@@ -1,13 +1,27 @@
 #if os(iOS)
+import AuthenticationServices
 import ComposableArchitecture
 import SwiftUI
 
 struct AuthView: View {
     @Bindable var store: StoreOf<AuthFeature>
 
+    // raw nonce 在 onRequest 產生、onCompletion 交給 reducer。
+    // 存在 View 而非 State，因為它是 UI 觸發的一次性 side-effect（見 AppleSignInSupport）。
+    @State private var appleNonce: String?
+
     var body: some View {
         ZStack {
-            Color.pageBg.ignoresSafeArea()
+            // 收鍵盤的手勢只掛在背景這一層，不掛在整個 ZStack。
+            // 否則祖層的 .onTapGesture 會吃掉 SignInWithAppleButton（底層是 UIKit 的
+            // ASAuthorizationAppleIDButton）的點擊，導致「按了完全沒反應」。空白處的點擊
+            // 會穿透到背景 → 照常收鍵盤；控制項則各自收到自己的點擊。
+            Color.pageBg
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
             switch store.mode {
             case .login, .signUp:
                 credentialsView
@@ -24,10 +38,6 @@ struct AuthView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        }
     }
 
     // MARK: - Credentials (登入 / 註冊)
@@ -100,6 +110,10 @@ struct AuthView: View {
             .opacity(credentialsReady ? 1 : 0.45)
             .disabled(store.isSubmitting || !credentialsReady)
 
+            orDivider
+
+            signInWithAppleButton
+
             Button {
                 store.send(.modeSwitchTapped)
             } label: {
@@ -132,6 +146,48 @@ struct AuthView: View {
 
     private var credentialsReady: Bool {
         !store.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !store.password.isEmpty
+    }
+
+    private var orDivider: some View {
+        HStack(spacing: 12) {
+            Rectangle().fill(.white.opacity(0.12)).frame(height: 1)
+            L("auth.or_divider")
+                .font(.footnote)
+                .foregroundStyle(.white.opacity(0.4))
+            Rectangle().fill(.white.opacity(0.12)).frame(height: 1)
+        }
+    }
+
+    private var signInWithAppleButton: some View {
+        SignInWithAppleButton(.continue) { request in
+            let nonce = AppleSignIn.randomNonce()
+            appleNonce = nonce
+            // 只要 email（用來對應/連結帳號）；名字一律由 setName 頁自行輸入，不跟 Apple 要。
+            request.requestedScopes = [.email]
+            request.nonce = AppleSignIn.sha256(nonce)
+        } onCompletion: { result in
+            switch result {
+            case .success(let auth):
+                guard
+                    let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                    let tokenData = credential.identityToken,
+                    let idToken = String(data: tokenData, encoding: .utf8),
+                    let nonce = appleNonce
+                else {
+                    store.send(.appleSignInFailed(LS("auth.error.generic")))
+                    return
+                }
+                store.send(.appleSignInCompleted(idToken: idToken, nonce: nonce))
+            case .failure(let error):
+                // 使用者自己取消（滑掉系統面板）不算錯誤，靜默即可。
+                if (error as? ASAuthorizationError)?.code == .canceled { return }
+                store.send(.appleSignInFailed(localizedAuthErrorMessage(error)))
+            }
+        }
+        .signInWithAppleButtonStyle(.white)
+        .frame(height: 50)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .disabled(store.isSubmitting)
     }
 
     private var switchPrefixKey: LocalizedStringKey {

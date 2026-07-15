@@ -296,55 +296,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese E-Mail ist bereits registriert"
+            "value": "Diese E-Mail ist bereits registriert. Bitte melde dich an – falls du dich mit Apple registriert hast, nutze „Mit Apple anmelden“."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This email is already registered"
+            "value": "This email is already registered. Please sign in — if you signed up with Apple, use Sign in with Apple instead."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este correo ya está registrado"
+            "value": "Este correo ya está registrado. Inicia sesión; si te registraste con Apple, usa Iniciar sesión con Apple."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Email ini sudah terdaftar"
+            "value": "Email ini sudah terdaftar. Silakan masuk — jika kamu mendaftar dengan Apple, gunakan Masuk dengan Apple."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このメールアドレスはすでに登録されています"
+            "value": "このメールアドレスはすでに登録されています。ログインしてください。Appleで登録した場合は「Appleでサインイン」をご利用ください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이미 등록된 이메일이에요"
+            "value": "이미 등록된 이메일이에요. 로그인해 주세요. Apple로 가입했다면 'Apple로 로그인'을 이용해 주세요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este e-mail já está registrado"
+            "value": "Este e-mail já está registrado. Faça login — se você se cadastrou com a Apple, use Entrar com a Apple."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "อีเมลนี้ถูกลงทะเบียนแล้ว"
+            "value": "อีเมลนี้ถูกลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ หากคุณสมัครด้วย Apple โปรดใช้ ลงชื่อเข้าใช้ด้วย Apple"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 Email 已被註冊"
+            "value": "此 Email 已註冊，請直接登入；若當初是用 Apple 註冊，請改用 Apple 登入。"
           }
         }
       }
@@ -11017,6 +11017,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法刪除你的帳號，請檢查網路連線後再試一次。"
+          }
+        }
+      }
+    },
+    "auth.or_divider": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "oder"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "or"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "o"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "atau"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "または"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "또는"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ou"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หรือ"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "或"
           }
         }
       }

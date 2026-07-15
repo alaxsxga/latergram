@@ -6,6 +6,7 @@ import Foundation
 @DependencyClient
 struct AuthClient: Sendable {
     var signIn: @Sendable (_ email: String, _ password: String) async throws -> UserProfile
+    var signInWithApple: @Sendable (_ idToken: String, _ nonce: String) async throws -> AppleSignInResult
     var signUp: @Sendable (_ email: String, _ password: String, _ displayName: String) async throws -> UserProfile
     var createAccount: @Sendable (_ email: String, _ password: String) async throws -> UUID
     var setDisplayName: @Sendable (_ userID: UUID, _ displayName: String) async throws -> UserProfile
@@ -33,6 +34,35 @@ extension AuthClient: DependencyKey {
                     .value
             }
             return profile.toUserProfile(id: session.user.id)
+        },
+        signInWithApple: { idToken, nonce in
+            // idToken 走 OpenID Connect：Supabase 依 idToken 對應（或建立）auth.users，
+            // 建立時 handle_new_user trigger 會用 email local-part 塞 display_name 當 fallback。
+            let session = try await tracedSupabase("auth.sign_in_apple") {
+                try await supabase.auth.signInWithIdToken(
+                    credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
+                )
+            }
+            let userID = session.user.id
+            let profile: ProfileRow = try await tracedSupabase("profiles.fetch_self") {
+                try await supabase
+                    .from("profiles")
+                    .select()
+                    .eq("id", value: userID)
+                    .single()
+                    .execute()
+                    .value
+            }
+            // 判斷是否還沒有「使用者自訂的名字」：display_name 為空、或仍等於 trigger 用
+            // email/轉發信箱 local-part 塞的 fallback。是的話（＝首次註冊、或既有未命名帳號
+            // 被連結）就讓上層導到 setName 頁自行輸入，不用 Apple 給的名字預填。既有已命名的
+            // 帳號（老用戶、或有名字的 email 帳號被連結）則直接放行。
+            let emailLocalPart = session.user.email?.split(separator: "@").first.map(String.init)
+            let needsDisplayName = profile.display_name.isEmpty || profile.display_name == emailLocalPart
+            return AppleSignInResult(
+                profile: profile.toUserProfile(id: userID),
+                needsDisplayName: needsDisplayName
+            )
         },
         signUp: { email, password, displayName in
             let response = try await tracedSupabase("auth.sign_up") {
@@ -162,6 +192,7 @@ extension AuthClient: DependencyKey {
 
     static let testValue = AuthClient(
         signIn: { _, _ in UserProfile(displayName: "TestUser") },
+        signInWithApple: { _, _ in AppleSignInResult(profile: UserProfile(displayName: "AppleUser"), needsDisplayName: true) },
         signUp: { _, _, displayName in UserProfile(displayName: displayName) },
         createAccount: { _, _ in UUID() },
         setDisplayName: { userID, displayName in UserProfile(id: userID, displayName: displayName) },
@@ -172,6 +203,13 @@ extension AuthClient: DependencyKey {
         updatePassword: { _ in },
         deleteAccount: {}
     )
+}
+
+// Apple 登入結果：帶回 profile，以及是否需要導到 setName 頁請使用者取名
+// （首次註冊或既有未命名帳號 → true）。
+struct AppleSignInResult: Equatable, Sendable {
+    let profile: UserProfile
+    let needsDisplayName: Bool
 }
 
 private struct DeleteAccountResponse: Decodable {
