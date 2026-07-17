@@ -4,7 +4,7 @@ import SwiftUI
 
 public struct AppView: View {
     @Environment(\.scenePhase) private var scenePhase
-    private let store: StoreOf<AppFeature>
+    @Bindable private var store: StoreOf<AppFeature>
 
     public init() {
         self.store = Store(initialState: AppFeature.State()) {
@@ -30,6 +30,11 @@ public struct AppView: View {
                     .id(store.currentUser?.id)
                     .onChange(of: scenePhase) { _, newPhase in
                         store.send(.scenePhaseChanged(newPhase))
+                    }
+                    .fullScreenCover(
+                        item: $store.scope(state: \.onboarding, action: \.onboarding)
+                    ) { onboardingStore in
+                        OnboardingView(store: onboardingStore)
                     }
             }
         }

@@ -27,6 +27,7 @@ struct AppFeature {
         var pendingInviteCode: String? = nil
         var lastEntitlementVerifiedAt: Date? = nil
         var forceUpdateRequired: Bool = false
+        @Presents var onboarding: OnboardingFeature.State?
     }
 
     enum Action {
@@ -43,9 +44,13 @@ struct AppFeature {
         case countdown(CountdownInboxFeature.Action)
         case friends(FriendsFeature.Action)
         case chats(ChatsFeature.Action)
+        case onboarding(PresentationAction<OnboardingFeature.Action>)
     }
 
     private enum CancelID { case notificationTap, transactionUpdates }
+
+    /// 首次啟用引導「已看過」旗標。device 層級、不隨登出清除。
+    static let hasSeenOnboardingKey = "hasSeenOnboarding"
 
     // 訂閱不會在分鐘級別變動，foreground 進入 1 小時內不重複 verifyAndSyncEntitlement。
     // 避免反覆切前後景時打 Edge Function 浪費電與額度。
@@ -58,6 +63,7 @@ struct AppFeature {
     @Dependency(\.sentryClient) var sentryClient
     @Dependency(\.appConfigClient) var appConfigClient
     @Dependency(\.date) var date
+    @Dependency(\.defaultAppStorage) var appStorage
 
     var body: some ReducerOf<Self> {
         Scope(state: \.countdown, action: \.countdown) { CountdownInboxFeature() }
@@ -106,6 +112,7 @@ struct AppFeature {
                     state.chats.currentUserID = user.id
                     state.chats.currentUserName = user.displayName
                     state.route = .main
+                    presentOnboardingIfNeeded(&state)
                     if let code = state.pendingInviteCode {
                         print("[DeepLink] sessionChecked — 發現 pendingInviteCode=\(code)，處理中")
                         state.pendingInviteCode = nil
@@ -137,6 +144,7 @@ struct AppFeature {
                 state.chats.currentUserID = user.id
                 state.chats.currentUserName = user.displayName
                 state.route = .main
+                presentOnboardingIfNeeded(&state)
                 if let code = state.pendingInviteCode {
                     state.pendingInviteCode = nil
                     state.selectedTab = .friends
@@ -152,6 +160,15 @@ struct AppFeature {
                 )
 
             case .auth:
+                return .none
+
+            case .onboarding(.presented(.delegate(.finished))):
+                appStorage.set(true, forKey: Self.hasSeenOnboardingKey)
+                sentryClient.addBreadcrumb(category: "onboarding", message: "onboarding.finished")
+                state.onboarding = nil
+                return .none
+
+            case .onboarding:
                 return .none
 
             case .urlOpened(let url):
@@ -333,6 +350,16 @@ struct AppFeature {
         .ifLet(\.route.authState, action: \.auth) {
             AuthFeature()
         }
+        .ifLet(\.$onboarding, action: \.onboarding) {
+            OnboardingFeature()
+        }
+    }
+
+    /// 首次啟用才呈現引導。旗標是 device 層級（非 user-keyed），所以登入 / 換帳號都只看一次。
+    private func presentOnboardingIfNeeded(_ state: inout State) {
+        guard !appStorage.bool(forKey: Self.hasSeenOnboardingKey) else { return }
+        state.onboarding = OnboardingFeature.State()
+        sentryClient.addBreadcrumb(category: "onboarding", message: "onboarding.shown")
     }
 
     /// 登出與刪除帳號共用的 session 重置：清 in-memory / 導回 auth / 取消子 effect。

@@ -68,6 +68,66 @@ final class AppFeatureTests: XCTestCase {
         }
     }
 
+    // MARK: - 首次啟用引導
+
+    func test_sessionChecked_firstLaunch_presentsOnboarding() async {
+        let user = UserProfile(id: UUID(), displayName: "Alice")
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        } withDependencies: {
+            $0.messageClient.fetchCountdownFeed = { _ in [] }
+            $0.friendClient.fetchFriends = { _ in [] }
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendsCacheClient.save = { _, _ in }
+            $0.date = .constant(Date(timeIntervalSince1970: 1_000_000))
+            $0.defaultAppStorage = defaults
+        }
+        store.exhaustivity = .off
+
+        await store.send(.sessionChecked(user)) {
+            $0.onboarding = OnboardingFeature.State()
+        }
+    }
+
+    func test_sessionChecked_alreadySeenOnboarding_doesNotPresent() async {
+        let user = UserProfile(id: UUID(), displayName: "Alice")
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        defaults.set(true, forKey: AppFeature.hasSeenOnboardingKey)
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        } withDependencies: {
+            $0.messageClient.fetchCountdownFeed = { _ in [] }
+            $0.friendClient.fetchFriends = { _ in [] }
+            $0.friendsCacheClient.load = { _ in [] }
+            $0.friendsCacheClient.save = { _, _ in }
+            $0.date = .constant(Date(timeIntervalSince1970: 1_000_000))
+            $0.defaultAppStorage = defaults
+        }
+        store.exhaustivity = .off
+
+        await store.send(.sessionChecked(user)) {
+            $0.route = .main
+        }
+        XCTAssertNil(store.state.onboarding)
+    }
+
+    func test_onboardingFinished_setsFlagAndDismisses() async {
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        var initial = AppFeature.State()
+        initial.onboarding = OnboardingFeature.State()
+        let store = TestStore(initialState: initial) {
+            AppFeature()
+        } withDependencies: {
+            $0.defaultAppStorage = defaults
+        }
+
+        await store.send(.onboarding(.presented(.delegate(.finished)))) {
+            $0.onboarding = nil
+        }
+        XCTAssertTrue(defaults.bool(forKey: AppFeature.hasSeenOnboardingKey))
+    }
+
     // MARK: - logoutSucceeded
 
     func test_logoutSucceeded_clearsAllState() async {
