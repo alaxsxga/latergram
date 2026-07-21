@@ -1,0 +1,55 @@
+default_platform(:ios)
+
+# 敏感值（Key ID / Issuer ID / .p8 路徑）由 fastlane/.env 提供，該檔不入版控。
+# fastlane 會自動載入 fastlane/.env。
+
+APP_IDENTIFIER = "com.ininder.ed.latergram"
+XCODEPROJ = "Latergram.xcodeproj"
+SCHEME = "Latergram"
+
+platform :ios do
+  desc "煙霧測試：驗證 API Key 認證與 App Store Connect 連線（不 build）"
+  lane :check do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+    )
+    build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER
+    )
+    UI.success("✓ 認證成功！TestFlight 目前最新 build number = #{build}")
+  end
+
+  desc "Build 並上傳到 TestFlight"
+  desc "build number 自動遞增；marketing version 讀專案設定（人工在 Xcode 改並 commit）"
+  lane :beta do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+    )
+
+    # build number = 當前 marketing version 在 TestFlight 的最大值 + 1
+    # 新版本尚無任何 build 時回傳 0 → 從 1 起算
+    build_number = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      initial_build_number: 0
+    ) + 1
+
+    # 只覆寫 build number；marketing version 沿用專案 MARKETING_VERSION
+    # （因 GENERATE_INFOPLIST_FILE=YES，版本源自 build setting，用 xcargs 覆寫即可）
+    build_app(
+      project: XCODEPROJ,
+      scheme: SCHEME,
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number} -allowProvisioningUpdates"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

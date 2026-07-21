@@ -35,3 +35,12 @@ supabase/.temp/
 
 # Cloudflare wrangler 本地快取
 .wrangler/
+
+# Fastlane
+fastlane/.env
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+*.p8
+*.ipa
+*.dSYM.zip
