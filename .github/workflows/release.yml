@@ -26,9 +26,11 @@ jobs:
           xcode-version: "26.2"
 
       # bundler-cache 會依 Gemfile.lock 裝好並快取 fastlane
+      # ruby-version 釘與本機一致（repo 無 .ruby-version，需明確指定否則 action 報錯）
       - name: Setup Ruby & Fastlane
         uses: ruby/setup-ruby@v1
         with:
+          ruby-version: "3.3.8"
           bundler-cache: true
 
       - name: Fastlane beta → TestFlight
