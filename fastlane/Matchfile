@@ -1,0 +1,7 @@
+git_url("git@github.com:alaxsxga/latergram-certs.git")
+storage_mode("git")
+
+type("appstore")
+app_identifier(["com.ininder.ed.latergram"])
+
+# 憑證加密密碼由 fastlane/.env 的 MATCH_PASSWORD 提供（不入版控）

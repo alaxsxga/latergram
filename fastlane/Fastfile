@@ -22,6 +22,42 @@ platform :ios do
     UI.success("✓ 認證成功！TestFlight 目前最新 build number = #{build}")
   end
 
+  desc "建立/同步簽章憑證到 certs repo（首次設定或憑證更新時跑）"
+  lane :certificates do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+    )
+    # readonly: false → 可產生新憑證/描述檔並推上 certs repo（只在本機做）
+    match(
+      type: "appstore",
+      api_key: api_key,
+      readonly: false
+    )
+  end
+
+  desc "本機驗證：用 match 描述檔打包 IPA（不上傳）"
+  lane :build_only do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+    )
+    match(type: "appstore", api_key: api_key, readonly: true)
+    build_app(
+      project: XCODEPROJ,
+      scheme: SCHEME,
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => "match AppStore com.ininder.ed.latergram"
+        }
+      }
+    )
+    UI.success("✓ match 描述檔簽章成功，IPA 已產出")
+  end
+
   desc "Build 並上傳到 TestFlight"
   desc "build number 自動遞增；marketing version 讀專案設定（人工在 Xcode 改並 commit）"
   lane :beta do
@@ -30,6 +66,9 @@ platform :ios do
       issuer_id: ENV.fetch("ASC_ISSUER_ID"),
       key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
     )
+
+    # 從 certs repo 拉憑證+描述檔裝進本機（readonly：CI/本機都不新增，只借用）
+    match(type: "appstore", api_key: api_key, readonly: true)
 
     # build number = 當前 marketing version 在 TestFlight 的最大值 + 1
     # 新版本尚無任何 build 時回傳 0 → 從 1 起算
@@ -41,10 +80,17 @@ platform :ios do
 
     # 只覆寫 build number；marketing version 沿用專案 MARKETING_VERSION
     # （因 GENERATE_INFOPLIST_FILE=YES，版本源自 build setting，用 xcargs 覆寫即可）
+    # 簽章走 match 描述檔（Release config 已設 Manual + Apple Distribution）
     build_app(
       project: XCODEPROJ,
       scheme: SCHEME,
-      xcargs: "CURRENT_PROJECT_VERSION=#{build_number} -allowProvisioningUpdates"
+      export_method: "app-store",
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => "match AppStore com.ininder.ed.latergram"
+        }
+      }
     )
 
     upload_to_testflight(
