@@ -1,22 +1,38 @@
 default_platform(:ios)
 
-# 敏感值（Key ID / Issuer ID / .p8 路徑）由 fastlane/.env 提供，該檔不入版控。
+# 敏感值（Key ID / Issuer ID / .p8）由環境變數提供：
+#   本機 → fastlane/.env（不入版控），走 .p8 檔案路徑 ASC_KEY_FILEPATH
+#   CI   → GitHub Secrets 注入，走 base64 的 .p8 內容 ASC_KEY_CONTENT（不落地檔案）
 # fastlane 會自動載入 fastlane/.env。
 
 APP_IDENTIFIER = "com.ininder.ed.latergram"
 XCODEPROJ = "Latergram.xcodeproj"
 SCHEME = "Latergram"
+PROFILE = "match AppStore com.ininder.ed.latergram"
 
-platform :ios do
-  desc "煙霧測試：驗證 API Key 認證與 App Store Connect 連線（不 build）"
-  lane :check do
-    api_key = app_store_connect_api_key(
+# App Store Connect API Key。CI 與本機以環境變數區分認證來源，避免 .p8 在 CI 落地。
+def asc_api_key
+  if (content = ENV["ASC_KEY_CONTENT"]) && !content.empty?
+    app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: content,
+      is_key_content_base64: true
+    )
+  else
+    app_store_connect_api_key(
       key_id: ENV.fetch("ASC_KEY_ID"),
       issuer_id: ENV.fetch("ASC_ISSUER_ID"),
       key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
     )
+  end
+end
+
+platform :ios do
+  desc "煙霧測試：驗證 API Key 認證與 App Store Connect 連線（不 build）"
+  lane :check do
     build = latest_testflight_build_number(
-      api_key: api_key,
+      api_key: asc_api_key,
       app_identifier: APP_IDENTIFIER
     )
     UI.success("✓ 認證成功！TestFlight 目前最新 build number = #{build}")
@@ -24,35 +40,23 @@ platform :ios do
 
   desc "建立/同步簽章憑證到 certs repo（首次設定或憑證更新時跑）"
   lane :certificates do
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("ASC_KEY_ID"),
-      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
-    )
     # readonly: false → 可產生新憑證/描述檔並推上 certs repo（只在本機做）
     match(
       type: "appstore",
-      api_key: api_key,
+      api_key: asc_api_key,
       readonly: false
     )
   end
 
   desc "本機驗證：用 match 描述檔打包 IPA（不上傳）"
   lane :build_only do
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("ASC_KEY_ID"),
-      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
-    )
-    match(type: "appstore", api_key: api_key, readonly: true)
+    match(type: "appstore", api_key: asc_api_key, readonly: true)
     build_app(
       project: XCODEPROJ,
       scheme: SCHEME,
       export_method: "app-store",
       export_options: {
-        provisioningProfiles: {
-          APP_IDENTIFIER => "match AppStore com.ininder.ed.latergram"
-        }
+        provisioningProfiles: { APP_IDENTIFIER => PROFILE }
       }
     )
     UI.success("✓ match 描述檔簽章成功，IPA 已產出")
@@ -61,11 +65,10 @@ platform :ios do
   desc "Build 並上傳到 TestFlight"
   desc "build number 自動遞增；marketing version 讀專案設定（人工在 Xcode 改並 commit）"
   lane :beta do
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("ASC_KEY_ID"),
-      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
-    )
+    # CI 環境：建立臨時 keychain 並解除 git 授權限制（本機跑時無副作用）
+    setup_ci
+
+    api_key = asc_api_key
 
     # 從 certs repo 拉憑證+描述檔裝進本機（readonly：CI/本機都不新增，只借用）
     match(type: "appstore", api_key: api_key, readonly: true)
@@ -87,9 +90,7 @@ platform :ios do
       export_method: "app-store",
       xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
       export_options: {
-        provisioningProfiles: {
-          APP_IDENTIFIER => "match AppStore com.ininder.ed.latergram"
-        }
+        provisioningProfiles: { APP_IDENTIFIER => PROFILE }
       }
     )
 

@@ -1,0 +1,56 @@
+name: Release to TestFlight
+
+# 觸發：推 v* tag（如 v1.0.4）自動發版；workflow_dispatch 供手動測試（不需先打 tag）
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+# 避免同時多個發版流程搶 build number
+concurrency:
+  group: testflight-release
+  cancel-in-progress: false
+
+jobs:
+  beta:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 釘死 Xcode 版本，與本機一致（Swift macros toolchain 版本敏感，勿用 latest 浮動）
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.2"
+
+      # bundler-cache 會依 Gemfile.lock 裝好並快取 fastlane
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Fastlane beta → TestFlight
+        run: bundle exec fastlane beta
+        env:
+          # match 憑證解密密碼（= 本機 .env 的 MATCH_PASSWORD）
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          # CI 走 HTTPS 讀 certs repo：覆寫 Matchfile 的 SSH git_url，改用 basic auth
+          MATCH_GIT_URL: https://github.com/alaxsxga/latergram-certs.git
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          # App Store Connect API Key（.p8 以 base64 存於 Secret，經 ASC_KEY_CONTENT 注入，不落地）
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+
+      # 上傳失敗時保留 fastlane 日誌／build 產物便於排查
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastlane-logs
+          path: |
+            ~/Library/Logs/gym/
+            fastlane/report.xml
+          if-no-files-found: ignore
