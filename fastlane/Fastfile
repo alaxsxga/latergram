@@ -90,7 +90,9 @@ platform :ios do
       project: XCODEPROJ,
       scheme: SCHEME,
       export_method: "app-store",
-      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
+      # -skipMacroValidation：CI 全新機器不信任第三方 Swift macro（swift-perception 等），
+      # 需略過 macro fingerprint 驗證才能 archive（同本機跑測試時的旗標）
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number} -skipMacroValidation",
       export_options: {
         provisioningProfiles: { APP_IDENTIFIER => PROFILE }
       }
