@@ -33,6 +33,12 @@ jobs:
           ruby-version: "3.3.8"
           bundler-cache: true
 
+      # Secrets.swift 依 .gitignore 不入版控，CI 需從 secret 還原後才編得過
+      - name: Write Secrets.swift
+        run: echo "$SECRETS_SWIFT_B64" | base64 --decode > Sources/LatergramPrototype/Infrastructure/Secrets.swift
+        env:
+          SECRETS_SWIFT_B64: ${{ secrets.SECRETS_SWIFT_B64 }}
+
       - name: Fastlane beta → TestFlight
         run: bundle exec fastlane beta
         env:
