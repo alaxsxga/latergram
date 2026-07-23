@@ -13,11 +13,13 @@ PROFILE = "match AppStore com.ininder.ed.latergram"
 # App Store Connect API Key。CI 與本機以環境變數區分認證來源，避免 .p8 在 CI 落地。
 def asc_api_key
   if (content = ENV["ASC_KEY_CONTENT"]) && !content.empty?
+    # secret 可能存原始 PEM 或其 base64——以開頭自動判斷，兩種都能吃
+    is_pem = content.lstrip.start_with?("-----BEGIN")
     app_store_connect_api_key(
       key_id: ENV.fetch("ASC_KEY_ID"),
       issuer_id: ENV.fetch("ASC_ISSUER_ID"),
       key_content: content,
-      is_key_content_base64: true
+      is_key_content_base64: !is_pem
     )
   else
     app_store_connect_api_key(
